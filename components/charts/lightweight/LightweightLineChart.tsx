@@ -93,7 +93,7 @@ const LightweightLineChart: React.FC<Props> = ({ data, color, yFormatter, height
     if (seriesRef.current && data) {
       const chartData: LineData[] = data.map((item) => ({
         // test data
-        time: `${item.date}-01`,
+        time: `${item.date}`,
         value: item.value,
       }));
       seriesRef.current.setData(chartData);

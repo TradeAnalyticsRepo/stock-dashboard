@@ -1,95 +1,91 @@
 import { useState, useEffect } from "react";
-import { StockDataItem, ShareholderDataItem } from "@/types";
-import { dummyStockData } from "@/components/data";
-import { excelData } from "@/components/excelData";
+import { StockDataItem } from "@/types";
+import jsonData from "@/components/11111_graph.json";
+
+// 보유율 데이터 타입 정의
+export interface ShareholderData {
+  date: string;
+  value: number;
+}
+
+// 기관별 데이터 타입을 위한 인터페이스
+export interface InstitutionalData {
+  [key: string]: ShareholderData[];
+}
 
 /**
- * 데이터 필터링 및 가공을 처리하는 커스텀 훅
- * @param initialPeriod - 초기 선택된 기간 (기본값: "1Y")
- * @returns { stockData, individualData, foreignData, institutionalData, selectedPeriod, setSelectedPeriod, priceChangePercent, currentPrice }
+ * 주식 데이터 처리를 위한 커스텀 훅
+ * @param initialPeriod - 초기 선택 기간 (기본값: "1Y")
+ * @returns 차트 및 표시에 필요한 처리된 데이터
  */
 export const useStockData = (initialPeriod: string = "1Y") => {
   const [selectedPeriod, setSelectedPeriod] = useState(initialPeriod);
-
-  // 클라이언트 사이드 렌더링을 위한 상태
   const [isClient, setIsClient] = useState(false);
+
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  /**
-   * 주어진 기간에 따라 데이터를 필터링하는 함수
-   * @param data - 필터링할 데이터 배열
-   * @param period - 필터링할 기간 ("6M", "1Y", "2Y", "5Y")
-   * @returns 필터링된 데이터 배열
-   */
-  const filterDataByPeriod = (data: (StockDataItem | ShareholderDataItem)[], period: string) => {
-    const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth() + 1;
+  const allData: any[] = jsonData;
+
+  // 주가 데이터 포맷팅
+  const formattedStockData: StockDataItem[] = allData.map((item) => ({
+    date: item.주가.tradeDate.replace(/\//g, "-"),
+    open: item.주가.open,
+    high: item.주가.high || item.주가.open,
+    low: item.주가.low || item.주가.open,
+    close: item.주가.close,
+    price: item.주가.close,
+  }));
+
+  const institutionKeys = ["개인", "세력합", "외국인", "투신_일반", "투신_사모", "은행", "보험", "기타금융", "연기금", "국가매집", "기타법인"];
+
+  // 기관별 데이터 포맷팅
+  const allInstitutionalData: InstitutionalData = {};
+  institutionKeys.forEach((key) => {
+    if (allData[0][key]) {
+      allInstitutionalData[key] = allData.map((item) => ({
+        date: item[key].tradeDate.replace(/\//g, "-"),
+        value: item[key].collectionVolume,
+      }));
+    }
+  });
+
+  // 기간에 따라 데이터 필터링
+  const filterDataByPeriod = (data: any[] | undefined, period: string) => {
+    if (!data) {
+      return [];
+    }
+    const now = new Date();
+    let startDate = new Date();
 
     switch (period) {
       case "6M":
-        return data.filter((item) => {
-          const [year, month] = item.date.split("-").map(Number);
-          const itemDate = new Date(year, month - 1);
-          const sixMonthsAgo = new Date();
-          sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-          return itemDate >= sixMonthsAgo;
-        });
+        startDate.setMonth(now.getMonth() - 6);
+        break;
       case "1Y":
-        return data.filter((item) => {
-          const [year] = item.date.split("-").map(Number);
-          return year >= currentYear - 1;
-        });
+        startDate.setFullYear(now.getFullYear() - 1);
+        break;
       case "2Y":
-        return data.filter((item) => {
-          const [year] = item.date.split("-").map(Number);
-          return year >= currentYear - 2;
-        });
+        startDate.setFullYear(now.getFullYear() - 2);
+        break;
       case "5Y":
+        startDate.setFullYear(now.getFullYear() - 5);
+        break;
       default:
         return data;
     }
+    return data.filter((item) => new Date(item.date) >= startDate);
   };
 
-  // excelData를 StockDataItem 형식으로 변환
-  // 임시 데이터: 실제 고가, 저가, 시가 데이터가 없어서 종가를 기준으로 임의 생성
-  const formattedStockData: StockDataItem[] = excelData.map((v, index) => {
-    const closePrice = v.endMount;
+  // 기간에 따라 필터링된 데이터
+  const stockData = filterDataByPeriod(formattedStockData, selectedPeriod);
 
-    // 임시 데이터 생성 로직
-    // 시가: 전일 종가 대비 -2% ~ +2% 범위에서 랜덤 생성
-    const openVariation = (Math.random() - 0.5) * 0.04; // -2% ~ +2%
-    const openPrice = Math.round(closePrice * (1 + openVariation));
-
-    // 고가: 시가와 종가 중 높은 값보다 0.5% ~ 3% 높게 설정
-    const higherPrice = Math.max(openPrice, closePrice);
-    const highVariation = 0.005 + Math.random() * 0.025; // 0.5% ~ 3%
-    const highPrice = Math.round(higherPrice * (1 + highVariation));
-
-    // 저가: 시가와 종가 중 낮은 값보다 0.5% ~ 3% 낮게 설정
-    const lowerPrice = Math.min(openPrice, closePrice);
-    const lowVariation = 0.005 + Math.random() * 0.025; // 0.5% ~ 3%
-    const lowPrice = Math.round(lowerPrice * (1 - lowVariation));
-
-    // 가격 순서 검증 및 조정 (고가 >= 시가, 종가, 저가 / 저가 <= 시가, 종가, 고가)
-    const finalHigh = Math.max(highPrice, openPrice, closePrice);
-    const finalLow = Math.min(lowPrice, openPrice, closePrice);
-
-    return {
-      date: v.tradeDate.replace(/\//g, "-"),
-      price: closePrice, // 기존 호환성을 위한 price 필드
-      open: openPrice,
-      high: finalHigh,
-      low: finalLow,
-      close: closePrice,
-    };
+  // 기관별 데이터를 기간에 따라 필터링
+  const institutionalData: InstitutionalData = {};
+  Object.keys(allInstitutionalData).forEach((key) => {
+    institutionalData[key] = filterDataByPeriod(allInstitutionalData[key], selectedPeriod);
   });
-  // 기간에 따라 데이터 필터링
-  const stockData = filterDataByPeriod(formattedStockData, selectedPeriod) as StockDataItem[];
-  const individualData = filterDataByPeriod(dummyStockData.개인, selectedPeriod) as ShareholderDataItem[];
-  const foreignData = filterDataByPeriod(dummyStockData.외국인, selectedPeriod) as ShareholderDataItem[];
-  const institutionalData = filterDataByPeriod(dummyStockData.기관, selectedPeriod) as ShareholderDataItem[];
 
   // 현재가 및 등락률 계산
   const currentPrice = stockData.length > 0 ? stockData[stockData.length - 1].close : 0;
@@ -100,8 +96,6 @@ export const useStockData = (initialPeriod: string = "1Y") => {
   return {
     isClient,
     stockData,
-    individualData,
-    foreignData,
     institutionalData,
     selectedPeriod,
     setSelectedPeriod,
