@@ -9,6 +9,7 @@ import AveragePriceCard from "@/components/ui/AveragePriceCard";
 import LightweightCandlestickChart from "@/components/charts/lightweight/LightweightCandlestickChart";
 import LightweightLineChart from "@/components/charts/lightweight/LightweightLineChart";
 import { useStockData } from "@/components/hooks/useStockData";
+import { LINE_CHART_COLORS, PERIODS } from "@/types/constants";
 
 /**
  * Main component to display the stock dashboard using Lightweight-charts.
@@ -19,7 +20,11 @@ const StockDashboardLightweight = () => {
   const { isClient, stockData, institutionalData, selectedPeriod, setSelectedPeriod, priceChangePercent, currentPrice } = useStockData("1Y");
 
   useEffect(() => {
-    console.log(stockData);
+    console.log({
+      isClient,
+      stockData,
+      institutionalData,
+    });
   }, []);
 
   if (!isClient) {
@@ -36,20 +41,6 @@ const StockDashboardLightweight = () => {
   const latestIndividualVolume = getLatestValue(institutionalData.개인);
   const latestForeignerVolume = getLatestValue(institutionalData.외국인);
   const latestCombinedForcesVolume = getLatestValue(institutionalData.세력합);
-
-  const lineChartColors: { [key: string]: string } = {
-    개인: "#3b82f6",
-    외국인: "#10b981",
-    세력합: "#8b5cf6",
-    투신_일반: "#f97316",
-    투신_사모: "#ec4899",
-    은행: "#f59e0b",
-    보험: "#6366f1",
-    기타금융: "#d946ef",
-    연기금: "#06b6d4",
-    국가매집: "#ef4444",
-    기타법인: "#a855f7",
-  };
 
   return (
     <div className='min-h-screen bg-black text-white'>
@@ -85,7 +76,7 @@ const StockDashboardLightweight = () => {
         </section>
 
         <section className='flex space-x-2 mb-6'>
-          {["6M", "1Y", "2Y", "5Y"].map((period) => (
+          {PERIODS.map((period) => (
             <PeriodButton
               key={period}
               period={period}
@@ -117,7 +108,7 @@ const StockDashboardLightweight = () => {
               className='bg-gray-900 rounded-lg p-6 border border-gray-800'>
               <h3 className='text-xl font-semibold mb-4 flex items-center'>
                 <Users
-                  style={{ color: lineChartColors[key] }}
+                  style={{ color: LINE_CHART_COLORS[key] }}
                   className='mr-2'
                 />
                 {key} 매집수량
@@ -125,7 +116,7 @@ const StockDashboardLightweight = () => {
               <LightweightLineChart
                 chartName={key}
                 data={institutionalData[key]}
-                color={lineChartColors[key] || "#ffffff"}
+                color={LINE_CHART_COLORS[key] || "#ffffff"}
                 yFormatter={(v) => v.toLocaleString()}
               />
             </div>
