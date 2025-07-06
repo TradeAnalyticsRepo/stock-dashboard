@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { createChart, LineData, LineSeries, IChartApi } from "lightweight-charts";
 
 interface Props {
+  chartName: string;
   data: { date: string; value: number }[];
   color: string;
   yFormatter?: (value: number) => string;
@@ -16,7 +17,7 @@ interface Props {
  * @param {Props} props - data, color, yFormatter, height
  * @returns {JSX.Element}
  */
-const LightweightLineChart: React.FC<Props> = ({ data, color, yFormatter, height = 320 }) => {
+const LightweightLineChart: React.FC<Props> = ({ chartName, data, color, yFormatter, height = 320 }) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
@@ -66,8 +67,8 @@ const LightweightLineChart: React.FC<Props> = ({ data, color, yFormatter, height
       tooltipRef.current.style.top = param.point.y + 10 + "px";
       tooltipRef.current.innerHTML = `
         <div style="color: #fff; background: rgba(0,0,0,0.7); padding: 6px 10px; border-radius: 8px; font-size: 12px; min-width:100px;">
-          <div><strong>Date:</strong> ${param.time}</div>
-          <div>Value: ${(priceData as any).value}</div>
+          <div><strong>일자:</strong> ${param.time}</div>
+          <div>매집수량: ${(priceData as any).value}</div>
         </div>
       `;
     });

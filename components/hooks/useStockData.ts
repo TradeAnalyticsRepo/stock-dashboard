@@ -93,6 +93,8 @@ export const useStockData = (initialPeriod: string = "1Y") => {
   const priceChange = currentPrice - previousPrice;
   const priceChangePercent = previousPrice !== 0 ? (priceChange / previousPrice) * 100 : 0;
 
+  console.debug("institutionalData:", institutionalData);
+
   return {
     isClient,
     stockData,

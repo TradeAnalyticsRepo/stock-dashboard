@@ -15,15 +15,7 @@ import { useStockData } from "@/components/hooks/useStockData";
  * Includes key metrics, period selection buttons, and a chart grid.
  */
 const StockDashboardLightweight = () => {
-  const {
-    isClient,
-    stockData,
-    institutionalData,
-    selectedPeriod,
-    setSelectedPeriod,
-    priceChangePercent,
-    currentPrice,
-  } = useStockData("1Y");
+  const { isClient, stockData, institutionalData, selectedPeriod, setSelectedPeriod, priceChangePercent, currentPrice } = useStockData("1Y");
 
   if (!isClient) {
     return <div className='min-h-screen bg-black text-white flex items-center justify-center'>로딩 중...</div>;
@@ -108,12 +100,18 @@ const StockDashboardLightweight = () => {
           </div>
 
           {Object.keys(institutionalData).map((key) => (
-            <div key={key} className='bg-gray-900 rounded-lg p-6 border border-gray-800'>
+            <div
+              key={key}
+              className='bg-gray-900 rounded-lg p-6 border border-gray-800'>
               <h3 className='text-xl font-semibold mb-4 flex items-center'>
-                <Users style={{ color: lineChartColors[key] }} className='mr-2' />
+                <Users
+                  style={{ color: lineChartColors[key] }}
+                  className='mr-2'
+                />
                 {key} 매집수량
               </h3>
               <LightweightLineChart
+                chartName={key}
                 data={institutionalData[key]}
                 color={lineChartColors[key] || "#ffffff"}
                 yFormatter={(v) => v.toLocaleString()}
