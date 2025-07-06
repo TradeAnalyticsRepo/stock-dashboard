@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import { Activity, Users, Globe, Building } from "lucide-react";
 import Header from "@/components/Header";
 import StatCard from "@/components/ui/StatCard";
@@ -10,6 +10,7 @@ import RechartsPriceChart from "@/components/charts/recharts/RechartsPriceChart"
 import RechartsShareholderChart from "@/components/charts/recharts/RechartsShareholderChart";
 import { useStockData } from "@/components/hooks/useStockData";
 import { LINE_CHART_COLORS, PERIODS } from "@/types/constants";
+import { processingExcelData } from "@/app/utils/excelUtils";
 
 /**
  * Recharts를 사용하여 주식 대시보드를 표시하는 메인 컴포넌트
@@ -18,6 +19,7 @@ import { LINE_CHART_COLORS, PERIODS } from "@/types/constants";
  */
 const StockDashboard = () => {
   const { isClient, stockData, institutionalData, selectedPeriod, setSelectedPeriod, priceChangePercent, currentPrice } = useStockData("1Y");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 클라이언트 사이드에서만 렌더링되도록 처리
   if (!isClient) {
@@ -35,6 +37,22 @@ const StockDashboard = () => {
   const latestIndividualVolume = getLatestValue(institutionalData.개인);
   const latestForeignerVolume = getLatestValue(institutionalData.외국인);
   const latestCombinedForcesVolume = getLatestValue(institutionalData.세력합);
+
+  /**
+   * 엑셀 파일 업로드 처리 함수
+   * @param e - 파일 input change 이벤트
+   */
+  const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      //   handleExcel(file);
+      const data = await processingExcelData(file);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
     <div className='min-h-screen bg-black text-white'>
@@ -80,6 +98,18 @@ const StockDashboard = () => {
               onClick={setSelectedPeriod}
             />
           ))}
+          <div style={{marginLeft: 'auto'}}onClick={() => {fileInputRef.current?.click();}} >
+            엑셀업로드
+            <input
+              type='file'
+              accept='.xlsx, .xls'
+              ref={fileInputRef}
+              style={{
+                display: "none",
+              }}
+              onChange={handleExcelUpload}
+            />
+          </div>
         </section>
 
         {/* 차트 그리드 섹션 */}
