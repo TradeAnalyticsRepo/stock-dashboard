@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { StockDataItem } from "@/types";
 import jsonData from "@/components/11111_graph.json";
+import { INSTITUTION_KEYS } from "@/types/constants";
 
 // 보유율 데이터 타입 정의
 export interface ShareholderData {
@@ -28,6 +29,14 @@ export const useStockData = (initialPeriod: string = "1Y") => {
 
   const allData: any[] = jsonData;
 
+  // // 주가 데이터 포맷팅
+  // const formattedStockData: StockDataItem[] = allData.map((item) => ({
+  //   date: item.주가.tradeDate.replace(/\//g, "-"),
+  //   high: item.주가.high || item.주가.open,
+  //   low: item.주가.low || item.주가.open,
+  //   ...item.주가,
+  // }));
+
   // 주가 데이터 포맷팅
   const formattedStockData: StockDataItem[] = allData.map((item) => ({
     date: item.주가.tradeDate.replace(/\//g, "-"),
@@ -39,11 +48,9 @@ export const useStockData = (initialPeriod: string = "1Y") => {
     previousDayComparison: item.주가.previousDayComparison,
   }));
 
-  const institutionKeys = ["개인", "세력합", "외국인", "투신_일반", "투신_사모", "은행", "보험", "기타금융", "연기금", "국가매집", "기타법인"];
-
   // 기관별 데이터 포맷팅
   const allInstitutionalData: InstitutionalData = {};
-  institutionKeys.forEach((key) => {
+  INSTITUTION_KEYS.forEach((key) => {
     if (allData[0][key]) {
       allInstitutionalData[key] = allData.map((item) => ({
         date: item[key].tradeDate.replace(/\//g, "-"),
