@@ -94,7 +94,7 @@ const RechartsShareholderChart: React.FC<Props> = ({ data, color, title }) => {
               border: "1px solid #374151",
               borderRadius: "8px",
             }}
-            formatter={(value: number) => [value.toLocaleString(), title]}
+            formatter={(value: number) => [value.toLocaleString(), "매집수량"]}
             labelFormatter={(label) => `날짜: ${label}`}
           />
           <Line
