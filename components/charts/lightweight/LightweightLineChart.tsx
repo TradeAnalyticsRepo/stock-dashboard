@@ -20,7 +20,7 @@ const LightweightLineChart: React.FC<Props> = ({ data, color, yFormatter, height
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
-  const seriesRef = useRef<LineSeries | null>(null);
+  const seriesRef = useRef<any>(null);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -67,7 +67,7 @@ const LightweightLineChart: React.FC<Props> = ({ data, color, yFormatter, height
       tooltipRef.current.innerHTML = `
         <div style="color: #fff; background: rgba(0,0,0,0.7); padding: 6px 10px; border-radius: 8px; font-size: 12px; min-width:100px;">
           <div><strong>Date:</strong> ${param.time}</div>
-          <div>Value: ${priceData.value}</div>
+          <div>Value: ${(priceData as any).value}</div>
         </div>
       `;
     });
@@ -92,7 +92,6 @@ const LightweightLineChart: React.FC<Props> = ({ data, color, yFormatter, height
   useEffect(() => {
     if (seriesRef.current && data) {
       const chartData: LineData[] = data.map((item) => ({
-        // test data
         time: `${item.date}`,
         value: item.value,
       }));
