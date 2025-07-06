@@ -45,8 +45,8 @@ const LightweightCandlestickChart: React.FC<Props> = ({ data }) => {
     // 캔들스틱 시리즈 추가
     seriesRef.current = chartRef.current.addSeries(CandlestickSeries, {
       upColor: "#ef4444", // 상승 캔들 색상
-      downColor: "#10b981", // 하락 캔들 색상
-      borderDownColor: "#10b981",
+      downColor: "#1d74d6", // 하락 캔들 색상
+      borderDownColor: "#1d74d6",
       borderUpColor: "#ef4444",
       wickDownColor: "#9CA3AF",
       wickUpColor: "#9CA3AF",
@@ -66,11 +66,11 @@ const LightweightCandlestickChart: React.FC<Props> = ({ data }) => {
       tooltipRef.current.style.top = param.point.y + 10 + "px";
       tooltipRef.current.innerHTML = `
         <div style="color: #fff; background: rgba(0,0,0,0.7); padding: 6px 10px; border-radius: 8px; font-size: 12px; min-width:120px;">
-          <div><strong>Date:</strong> ${param.time}</div>
-          <div>Open: ${priceData.open}</div>
-          <div>High: ${priceData.high}</div>
-          <div>Low: ${priceData.low}</div>
-          <div>Close: ${priceData.close}</div>
+          <div><strong>일자:</strong> ${param.time}</div>
+          <div>시작가: ${priceData.open}</div>
+          <div>상한가: ${priceData.high}</div>
+          <div>하한가: ${priceData.low}</div>
+          <div>종가: ${priceData.close}</div>
         </div>
       `;
     });
