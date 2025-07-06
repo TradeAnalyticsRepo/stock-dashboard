@@ -36,6 +36,7 @@ export const useStockData = (initialPeriod: string = "1Y") => {
     low: item.주가.low || item.주가.open,
     close: item.주가.close,
     price: item.주가.close,
+    previousDayComparison: item.주가.previousDayComparison,
   }));
 
   const institutionKeys = ["개인", "세력합", "외국인", "투신_일반", "투신_사모", "은행", "보험", "기타금융", "연기금", "국가매집", "기타법인"];
@@ -88,12 +89,20 @@ export const useStockData = (initialPeriod: string = "1Y") => {
   });
 
   // 현재가 및 등락률 계산
-  const currentPrice = stockData.length > 0 ? stockData[stockData.length - 1].close : 0;
-  const previousPrice = stockData.length > 1 ? stockData[stockData.length - 2].close : 0;
-  const priceChange = currentPrice - previousPrice;
-  const priceChangePercent = previousPrice !== 0 ? (priceChange / previousPrice) * 100 : 0;
+  const {
+    open: 전일가,
+    close: 현재가,
+    previousDayComparison: 전일대비,
+  }: StockDataItem = stockData.length > 0
+    ? stockData[stockData.length - 1]
+    : {
+        open: 0,
+        close: 0,
+        previousDayComparison: 0,
+      };
 
-  console.debug("institutionalData:", institutionalData);
+  const currentPrice = 현재가;
+  const priceChangePercent = 전일가 !== 0 ? (전일대비 / 전일가) * 100 : 0;
 
   return {
     isClient,

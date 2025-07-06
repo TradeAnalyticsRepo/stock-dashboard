@@ -16,7 +16,7 @@ interface Props {
  */
 const CustomDatePicker: React.FC<Props> = ({ onDateRangeChange, className = "" }) => {
   const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>(new Date().toISOString().split("T")[0]);
 
   // 날짜 변경 핸들러
   const handleStartDateChange = (date: string) => {
@@ -44,7 +44,7 @@ const CustomDatePicker: React.FC<Props> = ({ onDateRangeChange, className = "" }
   // 날짜 범위 초기화
   const handleClear = () => {
     setStartDate("");
-    setEndDate("");
+    setEndDate(new Date().toISOString().split("T")[0]);
   };
 
   // 최대 날짜 계산 (오늘)

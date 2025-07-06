@@ -1,4 +1,3 @@
-
 import { LucideIcon } from "lucide-react";
 
 /**
@@ -11,6 +10,7 @@ export interface StockDataItem {
   high: number; // 고가
   low: number; // 저가
   close: number; // 종가
+  previousDayComparison: number; // 전일대비
 }
 
 /**

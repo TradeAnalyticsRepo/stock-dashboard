@@ -139,7 +139,7 @@ const AveragePriceCard: React.FC<Props> = ({ data, period }) => {
           {useCustomRange && (
             <button
               onClick={handleResetCustomRange}
-              className='text-xs text-gray-400 hover:text-white transition-colors'>
+              className='px-3 py-1.5 text-xs font-medium text-gray-800 bg-amber-400 hover:bg-amber-300 border border-amber-500 rounded-lg transition-all duration-200 hover:shadow-md hover:scale-105 active:scale-95'>
               기본 기간으로
             </button>
           )}
