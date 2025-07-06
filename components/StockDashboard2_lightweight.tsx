@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Activity, Users, Globe, Building } from "lucide-react";
 import Header from "@/components/Header";
 import StatCard from "@/components/ui/StatCard";
 import PeriodButton from "@/components/ui/PeriodButton";
+import AveragePriceCard from "@/components/ui/AveragePriceCard";
 import LightweightCandlestickChart from "@/components/charts/lightweight/LightweightCandlestickChart";
 import LightweightLineChart from "@/components/charts/lightweight/LightweightLineChart";
 import { useStockData } from "@/components/hooks/useStockData";
@@ -16,6 +17,10 @@ import { useStockData } from "@/components/hooks/useStockData";
  */
 const StockDashboardLightweight = () => {
   const { isClient, stockData, institutionalData, selectedPeriod, setSelectedPeriod, priceChangePercent, currentPrice } = useStockData("1Y");
+
+  useEffect(() => {
+    console.log(stockData);
+  }, []);
 
   if (!isClient) {
     return <div className='min-h-screen bg-black text-white flex items-center justify-center'>로딩 중...</div>;
@@ -97,6 +102,13 @@ const StockDashboardLightweight = () => {
               주가 차트 (캔들스틱)
             </h3>
             <LightweightCandlestickChart data={stockData} />
+          </div>
+
+          <div className='lg:col-span-2'>
+            <AveragePriceCard
+              data={stockData}
+              period={selectedPeriod}
+            />
           </div>
 
           {Object.keys(institutionalData).map((key) => (
