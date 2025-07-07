@@ -11,7 +11,7 @@ const Header = ({ chartType }: { chartType: "rechart" | "lightweight" }) => {
         </div>
         <nav className='flex space-x-6'>
           <a
-            href='#'
+            href='/dashboard'
             className='text-gray-300 hover:text-white transition-colors'>
             대시보드
           </a>
