@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { StockDataItem } from "@/types";
-import jsonData from "@/components/11111_graph.json";
+import jsonData from "@/excel/11111_graph.json";
 import { INSTITUTION_KEYS } from "@/types/constants";
 
 // 보유율 데이터 타입 정의
@@ -41,8 +41,9 @@ export const useStockData = (initialPeriod: string = "1Y") => {
   const formattedStockData: StockDataItem[] = allData.map((item) => ({
     date: item.주가.tradeDate.replace(/\//g, "-"),
     open: item.주가.open,
-    high: item.주가.high || item.주가.open,
-    low: item.주가.low || item.주가.open,
+    // high: item.주가.high || item.주가.open,
+    high: item.주가.high || item.주가.open + 400,
+    low: item.주가.low || item.주가.close - 300,
     close: item.주가.close,
     price: item.주가.close,
     previousDayComparison: item.주가.previousDayComparison,
