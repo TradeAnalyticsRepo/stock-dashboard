@@ -1,32 +1,75 @@
-"use client";
+'use client';
 
-import React, { useRef } from "react";
-import { Activity, Users, Globe, Building } from "lucide-react";
-import Header from "@/components/Header";
-import StatCard from "@/components/ui/StatCard";
-import PeriodButton from "@/components/ui/PeriodButton";
-import AveragePriceCard from "@/components/ui/AveragePriceCard";
-import RechartsPriceChart from "@/components/charts/recharts/RechartsPriceChart";
-import RechartsShareholderChart from "@/components/charts/recharts/RechartsShareholderChart";
-import { useStockData } from "@/components/hooks/useStockData";
-import { LINE_CHART_COLORS, PERIODS } from "@/types/constants";
-import { processingExcelData } from "@/app/utils/excelUtils";
+import React, { useRef } from 'react';
+import { Activity, Users, Globe, Building } from 'lucide-react';
+import Header from '@/components/Header';
+import StatCard from '@/components/ui/StatCard';
+import PeriodButton from '@/components/ui/PeriodButton';
+import AveragePriceCard from '@/components/ui/AveragePriceCard';
+import RechartsPriceChart from '@/components/charts/recharts/RechartsPriceChart';
+import RechartsShareholderChart from '@/components/charts/recharts/RechartsShareholderChart';
+import { useStockData } from '@/components/hooks/useStockData';
+import { LINE_CHART_COLORS, PERIODS } from '@/types/constants';
+import { processingExcelData } from '@/app/utils/excelUtils';
+import styled from 'styled-components';
 
-/**
- * Recharts를 사용하여 주식 대시보드를 표시하는 메인 컴포넌트
- * - useStockData 훅을 통해 데이터를 관리
- * - 주요 지표, 기간 선택 버튼, 차트 그리드를 포함
- */
+const Wrapper = styled.div`
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+`;
+const Main = styled.main`
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+`;
+// Section: grid, flex prop이 DOM에 전달되지 않도록 withConfig 사용
+const Section = styled.section.withConfig({
+  shouldForwardProp: (prop) => prop !== 'grid' && prop !== 'flex', // grid, flex는 스타일 계산에만 사용, DOM에는 전달하지 않음
+})<{ grid?: boolean; flex?: boolean }>`
+  ${(props) =>
+    props.grid
+      ? `display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem;
+        @media (min-width: 768px) { grid-template-columns: repeat(4, 1fr); }
+        @media (min-width: 1024px) { grid-template-columns: repeat(2, 1fr); }
+      `
+      : props.flex
+      ? `display: flex; gap: 0.5rem; margin-bottom: 1.5rem;`
+      : ''}
+`;
+const Card = styled.div`
+  background: #1a1a1a;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  border: 1px solid #27272a;
+`;
+const ChartTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+`;
+const ExcelUpload = styled.div`
+  margin-left: auto;
+  cursor: pointer;
+`;
+const HiddenInput = styled.input`
+  display: none;
+`;
+
 const StockDashboard = () => {
-  const { isClient, stockData, institutionalData, selectedPeriod, setSelectedPeriod, priceChangePercent, currentPrice } = useStockData("1Y");
+  const { isClient, stockData, institutionalData, selectedPeriod, setSelectedPeriod, priceChangePercent, currentPrice } = useStockData('1Y');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 클라이언트 사이드에서만 렌더링되도록 처리
   if (!isClient) {
-    return <div className='min-h-screen bg-black text-white flex items-center justify-center'>로딩 중...</div>;
+    return (
+      <Wrapper>
+        <FlexCenter>로딩 중...</FlexCenter>
+      </Wrapper>
+    );
   }
 
-  // 최신 값 가져오기
   const getLatestValue = (data: { value: number }[]) => {
     if (data && data.length > 0) {
       return data[data.length - 1].value;
@@ -38,29 +81,22 @@ const StockDashboard = () => {
   const latestForeignerVolume = getLatestValue(institutionalData.외국인);
   const latestCombinedForcesVolume = getLatestValue(institutionalData.세력합);
 
-  /**
-   * 엑셀 파일 업로드 처리 함수
-   * @param e - 파일 input change 이벤트
-   */
   const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       const file = e.target.files?.[0];
       if (!file) return;
-
-      //   handleExcel(file);
-      const data = await processingExcelData(file);
+      await processingExcelData(file);
     } catch (e) {
       console.error(e);
     }
   };
 
   return (
-    <div className='min-h-screen bg-black text-white'>
+    <Wrapper>
       <Header chartType='rechart' />
-
-      <main className='max-w-7xl mx-auto p-6'>
+      <Main>
         {/* 주요 지표 섹션 */}
-        <section className='grid grid-cols-1 md:grid-cols-4 gap-6 mb-8'>
+        <Section grid>
           <StatCard
             title='현재가'
             value={`₩${currentPrice.toLocaleString()}`}
@@ -86,10 +122,9 @@ const StockDashboard = () => {
             icon={Building}
             color='text-purple-500'
           />
-        </section>
-
+        </Section>
         {/* 기간 선택 버튼 섹션 */}
-        <section className='flex space-x-2 mb-6'>
+        <Section flex>
           {PERIODS.map((period) => (
             <PeriodButton
               key={period}
@@ -98,60 +133,58 @@ const StockDashboard = () => {
               onClick={setSelectedPeriod}
             />
           ))}
-          <div style={{marginLeft: 'auto'}}onClick={() => {fileInputRef.current?.click();}} >
+          <ExcelUpload
+            onClick={() => {
+              fileInputRef.current?.click();
+            }}>
             엑셀업로드
-            <input
+            <HiddenInput
               type='file'
               accept='.xlsx, .xls'
               ref={fileInputRef}
-              style={{
-                display: "none",
-              }}
               onChange={handleExcelUpload}
             />
-          </div>
-        </section>
-
+          </ExcelUpload>
+        </Section>
         {/* 차트 그리드 섹션 */}
-        <section className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-          <div className='bg-gray-900 rounded-lg p-6 border border-gray-800 lg:col-span-2'>
-            <h3 className='text-xl font-semibold mb-4 flex items-center'>
-              <Activity className='text-red-600 mr-2' />
+        <Section grid>
+          <Card style={{ gridColumn: 'span 2' }}>
+            <ChartTitle>
+              <Activity style={{ color: '#dc2626', marginRight: 8 }} />
               주가 차트 (캔들스틱)
-            </h3>
+            </ChartTitle>
             <RechartsPriceChart data={stockData} />
-          </div>
-
-          {/* 평균 단가 카드 */}
-          <div className='lg:col-span-2'>
+          </Card>
+          <div style={{ gridColumn: 'span 2' }}>
             <AveragePriceCard
               data={stockData}
               period={selectedPeriod}
             />
           </div>
-
           {Object.keys(institutionalData).map((key) => (
-            <div
-              key={key}
-              className='bg-gray-900 rounded-lg p-6 border border-gray-800'>
-              <h3 className='text-xl font-semibold mb-4 flex items-center'>
-                <Users
-                  style={{ color: LINE_CHART_COLORS[key] }}
-                  className='mr-2'
-                />
+            <Card key={key}>
+              <ChartTitle>
+                <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8 }} />
                 {key} 매집수량
-              </h3>
+              </ChartTitle>
               <RechartsShareholderChart
                 data={institutionalData[key]}
-                color={LINE_CHART_COLORS[key] || "#ffffff"}
+                color={LINE_CHART_COLORS[key] || '#ffffff'}
                 title={key}
               />
-            </div>
+            </Card>
           ))}
-        </section>
-      </main>
-    </div>
+        </Section>
+      </Main>
+    </Wrapper>
   );
 };
+
+const FlexCenter = styled.div`
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
 export default StockDashboard;

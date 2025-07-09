@@ -1,10 +1,76 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Calendar, X } from "lucide-react";
+import React, { useState, useRef, useEffect } from 'react';
+import { Calendar, X } from 'lucide-react';
+import styled from 'styled-components';
 
 interface Props {
   onDateRangeChange: (startDate: Date, endDate: Date) => void;
   className?: string;
 }
+
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+`;
+const DateCol = styled.div`
+  flex: 1;
+`;
+const Label = styled.label`
+  display: block;
+  font-size: 0.75rem;
+  color: #a3a3a3;
+  margin-bottom: 0.25rem;
+`;
+const InputWrapper = styled.div`
+  position: relative;
+`;
+const Input = styled.input`
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: #1f2937;
+  border: 1px solid #4b5563;
+  border-radius: 0.5rem;
+  color: #fff;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border 0.2s;
+  &:focus {
+    border-color: #3b82f6;
+  }
+`;
+const CalendarIcon = styled(Calendar)`
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  color: #a3a3a3;
+  pointer-events: none;
+`;
+const Divider = styled.div`
+  display: flex;
+  align-items: center;
+  color: #a3a3a3;
+  font-size: 0.875rem;
+`;
+const ClearButton = styled.button`
+  margin-top: 1.5rem;
+  padding: 0.5rem;
+  border: none;
+  background: none;
+  border-radius: 0.5rem;
+  transition: background 0.2s;
+  cursor: pointer;
+  &:hover {
+    background: #374151;
+  }
+`;
+const XIcon = styled(X)`
+  width: 1rem;
+  height: 1rem;
+  color: #a3a3a3;
+`;
 
 /**
  * 커스텀 날짜 범위 선택 컴포넌트
@@ -14,9 +80,9 @@ interface Props {
  * @param {Props} props - onDateRangeChange, className
  * @returns {JSX.Element}
  */
-const CustomDatePicker: React.FC<Props> = ({ onDateRangeChange, className = "" }) => {
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>(new Date().toISOString().split("T")[0]);
+const CustomDatePicker: React.FC<Props> = ({ onDateRangeChange, className = '' }) => {
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
   // 날짜 변경 핸들러
   const handleStartDateChange = (date: string) => {
@@ -43,60 +109,51 @@ const CustomDatePicker: React.FC<Props> = ({ onDateRangeChange, className = "" }
 
   // 날짜 범위 초기화
   const handleClear = () => {
-    setStartDate("");
-    setEndDate(new Date().toISOString().split("T")[0]);
+    setStartDate('');
+    setEndDate(new Date().toISOString().split('T')[0]);
   };
 
   // 최대 날짜 계산 (오늘)
-  const maxDate = new Date().toISOString().split("T")[0];
+  const maxDate = new Date().toISOString().split('T')[0];
 
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
+    <Wrapper className={className}>
       {/* 시작일 선택 */}
-      <div className='flex-1'>
-        <label className='block text-xs text-gray-400 mb-1'>시작일</label>
-        <div className='relative'>
-          <input
+      <DateCol>
+        <Label>시작일</Label>
+        <InputWrapper>
+          <Input
             type='date'
             value={startDate}
             onChange={(e) => handleStartDateChange(e.target.value)}
             max={endDate || maxDate}
-            className='w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500 transition-colors'
           />
-          <Calendar className='absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none' />
-        </div>
-      </div>
-
+          <CalendarIcon />
+        </InputWrapper>
+      </DateCol>
       {/* 구분선 */}
-      <div className='flex items-center'>
-        <span className='text-gray-400 text-sm'>~</span>
-      </div>
-
+      <Divider>~</Divider>
       {/* 종료일 선택 */}
-      <div className='flex-1'>
-        <label className='block text-xs text-gray-400 mb-1'>종료일</label>
-        <div className='relative'>
-          <input
+      <DateCol>
+        <Label>종료일</Label>
+        <InputWrapper>
+          <Input
             type='date'
             value={endDate}
             onChange={(e) => handleEndDateChange(e.target.value)}
             min={startDate}
             max={maxDate}
-            className='w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500 transition-colors'
           />
-          <Calendar className='absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none' />
-        </div>
-      </div>
-
+          <CalendarIcon />
+        </InputWrapper>
+      </DateCol>
       {/* 초기화 버튼 */}
       {(startDate || endDate) && (
-        <button
-          onClick={handleClear}
-          className='mt-6 p-2 hover:bg-gray-700 rounded-lg transition-colors'>
-          <X className='w-4 h-4 text-gray-400' />
-        </button>
+        <ClearButton onClick={handleClear}>
+          <XIcon />
+        </ClearButton>
       )}
-    </div>
+    </Wrapper>
   );
 };
 

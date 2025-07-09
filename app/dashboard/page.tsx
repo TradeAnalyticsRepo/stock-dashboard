@@ -2,9 +2,46 @@
 import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
 import { Plus } from 'lucide-react';
+import styled from 'styled-components';
 import Header from '@/components/Header';
 import StatCard from '@/components/ui/StatCard';
 import { Activity } from 'lucide-react';
+
+// styled-components 정의
+const Wrapper = styled.div`
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+`;
+const Main = styled.main`
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+`;
+const Section = styled.section`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+`;
+const CardWrapper = styled.div`
+  cursor: pointer;
+`;
+const EmptyCard = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #52525b;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  min-height: 120px;
+`;
+const HiddenInput = styled.input`
+  display: none;
+`;
 
 export default function Dashboard() {
   const router = useRouter();
@@ -31,16 +68,15 @@ export default function Dashboard() {
   };
 
   return (
-    <div className='min-h-screen bg-black text-white'>
+    <Wrapper>
       <Header chartType='rechart' />
-      <main className='max-w-7xl mx-auto p-6'>
+      <Main>
         {/* 주요 지표 섹션 */}
-        <section className='grid grid-cols-1 md:grid-cols-4 gap-6 mb-8'>
+        <Section>
           {stocks.map((stock, idx) => (
-            <div
+            <CardWrapper
               key={idx}
-              onClick={() => handleCardClick(stock)}
-              className='cursor-pointer'>
+              onClick={() => handleCardClick(stock)}>
               <StatCard
                 title={stock.name}
                 value={`₩${stock.price.toLocaleString()}`}
@@ -48,23 +84,20 @@ export default function Dashboard() {
                 icon={Activity}
                 color={stock.change > 0 ? 'text-red-600' : 'text-blue-600'}
               />
-            </div>
+            </CardWrapper>
           ))}
           {/* 빈 카드 (엑셀 업로드) */}
-          <div
-            onClick={handleUploadClick}
-            className='flex items-center justify-center border-2 border-dashed rounded-lg cursor-pointer min-h-[120px]'>
+          <EmptyCard onClick={handleUploadClick}>
             <Plus size={40} />
-            <input
+            <HiddenInput
               type='file'
               accept='.xlsx,.xls'
               ref={fileInputRef}
               onChange={handleFileChange}
-              className='hidden'
             />
-          </div>
-        </section>
-      </main>
-    </div>
+          </EmptyCard>
+        </Section>
+      </Main>
+    </Wrapper>
   );
 }
