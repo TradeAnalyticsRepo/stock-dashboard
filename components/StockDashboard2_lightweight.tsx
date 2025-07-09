@@ -61,7 +61,7 @@ const FlexCenter = styled.div`
  * Manages data through the useStockData hook.
  * Includes key metrics, period selection buttons, and a chart grid.
  */
-const StockDashboardLightweight = () => {
+const StockDashboardLightweight = ({ stockName }: { stockName?: string | null }) => {
   const { isClient, stockData, institutionalData, selectedPeriod, setSelectedPeriod, priceChangePercent, currentPrice } = useStockData('1Y');
 
   useEffect(() => {
@@ -93,7 +93,10 @@ const StockDashboardLightweight = () => {
 
   return (
     <Wrapper>
-      <Header chartType='lightweight' />
+      <Header
+        chartType='lightweight'
+        stockName={stockName}
+      />
       <Main>
         <Section grid>
           <StatCard

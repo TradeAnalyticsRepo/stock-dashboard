@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { StockDataItem } from "@/types";
-import jsonData from "@/excel/11111_graph.json";
-import { INSTITUTION_KEYS } from "@/types/constants";
+import { useState, useEffect } from 'react';
+import { StockDataItem } from '@/types';
+import jsonData from '@/excel/11111_graph.json';
+import { INSTITUTION_KEYS } from '@/types/constants';
 
 // 보유율 데이터 타입 정의
 export interface ShareholderData {
@@ -19,7 +19,7 @@ export interface InstitutionalData {
  * @param initialPeriod - 초기 선택 기간 (기본값: "1Y")
  * @returns 차트 및 표시에 필요한 처리된 데이터
  */
-export const useStockData = (initialPeriod: string = "1Y") => {
+export const useStockData = (initialPeriod: string = '1Y') => {
   const [selectedPeriod, setSelectedPeriod] = useState(initialPeriod);
   const [isClient, setIsClient] = useState(false);
 
@@ -39,11 +39,11 @@ export const useStockData = (initialPeriod: string = "1Y") => {
 
   // 주가 데이터 포맷팅
   const formattedStockData: StockDataItem[] = allData.map((item) => ({
-    date: item.주가.tradeDate.replace(/\//g, "-"),
+    date: item.주가.tradeDate.replace(/\//g, '-'),
     open: item.주가.open,
     // high: item.주가.high || item.주가.open,
-    high: item.주가.high || item.주가.open + 400,
-    low: item.주가.low || item.주가.close - 300,
+    high: item.주가.high || item.주가.open,
+    low: item.주가.low || item.주가.close,
     close: item.주가.close,
     price: item.주가.close,
     previousDayComparison: item.주가.previousDayComparison,
@@ -54,7 +54,7 @@ export const useStockData = (initialPeriod: string = "1Y") => {
   INSTITUTION_KEYS.forEach((key) => {
     if (allData[0][key]) {
       allInstitutionalData[key] = allData.map((item) => ({
-        date: item[key].tradeDate.replace(/\//g, "-"),
+        date: item[key].tradeDate.replace(/\//g, '-'),
         value: item[key].collectionVolume,
       }));
     }
@@ -69,16 +69,16 @@ export const useStockData = (initialPeriod: string = "1Y") => {
     let startDate = new Date();
 
     switch (period) {
-      case "6M":
+      case '6M':
         startDate.setMonth(now.getMonth() - 6);
         break;
-      case "1Y":
+      case '1Y':
         startDate.setFullYear(now.getFullYear() - 1);
         break;
-      case "2Y":
+      case '2Y':
         startDate.setFullYear(now.getFullYear() - 2);
         break;
-      case "5Y":
+      case '5Y':
         startDate.setFullYear(now.getFullYear() - 5);
         break;
       default:

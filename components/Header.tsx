@@ -22,6 +22,20 @@ const Left = styled.div`
 const Title = styled.h1`
   font-size: 2rem;
   font-weight: bold;
+  display: flex;
+  align-items: center;
+`;
+const StockNameSpan = styled.span`
+  margin-left: 1rem;
+  font-size: 1.25rem;
+  color: #38bdf8;
+  font-weight: 600;
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.12) 0%, rgba(59, 130, 246, 0.08) 100%);
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  vertical-align: middle;
+  box-shadow: 0 2px 8px 0 rgba(56, 189, 248, 0.08);
+  letter-spacing: 0.02em;
 `;
 const Nav = styled.nav`
   display: flex;
@@ -36,14 +50,20 @@ const NavLink = styled.a`
   }
 `;
 
-const Header = ({ chartType }: { chartType: 'rechart' | 'lightweight' }) => {
+// stockName prop 추가
+const Header = ({ chartType, stockName }: { chartType: 'rechart' | 'lightweight'; stockName?: string | null }) => {
   return (
     <HeaderWrapper>
       <HeaderInner>
-        <Left>
-          <Activity style={{ color: '#dc2626', width: 32, height: 32 }} />
-          <Title>하이하이</Title>
-        </Left>
+        <NavLink href='/dashboard'>
+          <Left>
+            <Activity style={{ color: '#dc2626', width: 32, height: 32 }} />
+            <Title>
+              Dashboard
+              {stockName && <StockNameSpan>{stockName}</StockNameSpan>}
+            </Title>
+          </Left>
+        </NavLink>
         <Nav>
           <NavLink href='/dashboard'>대시보드</NavLink>
           <NavLink href={chartType === 'rechart' ? '/lightweight' : '/rechart'}>차트 변경</NavLink>
