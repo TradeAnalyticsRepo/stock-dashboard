@@ -1,11 +1,14 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Plus } from 'lucide-react';
 import styled from 'styled-components';
 import Header from '@/components/Header';
 import StatCard from '@/components/ui/StatCard';
 import { Activity } from 'lucide-react';
+import { processingExcelData } from '../utils/excelUtils';
+import { callGetApi } from '../utils/api';
+import { stockCard } from '@/types';
 
 // styled-components 정의
 const Wrapper = styled.div`
@@ -46,16 +49,32 @@ const HiddenInput = styled.input`
 export default function Dashboard() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [stocks, setStocks] = useState<stockCard[]>([]); 
+  useEffect(() => {
+    const stockFiles = async () => {
+      try {
+        const result = await callGetApi('/api/getExcelFiles', null);
+        if(result?.data){
 
+          console.log(result.data);
+        setStocks(result.data.stocks);
+        }
+      } catch (error) {
+        console.error('Error fetching files:', error);
+      }
+    };
+
+    stockFiles(); // async 함수 호출
+  }, []); 
   // 예시 종목 데이터
-  const stocks = [
-    { name: '삼성전자', price: 10000, change: 0.54 },
-    { name: 'LG화학', price: 20000, change: -0.12 },
-    { name: 'NAVER', price: 15000, change: 1.23 },
-    { name: '카카오', price: 12000, change: -0.45 },
-  ];
+  // const stocks = [
+  //   { name: '삼성전자', price: 10000, change: 0.54 },
+  //   { name: 'LG화학', price: 20000, change: -0.12 },
+  //   { name: 'NAVER', price: 15000, change: 1.23 },
+  //   { name: '카카오', price: 12000, change: -0.45 },
+  // ];
 
-  const handleCardClick = (stock: { name: string; price: number; change: number }) => {
+  const handleCardClick = (stock: stockCard) => {
     router.push(`/lightweight?name=${encodeURIComponent(stock.name)}`);
   };
 
@@ -63,7 +82,12 @@ export default function Dashboard() {
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+      if (!file) return;
+
+      
+      await processingExcelData(file);
     // 엑셀 업로드 처리 로직 (추후 구현)
   };
 
@@ -101,3 +125,5 @@ export default function Dashboard() {
     </Wrapper>
   );
 }
+
+

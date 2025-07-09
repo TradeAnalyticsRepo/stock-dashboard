@@ -5,6 +5,14 @@ export const callPostApi = async (url: string, parameter: any, headers: object =
     const result = await axios.post(url, parameter, { headers});
     console.log('callPostApi');
   } catch(error) {
-    console.error('callApi 오류 발생:', error);
+    console.error('callPostApi 오류 발생:', error);
+  }
+}
+
+export const callGetApi = async (url: string, parameter: any) => {
+  try {
+    return await axios.get(url, parameter);
+  } catch (error) {
+    console.error('callGetApi 오류 발생:', error);
   }
 }

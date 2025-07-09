@@ -63,3 +63,12 @@ export interface PeriodButtonProps {
   active: boolean;
   onClick: (period: Period) => void;
 }
+
+/** 
+ * 대시보드 stock리스트
+ */ 
+export interface stockCard {
+  name: string; 
+  price: number; 
+  change: number
+}
