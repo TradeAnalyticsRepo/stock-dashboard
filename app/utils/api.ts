@@ -20,3 +20,11 @@ export const callGetApi = async (url: string, parameter?: Record<string, unknown
     console.error("callGetApi 오류 발생:", error);
   }
 };
+
+export const callDeleteApi = async (url: string) => {
+  try {
+    return await axios.delete(url);
+  } catch (error) {
+    console.error("callDeleteApi 오류 발생:", error);
+  }
+};

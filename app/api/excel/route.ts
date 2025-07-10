@@ -48,3 +48,28 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ message: '서버 오류' }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const stockId = searchParams.get('stockId');
+
+    if (!stockId) {
+      return NextResponse.json({ message: '필수 항목 누락' }, { status: 400 });
+    }
+
+    const fileTypes = ['graph', 'lastest', 'table'];
+    fileTypes.forEach(type => {
+      const fileName = `${stockId}_${type}.json`;
+      const filePath = path.join(process.cwd(), 'excel', fileName);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    });
+
+    return NextResponse.json({ message: '삭제 완료' });
+  } catch (error) {
+    console.error('파일 삭제 오류:', error);
+    return NextResponse.json({ message: '서버 오류' }, { status: 500 });
+  }
+}

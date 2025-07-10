@@ -1,13 +1,13 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, MoreVertical, Trash2, Upload } from "lucide-react";
 import styled, { keyframes } from "styled-components";
 import Header from "@/components/Header";
 import StatCard from "@/components/ui/StatCard";
 import { Activity } from "lucide-react";
 import { processingExcelData } from "../utils/excelUtils";
-import { callGetApi } from "../utils/api";
+import { callGetApi, callDeleteApi } from "../utils/api";
 import { stockCard } from "@/types";
 
 // styled-components 정의
@@ -31,6 +31,7 @@ const Section = styled.section`
   }
 `;
 const CardWrapper = styled.div`
+  position: relative;
   cursor: pointer;
 `;
 const EmptyCard = styled.div`
@@ -101,14 +102,54 @@ const ErrorMessage = styled.div`
   padding: 1rem;
 `;
 
-/**
- * 종목 리스트
- *
- * 빈 카드 클릭시 -> 빈 카드 생성. -> 해당 카드 클릭하면 엑셀 업로드 가능.
- * 빈 카드 생성 후 이름 지정 가능. 이 때 지정된 이름은 파일명이 됌.
- *
- * 이미 엑셀 등록된 카드의 경우 클릭 시 -> 차트 화면으로 이동.
- */
+const CardMenu = styled.div`
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+`;
+
+const MenuButton = styled.button`
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 50%;
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const DropdownMenu = styled.div`
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #2a2a2a;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 120px;
+`;
+
+const DropdownMenuItem = styled.button`
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 0.5rem;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.25rem;
+  &:hover {
+    background-color: #3a3a3a;
+  }
+`;
+
 export default function Dashboard() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -117,11 +158,10 @@ export default function Dashboard() {
     index: number;
     name: string;
   } | null>(null);
-  const [selectedStockIndex, setSelectedStockIndex] = useState<number | null>(
-    null
-  );
+  const [selectedStockIndex, setSelectedStockIndex] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState<number | null>(null);
 
   const fetchStockFiles = async () => {
     try {
@@ -143,16 +183,14 @@ export default function Dashboard() {
     fetchStockFiles();
   }, []);
 
-  const handleCardClick = (stock: stockCard, index: number) => {
+  const handleCardClick = (stock: stockCard, index: number, isMenuClick: boolean = false) => {
+    if (isMenuClick) return;
     if (stock.price === 0 && stock.name) {
-      // 데이터가 없는 신규 카드 -> 파일 업로드 트리거
       setSelectedStockIndex(index);
       fileInputRef.current?.click();
     } else if (stock.name) {
-      // 데이터가 있는 기존 카드 -> 차트 페이지로 이동
       router.push(`/lightweight?name=${encodeURIComponent(stock.name)}`);
     }
-    // 이름이 없는 카드는 아무 동작 안함
   };
 
   const handleAddCard = () => {
@@ -183,19 +221,44 @@ export default function Dashboard() {
       setIsLoading(true);
       setError(null);
       await processingExcelData(file, stockName);
-      // 업로드 성공 후 데이터 다시 불러오기
       await fetchStockFiles();
     } catch (error) {
       console.error("Error processing excel file:", error);
       setError("엑셀 파일 처리 중 오류가 발생했습니다. 파일 형식을 확인해주세요.");
     } finally {
-      // 초기화
       setSelectedStockIndex(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
       setIsLoading(false);
     }
+  };
+
+  const handleDeleteStock = async (stockName: string) => {
+    if (!confirm(`'${stockName}' 종목을 삭제하시겠습니까?`)) return;
+
+    try {
+      setIsLoading(true);
+      setError(null);
+      await callDeleteApi(`/api/excel?stockId=${stockName}`);
+      await fetchStockFiles();
+    } catch (error) {
+      console.error("Error deleting stock:", error);
+      setError("종목 삭제 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+      setMenuOpen(null);
+    }
+  };
+
+  const handleUpdateStock = (index: number) => {
+    setSelectedStockIndex(index);
+    fileInputRef.current?.click();
+    setMenuOpen(null);
+  };
+
+  const toggleMenu = (index: number) => {
+    setMenuOpen(menuOpen === index ? null : index);
   };
 
   return (
@@ -230,6 +293,25 @@ export default function Dashboard() {
                 </NewCardInputForm>
               ) : (
                 <CardWrapper key={idx} onClick={() => handleCardClick(stock, idx)}>
+                  {stock.name && (
+                    <CardMenu onClick={(e) => e.stopPropagation()}>
+                      <MenuButton onClick={() => toggleMenu(idx)}>
+                        <MoreVertical size={20} />
+                      </MenuButton>
+                      {menuOpen === idx && (
+                        <DropdownMenu>
+                          <DropdownMenuItem onClick={() => handleUpdateStock(idx)}>
+                            <Upload size={16} />
+                            업데이트
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDeleteStock(stock.name)}>
+                            <Trash2 size={16} />
+                            삭제
+                          </DropdownMenuItem>
+                        </DropdownMenu>
+                      )}
+                    </CardMenu>
+                  )}
                   <StatCard
                     title={stock.name || "이름 없음"}
                     value={
@@ -243,7 +325,6 @@ export default function Dashboard() {
               )
             )}
 
-            {/* 빈 카드 (새 카드 추가) */}
             {!editingCard && (
               <EmptyCard onClick={handleAddCard}>
                 <Plus size={40} />
