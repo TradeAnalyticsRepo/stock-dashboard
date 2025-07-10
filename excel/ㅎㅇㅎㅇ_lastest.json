@@ -1,0 +1,132 @@
+{
+  "주가": {
+    "tradeDate": "2025/06/05",
+    "open": 17120,
+    "close": 17030,
+    "previousDayComparison": 90,
+    "high": 0,
+    "low": 0,
+    "tradingVolume": 65330
+  },
+  "개인": {
+    "tradeDate": "2025/06/05",
+    "open": 17120,
+    "close": 17030,
+    "previousDayComparison": 90,
+    "tradingVolume": -4764,
+    "stockCorrelation": -0.2144591348446202,
+    "collectionVolume": 790744,
+    "dispersionRatio": 27,
+    "stockMomentum": 54
+  },
+  "세력합": {
+    "tradeDate": "2025/06/05",
+    "open": 17120,
+    "close": 17030,
+    "previousDayComparison": 90,
+    "tradingVolume": 5512,
+    "stockCorrelation": 0,
+    "collectionVolume": 2111416,
+    "dispersionRatio": 74,
+    "stockMomentum": 53
+  },
+  "외국인": {
+    "tradeDate": "2025/06/05",
+    "open": 17120,
+    "close": 17030,
+    "previousDayComparison": 90,
+    "tradingVolume": 10322,
+    "stockCorrelation": 0,
+    "collectionVolume": 588558,
+    "dispersionRatio": 31,
+    "stockMomentum": 35
+  },
+  "투신_일반": {
+    "tradeDate": "2025/06/05",
+    "open": 17120,
+    "close": 17030,
+    "previousDayComparison": 90,
+    "tradingVolume": 554,
+    "stockCorrelation": 0,
+    "collectionVolume": 397628,
+    "dispersionRatio": 55,
+    "stockMomentum": 13
+  },
+  "투신_사모": {
+    "tradeDate": "2025/06/05",
+    "open": 17120,
+    "close": 17030,
+    "previousDayComparison": 90,
+    "tradingVolume": -3003,
+    "stockCorrelation": 0,
+    "collectionVolume": 141745,
+    "dispersionRatio": 34,
+    "stockMomentum": 8
+  },
+  "은행": {
+    "tradeDate": "2025/06/05",
+    "open": 17120,
+    "close": 17030,
+    "previousDayComparison": 90,
+    "tradingVolume": 0,
+    "stockCorrelation": 0,
+    "collectionVolume": 11297,
+    "dispersionRatio": 37,
+    "stockMomentum": 1
+  },
+  "보험": {
+    "tradeDate": "2025/06/05",
+    "open": 17120,
+    "close": 17030,
+    "previousDayComparison": 90,
+    "tradingVolume": -1356,
+    "stockCorrelation": 0,
+    "collectionVolume": 97654,
+    "dispersionRatio": 38,
+    "stockMomentum": 5
+  },
+  "기타금융": {
+    "tradeDate": "2025/06/05",
+    "open": 17120,
+    "close": 17030,
+    "previousDayComparison": 90,
+    "tradingVolume": -17,
+    "stockCorrelation": 0,
+    "collectionVolume": 487,
+    "dispersionRatio": 2,
+    "stockMomentum": 1
+  },
+  "연기금": {
+    "tradeDate": "2025/06/05",
+    "open": 17120,
+    "close": 17030,
+    "previousDayComparison": 90,
+    "tradingVolume": -100,
+    "stockCorrelation": 0,
+    "collectionVolume": 891836,
+    "dispersionRatio": 100,
+    "stockMomentum": 17
+  },
+  "국가매집": {
+    "tradeDate": "2025/06/05",
+    "open": 17120,
+    "close": 17030,
+    "previousDayComparison": 90,
+    "tradingVolume": 0,
+    "stockCorrelation": 0,
+    "collectionVolume": 0,
+    "dispersionRatio": 0,
+    "stockMomentum": 0
+  },
+  "기타법인": {
+    "tradeDate": "2025/06/05",
+    "open": 17120,
+    "close": 17030,
+    "previousDayComparison": 90,
+    "tradingVolume": -748,
+    "stockCorrelation": 0,
+    "collectionVolume": 26752,
+    "dispersionRatio": 22,
+    "stockMomentum": 2
+  }
+}

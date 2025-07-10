@@ -1,8 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Plus } from "lucide-react";
-import styled from "styled-components";
+import { Plus, Loader2 } from "lucide-react";
+import styled, { keyframes } from "styled-components";
 import Header from "@/components/Header";
 import StatCard from "@/components/ui/StatCard";
 import { Activity } from "lucide-react";
@@ -50,6 +50,57 @@ const HiddenInput = styled.input`
   display: none;
 `;
 
+const NewCardInputForm = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 2px dashed #52525b;
+  border-radius: 0.5rem;
+  background-color: #1a1a1a;
+  min-height: 120px;
+`;
+
+const NameInput = styled.input`
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #333;
+  background: #222;
+  color: #fff;
+`;
+
+const SaveButton = styled.button`
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  background-color: #2563eb;
+  color: #fff;
+  cursor: pointer;
+  &:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+  }
+`;
+
+const spin = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const LoadingSpinner = styled(Loader2)`
+  animation: ${spin} 1s linear infinite;
+`;
+
+const ErrorMessage = styled.div`
+  color: #ef4444;
+  text-align: center;
+  padding: 1rem;
+`;
+
 /**
  * 종목 리스트
  *
@@ -62,75 +113,150 @@ export default function Dashboard() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [stocks, setStocks] = useState<stockCard[]>([]);
-  useEffect(() => {
-    const stockFiles = async () => {
-      try {
-        const result = await callGetApi("/api/getExcelFiles", null);
-        if (result?.data) {
-          console.log(result.data);
-          setStocks(result.data.stocks);
-        }
-      } catch (error) {
-        console.error("Error fetching files:", error);
+  const [editingCard, setEditingCard] = useState<{
+    index: number;
+    name: string;
+  } | null>(null);
+  const [selectedStockIndex, setSelectedStockIndex] = useState<number | null>(
+    null
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchStockFiles = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const result = await callGetApi("/api/getExcelFiles", null);
+      if (result?.data) {
+        setStocks(result.data.stocks);
       }
-    };
-
-    stockFiles(); // async 함수 호출
-  }, []);
-  // 예시 종목 데이터
-  // const stocks = [
-  //   { name: '삼성전자', price: 10000, change: 0.54 },
-  //   { name: 'LG화학', price: 20000, change: -0.12 },
-  //   { name: 'NAVER', price: 15000, change: 1.23 },
-  //   { name: '카카오', price: 12000, change: -0.45 },
-  // ];
-
-  const handleCardClick = (stock: stockCard) => {
-    router.push(`/lightweight?name=${encodeURIComponent(stock.name)}`);
+    } catch (error) {
+      console.error("Error fetching files:", error);
+      setError("종목 목록을 불러오는데 실패했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
+  useEffect(() => {
+    fetchStockFiles();
+  }, []);
+
+  const handleCardClick = (stock: stockCard, index: number) => {
+    if (stock.price === 0 && stock.name) {
+      // 데이터가 없는 신규 카드 -> 파일 업로드 트리거
+      setSelectedStockIndex(index);
+      fileInputRef.current?.click();
+    } else if (stock.name) {
+      // 데이터가 있는 기존 카드 -> 차트 페이지로 이동
+      router.push(`/lightweight?name=${encodeURIComponent(stock.name)}`);
+    }
+    // 이름이 없는 카드는 아무 동작 안함
+  };
+
+  const handleAddCard = () => {
+    const newStocks = [...stocks, { name: "", change: 0, price: 0 }];
+    setStocks(newStocks);
+    setEditingCard({ index: newStocks.length - 1, name: "" });
+  };
+
+  const handleSaveName = () => {
+    if (!editingCard || !editingCard.name.trim()) return;
+    const updatedStocks = [...stocks];
+    updatedStocks[editingCard.index].name = editingCard.name.trim();
+    setStocks(updatedStocks);
+    setEditingCard(null);
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || selectedStockIndex === null) return;
 
-    await processingExcelData(file);
-    // 엑셀 업로드 처리 로직 (추후 구현)
+    const stockName = stocks[selectedStockIndex].name;
+    if (!stockName) {
+      console.error("Stock name is not defined.");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+      await processingExcelData(file, stockName);
+      // 업로드 성공 후 데이터 다시 불러오기
+      await fetchStockFiles();
+    } catch (error) {
+      console.error("Error processing excel file:", error);
+      setError("엑셀 파일 처리 중 오류가 발생했습니다. 파일 형식을 확인해주세요.");
+    } finally {
+      // 초기화
+      setSelectedStockIndex(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      setIsLoading(false);
+    }
   };
 
   return (
     <Wrapper>
       <Header chartType='rechart' />
       <Main>
-        {/* 주요 지표 섹션 */}
-        <Section>
-          {stocks.map((stock, idx) => (
-            <CardWrapper
-              key={idx}
-              onClick={() => handleCardClick(stock)}>
-              <StatCard
-                title={stock.name}
-                value={`₩${stock.price.toLocaleString()}`}
-                change={stock.change}
-                icon={Activity}
-                color={stock.change > 0 ? "text-red-600" : "text-blue-600"}
-              />
-            </CardWrapper>
-          ))}
-          {/* 빈 카드 (엑셀 업로드) */}
-          <EmptyCard onClick={handleUploadClick}>
-            <Plus size={40} />
-            <HiddenInput
-              type='file'
-              accept='.xlsx,.xls'
-              ref={fileInputRef}
-              onChange={handleFileChange}
-            />
-          </EmptyCard>
-        </Section>
+        {error && <ErrorMessage>{error}</ErrorMessage>}
+        {isLoading && (
+          <div style={{ display: "flex", justifyContent: "center", padding: "2rem" }}>
+            <LoadingSpinner size={40} />
+          </div>
+        )}
+        {!isLoading && (
+          <Section>
+            {stocks.map((stock, idx) =>
+              editingCard && editingCard.index === idx ? (
+                <NewCardInputForm key={idx}>
+                  <NameInput
+                    type='text'
+                    placeholder='종목 이름 입력'
+                    value={editingCard.name}
+                    onChange={(e) =>
+                      setEditingCard({ ...editingCard, name: e.target.value })
+                    }
+                    autoFocus
+                  />
+                  <SaveButton
+                    onClick={handleSaveName}
+                    disabled={!editingCard.name.trim()}>
+                    저장
+                  </SaveButton>
+                </NewCardInputForm>
+              ) : (
+                <CardWrapper key={idx} onClick={() => handleCardClick(stock, idx)}>
+                  <StatCard
+                    title={stock.name || "이름 없음"}
+                    value={
+                      stock.price > 0 ? `₩${stock.price.toLocaleString()}` : "-"
+                    }
+                    change={stock.change}
+                    icon={Activity}
+                    color={stock.change > 0 ? "text-red-600" : "text-blue-600"}
+                  />
+                </CardWrapper>
+              )
+            )}
+
+            {/* 빈 카드 (새 카드 추가) */}
+            {!editingCard && (
+              <EmptyCard onClick={handleAddCard}>
+                <Plus size={40} />
+              </EmptyCard>
+            )}
+          </Section>
+        )}
+        <HiddenInput
+          type='file'
+          accept='.xlsx,.xls'
+          ref={fileInputRef}
+          onChange={handleFileChange}
+        />
       </Main>
     </Wrapper>
   );

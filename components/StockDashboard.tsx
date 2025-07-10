@@ -1,17 +1,18 @@
-'use client';
+"use client";
 
-import React, { useRef } from 'react';
-import { Activity, Users, Globe, Building } from 'lucide-react';
-import Header from '@/components/Header';
-import StatCard from '@/components/ui/StatCard';
-import PeriodButton from '@/components/ui/PeriodButton';
-import AveragePriceCard from '@/components/ui/AveragePriceCard';
-import RechartsPriceChart from '@/components/charts/recharts/RechartsPriceChart';
-import RechartsShareholderChart from '@/components/charts/recharts/RechartsShareholderChart';
-import { useStockData } from '@/components/hooks/useStockData';
-import { LINE_CHART_COLORS, PERIODS } from '@/types/constants';
-import { processingExcelData } from '@/app/utils/excelUtils';
-import styled from 'styled-components';
+import React, { useRef } from "react";
+import { Activity, Users, Globe, Building } from "lucide-react";
+import Header from "@/components/Header";
+import StatCard from "@/components/ui/StatCard";
+import PeriodButton from "@/components/ui/PeriodButton";
+import AveragePriceCard from "@/components/ui/AveragePriceCard";
+import RechartsPriceChart from "@/components/charts/recharts/RechartsPriceChart";
+import RechartsShareholderChart from "@/components/charts/recharts/RechartsShareholderChart";
+import { useStockData } from "@/components/hooks/useStockData";
+import { LINE_CHART_COLORS, PERIODS } from "@/types/constants";
+import { processingExcelData } from "@/app/utils/excelUtils";
+import styled from "styled-components";
+import { useRouter } from "next/navigation";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -25,7 +26,7 @@ const Main = styled.main`
 `;
 // Section: grid, flex prop이 DOM에 전달되지 않도록 withConfig 사용
 const Section = styled.section.withConfig({
-  shouldForwardProp: (prop) => prop !== 'grid' && prop !== 'flex', // grid, flex는 스타일 계산에만 사용, DOM에는 전달하지 않음
+  shouldForwardProp: (prop) => prop !== "grid" && prop !== "flex", // grid, flex는 스타일 계산에만 사용, DOM에는 전달하지 않음
 })<{ grid?: boolean; flex?: boolean }>`
   ${(props) =>
     props.grid
@@ -35,7 +36,7 @@ const Section = styled.section.withConfig({
       `
       : props.flex
       ? `display: flex; gap: 0.5rem; margin-bottom: 1.5rem;`
-      : ''}
+      : ""}
 `;
 const Card = styled.div`
   background: #1a1a1a;
@@ -59,8 +60,15 @@ const HiddenInput = styled.input`
 `;
 
 const StockDashboard = () => {
-  const { isClient, stockData, institutionalData, selectedPeriod, setSelectedPeriod, priceChangePercent, currentPrice } = useStockData('1Y');
+  const { isClient, stockData, institutionalData, selectedPeriod, setSelectedPeriod, priceChangePercent, currentPrice } = useStockData("1Y");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+
+  // 신규 카드 관련 상태
+  const [addingCard, setAddingCard] = React.useState(false);
+  const [newCardName, setNewCardName] = React.useState("");
+  const [uploadEnabled, setUploadEnabled] = React.useState(false);
+  const [error, setError] = React.useState("");
 
   if (!isClient) {
     return (
@@ -89,6 +97,39 @@ const StockDashboard = () => {
     } catch (e) {
       console.error(e);
     }
+  };
+
+  // 엑셀 업로드 핸들러 (신규 카드용)
+  const handleExcelUploadNew = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = e.target.files?.[0];
+      if (!file || !newCardName) return;
+      // 파일 존재 여부 확인 API 호출
+      const res = await fetch(`/api/excel/check?name=${encodeURIComponent(newCardName)}`);
+      const { exists } = await res.json();
+      if (exists) {
+        router.push(`/dashboard/${newCardName}`);
+      } else {
+        setError("해당 이름의 파일이 존재하지 않습니다.");
+      }
+    } catch {
+      setError("업로드 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 이름 입력 핸들러
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewCardName(e.target.value);
+    setUploadEnabled(!!e.target.value);
+    setError("");
+  };
+
+  // 입력 취소 핸들러
+  const handleCancelAdd = () => {
+    setAddingCard(false);
+    setNewCardName("");
+    setUploadEnabled(false);
+    setError("");
   };
 
   return (
@@ -122,6 +163,59 @@ const StockDashboard = () => {
             icon={Building}
             color='text-purple-500'
           />
+          {/* 신규 카드 입력 UI (카드 리스트 내에) */}
+          {addingCard ? (
+            <Card style={{ minWidth: 320, display: "flex", flexDirection: "column", gap: 12 }}>
+              <input
+                type='text'
+                placeholder='이름을 입력하세요'
+                value={newCardName}
+                onChange={handleNameChange}
+                style={{ padding: 8, borderRadius: 4, border: "1px solid #333", background: "#222", color: "#fff" }}
+                autoFocus
+              />
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button
+                  style={{
+                    background: uploadEnabled ? "#2563eb" : "#555",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 4,
+                    padding: "8px 16px",
+                    cursor: uploadEnabled ? "pointer" : "not-allowed",
+                  }}
+                  disabled={!uploadEnabled}
+                  onClick={() => fileInputRef.current?.click()}>
+                  엑셀 업로드
+                </button>
+                <button
+                  style={{
+                    background: "#333",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 4,
+                    padding: "8px 16px",
+                    cursor: "pointer",
+                  }}
+                  onClick={handleCancelAdd}>
+                  취소
+                </button>
+                <HiddenInput
+                  type='file'
+                  accept='.xlsx, .xls'
+                  ref={fileInputRef}
+                  onChange={handleExcelUploadNew}
+                />
+              </div>
+              {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
+            </Card>
+          ) : (
+            <Card
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", minHeight: 120 }}
+              onClick={() => setAddingCard(true)}>
+              <span style={{ fontSize: 32, color: "#888" }}>+</span>
+            </Card>
+          )}
         </Section>
         {/* 기간 선택 버튼 섹션 */}
         <Section flex>
@@ -148,14 +242,14 @@ const StockDashboard = () => {
         </Section>
         {/* 차트 그리드 섹션 */}
         <Section grid>
-          <Card style={{ gridColumn: 'span 2' }}>
+          <Card style={{ gridColumn: "span 2" }}>
             <ChartTitle>
-              <Activity style={{ color: '#dc2626', marginRight: 8 }} />
+              <Activity style={{ color: "#dc2626", marginRight: 8 }} />
               주가 차트 (캔들스틱)
             </ChartTitle>
             <RechartsPriceChart data={stockData} />
           </Card>
-          <div style={{ gridColumn: 'span 2' }}>
+          <div style={{ gridColumn: "span 2" }}>
             <AveragePriceCard
               data={stockData}
               period={selectedPeriod}
@@ -169,7 +263,7 @@ const StockDashboard = () => {
               </ChartTitle>
               <RechartsShareholderChart
                 data={institutionalData[key]}
-                color={LINE_CHART_COLORS[key] || '#ffffff'}
+                color={LINE_CHART_COLORS[key] || "#ffffff"}
                 title={key}
               />
             </Card>
