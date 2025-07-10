@@ -1,14 +1,14 @@
-'use client';
-import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
-import { Plus } from 'lucide-react';
-import styled from 'styled-components';
-import Header from '@/components/Header';
-import StatCard from '@/components/ui/StatCard';
-import { Activity } from 'lucide-react';
-import { processingExcelData } from '../utils/excelUtils';
-import { callGetApi } from '../utils/api';
-import { stockCard } from '@/types';
+"use client";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { Plus } from "lucide-react";
+import styled from "styled-components";
+import Header from "@/components/Header";
+import StatCard from "@/components/ui/StatCard";
+import { Activity } from "lucide-react";
+import { processingExcelData } from "../utils/excelUtils";
+import { callGetApi } from "../utils/api";
+import { stockCard } from "@/types";
 
 // styled-components 정의
 const Wrapper = styled.div`
@@ -41,31 +41,42 @@ const EmptyCard = styled.div`
   border-radius: 0.5rem;
   cursor: pointer;
   min-height: 120px;
+  &:hover {
+    border: 2px dashed #dbdbe9;
+    transition: 0.5s;
+  }
 `;
 const HiddenInput = styled.input`
   display: none;
 `;
 
+/**
+ * 종목 리스트
+ *
+ * 빈 카드 클릭시 -> 빈 카드 생성. -> 해당 카드 클릭하면 엑셀 업로드 가능.
+ * 빈 카드 생성 후 이름 지정 가능. 이 때 지정된 이름은 파일명이 됌.
+ *
+ * 이미 엑셀 등록된 카드의 경우 클릭 시 -> 차트 화면으로 이동.
+ */
 export default function Dashboard() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [stocks, setStocks] = useState<stockCard[]>([]); 
+  const [stocks, setStocks] = useState<stockCard[]>([]);
   useEffect(() => {
     const stockFiles = async () => {
       try {
-        const result = await callGetApi('/api/getExcelFiles', null);
-        if(result?.data){
-
+        const result = await callGetApi("/api/getExcelFiles", null);
+        if (result?.data) {
           console.log(result.data);
-        setStocks(result.data.stocks);
+          setStocks(result.data.stocks);
         }
       } catch (error) {
-        console.error('Error fetching files:', error);
+        console.error("Error fetching files:", error);
       }
     };
 
     stockFiles(); // async 함수 호출
-  }, []); 
+  }, []);
   // 예시 종목 데이터
   // const stocks = [
   //   { name: '삼성전자', price: 10000, change: 0.54 },
@@ -84,10 +95,9 @@ export default function Dashboard() {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-      if (!file) return;
+    if (!file) return;
 
-      
-      await processingExcelData(file);
+    await processingExcelData(file);
     // 엑셀 업로드 처리 로직 (추후 구현)
   };
 
@@ -106,7 +116,7 @@ export default function Dashboard() {
                 value={`₩${stock.price.toLocaleString()}`}
                 change={stock.change}
                 icon={Activity}
-                color={stock.change > 0 ? 'text-red-600' : 'text-blue-600'}
+                color={stock.change > 0 ? "text-red-600" : "text-blue-600"}
               />
             </CardWrapper>
           ))}
@@ -125,5 +135,3 @@ export default function Dashboard() {
     </Wrapper>
   );
 }
-
-

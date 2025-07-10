@@ -1,6 +1,6 @@
-import { Activity } from 'lucide-react';
-import React from 'react';
-import styled from 'styled-components';
+import { Activity } from "lucide-react";
+import React from "react";
+import styled from "styled-components";
 
 const HeaderWrapper = styled.header`
   background: #1a1a1a;
@@ -51,13 +51,13 @@ const NavLink = styled.a`
 `;
 
 // stockName prop 추가
-const Header = ({ chartType, stockName }: { chartType: 'rechart' | 'lightweight'; stockName?: string | null }) => {
+const Header = ({ chartType, stockName }: { chartType: "rechart" | "lightweight"; stockName?: string | null }) => {
   return (
     <HeaderWrapper>
       <HeaderInner>
         <NavLink href='/dashboard'>
           <Left>
-            <Activity style={{ color: '#dc2626', width: 32, height: 32 }} />
+            <Activity style={{ color: "#dc2626", width: 32, height: 32 }} />
             <Title>
               Dashboard
               {stockName && <StockNameSpan>{stockName}</StockNameSpan>}
@@ -65,8 +65,8 @@ const Header = ({ chartType, stockName }: { chartType: 'rechart' | 'lightweight'
           </Left>
         </NavLink>
         <Nav>
-          <NavLink href='/dashboard'>대시보드</NavLink>
-          <NavLink href={chartType === 'rechart' ? '/lightweight' : '/rechart'}>차트 변경</NavLink>
+          {/* <NavLink href='/dashboard'>대시보드</NavLink> */}
+          <NavLink href={chartType === "rechart" ? "/lightweight" : "/rechart"}>차트 변경</NavLink>
           {/* <NavLink href="#">포트폴리오</NavLink> */}
           {/* <NavLink href="#">뉴스</NavLink> */}
           {/* <NavLink href="#">분석</NavLink> */}
