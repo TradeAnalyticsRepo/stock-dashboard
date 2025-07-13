@@ -125,5 +125,5 @@ export const useStockData = (initialPeriod: string = '1Y') => {
 };
 
 export const useTableStockData = async (stockName?: string) => {
-  return await callGetApi('/api/getExcelFiles/table', {stockName: stockName});
+  return await callGetApi('/api/excel', {stockId: stockName, type: 'table'});
 }
