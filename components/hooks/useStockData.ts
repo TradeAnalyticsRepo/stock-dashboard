@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { StockDataItem } from '@/types';
 import jsonData from '@/excel/11111_graph.json';
 import { INSTITUTION_KEYS } from '@/types/constants';
+import { callGetApi } from '@/app/utils/api';
 
 // 보유율 데이터 타입 정의
 export interface ShareholderData {
@@ -22,7 +23,7 @@ export interface InstitutionalData {
 export const useStockData = (initialPeriod: string = '1Y') => {
   const [selectedPeriod, setSelectedPeriod] = useState(initialPeriod);
   const [isClient, setIsClient] = useState(false);
-
+  
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -122,3 +123,7 @@ export const useStockData = (initialPeriod: string = '1Y') => {
     currentPrice,
   };
 };
+
+export const useTableStockData = async (stockName?: string) => {
+  return await callGetApi('/api/getExcelFiles/table', {stockName: stockName});
+}
