@@ -17,6 +17,8 @@ export interface ExcelData__ {
   dispersionRatio: number;
   /** 개인주가선도 */
   stockMomentum: number;
+  /** 최대보유량 */
+  maxColVolume: number;
 }
 
 export interface ChartData {

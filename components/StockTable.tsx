@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import styled from 'styled-components';
-import { useTableStockData } from './hooks/useStockData';
+import { useLastestStockData, useTableStockData } from './hooks/useStockData';
 
 
 const Wrapper = styled.div`
@@ -86,15 +86,35 @@ const Row = styled.tr`
 
 const StockTable = ({ stockName }: { stockName?: string | null }) => {
   const [tableData, setTableData] = useState([]);
-
+  const [lastestData, setLastestData] = useState({
+    개인: {collectionVolume: 0, stockCorrelation: 0, maxColVolume:0, dispersionRatio:0, stockMomentum: 0},
+    세력합: {collectionVolume: 0, stockCorrelation: 0, maxColVolume:0, dispersionRatio:0, stockMomentum: 0},
+    외국인: {collectionVolume: 0, stockCorrelation: 0, maxColVolume:0, dispersionRatio:0, stockMomentum: 0},
+    금융투자: {collectionVolume: 0, stockCorrelation: 0, maxColVolume:0, dispersionRatio:0, stockMomentum: 0},
+    보험: {collectionVolume: 0, stockCorrelation: 0, maxColVolume:0, dispersionRatio:0, stockMomentum: 0},
+    투신_일반: {collectionVolume: 0, stockCorrelation: 0, maxColVolume:0, dispersionRatio:0, stockMomentum: 0},
+    기타금융: {collectionVolume: 0, stockCorrelation: 0, maxColVolume:0, dispersionRatio:0, stockMomentum: 0},
+    은행: {collectionVolume: 0, stockCorrelation: 0, maxColVolume:0, dispersionRatio:0, stockMomentum: 0},
+    연기금: {collectionVolume: 0, stockCorrelation: 0, maxColVolume:0, dispersionRatio:0, stockMomentum: 0},
+    투신_사모: {collectionVolume: 0, stockCorrelation: 0, maxColVolume:0, dispersionRatio:0, stockMomentum: 0},
+    국가매집: {collectionVolume: 0, stockCorrelation: 0, maxColVolume:0, dispersionRatio:0, stockMomentum: 0},
+    기타법인: {collectionVolume: 0, stockCorrelation: 0, maxColVolume:0, dispersionRatio:0, stockMomentum: 0},
+  });
   useEffect(() => {
     (async() => {
       try {
         // eslint-disable-next-line react-hooks/rules-of-hooks
-        const result = await useTableStockData(stockName);
-        if(result?.status === 200) {
-          setTableData(result.data);
+        const tableResult = await useTableStockData(stockName);
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const lastestResult = await useLastestStockData(stockName);
+        if(tableResult?.status === 200) {
+          setTableData(tableResult.data);
         }
+
+        if(lastestResult?.status === 200) {
+          setLastestData(lastestResult?.data);
+        }
+
       } catch(error) {
         console.error(error);
       }
@@ -151,7 +171,6 @@ const StockTable = ({ stockName }: { stockName?: string | null }) => {
                     })();
 
                     const color = ((num :number) => {
-                      console.log(num);
                       if(num > 0) return "#ef4444";
                       else if(num < 0) return "#1d74d6";
                     })
@@ -177,6 +196,91 @@ const StockTable = ({ stockName }: { stockName?: string | null }) => {
                     </Row>);
                     })
                 }
+                <Row>
+                  <Td style={{backgroundColor: '#22222270'}}>{'현재보유량'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{''}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{''}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{formatNumber(lastestData.개인.collectionVolume)}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{formatNumber(lastestData.세력합.collectionVolume)}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{formatNumber(lastestData.외국인.collectionVolume)}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{formatNumber(lastestData.금융투자.collectionVolume)}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{formatNumber(lastestData.보험.collectionVolume)}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{formatNumber(lastestData.투신_일반.collectionVolume)}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{formatNumber(lastestData.기타금융.collectionVolume)}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{formatNumber(lastestData.은행.collectionVolume)}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{formatNumber(lastestData.연기금.collectionVolume)}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{formatNumber(lastestData.투신_사모.collectionVolume)}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{formatNumber(lastestData.국가매집.collectionVolume)}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{formatNumber(lastestData.기타법인.collectionVolume)}</Td>
+                </Row>
+                <Row>
+                  <Td style={{backgroundColor: '#22222270'}}>{'상관계수'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{''}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{''}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.개인.stockCorrelation}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.세력합.stockCorrelation}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.외국인.stockCorrelation}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.금융투자.stockCorrelation}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.보험.stockCorrelation}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.투신_일반.stockCorrelation}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.기타금융.stockCorrelation}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.은행.stockCorrelation}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.연기금.stockCorrelation}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.투신_사모.stockCorrelation}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.국가매집.stockCorrelation}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.기타법인.stockCorrelation}</Td>
+                </Row>
+                <Row>
+                  <Td style={{backgroundColor: '#22222270'}}>{'최대보유량'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{''}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{''}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.개인.maxColVolume}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.세력합.maxColVolume}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.외국인.maxColVolume}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.금융투자.maxColVolume}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.보험.maxColVolume}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.투신_일반.maxColVolume}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.기타금융.maxColVolume}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.은행.maxColVolume}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.연기금.maxColVolume}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.투신_사모.maxColVolume}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.국가매집.maxColVolume}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.기타법인.maxColVolume}</Td>
+                </Row>
+                <Row>
+                  <Td style={{backgroundColor: '#22222270'}}>{'분산비율'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{''}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{''}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.개인.dispersionRatio + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.세력합.dispersionRatio + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.외국인.dispersionRatio + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.금융투자.dispersionRatio + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.보험.dispersionRatio + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.투신_일반.dispersionRatio + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.기타금융.dispersionRatio + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.은행.dispersionRatio + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.연기금.dispersionRatio + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.투신_사모.dispersionRatio + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.국가매집.dispersionRatio + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.기타법인.dispersionRatio + '%'}</Td>
+                </Row>
+                <Row>
+                  <Td style={{backgroundColor: '#22222270'}}>{'주가선도'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{''}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{''}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.개인.stockMomentum + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.세력합.stockMomentum + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.외국인.stockMomentum + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.금융투자.stockMomentum + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.보험.stockMomentum + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.투신_일반.stockMomentum + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.기타금융.stockMomentum + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.은행.stockMomentum + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.연기금.stockMomentum + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.투신_사모.stockMomentum + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.국가매집.stockMomentum + '%'}</Td>
+                  <Td style={{backgroundColor: '#22222270'}}>{lastestData.기타법인.stockMomentum + '%'}</Td>
+                </Row>
               </tbody>
             </StyledTable>
           </TableCard>
