@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
-import { StockDataItem } from '@/types';
-import jsonData from '@/excel/11111_graph.json';
-import { INSTITUTION_KEYS } from '@/types/constants';
-import { callGetApi } from '@/app/utils/api';
+import { useState, useEffect } from "react";
+import { StockDataItem } from "@/types";
+import jsonData from "@/excel/11111_graph.json";
+import { INSTITUTION_KEYS } from "@/types/constants";
+import { callGetApi } from "@/app/utils/api";
 
 // 보유율 데이터 타입 정의
 export interface ShareholderData {
   date: string;
   value: number;
+  dispersionRatio: number;
 }
 
 // 기관별 데이터 타입을 위한 인터페이스
@@ -20,27 +21,17 @@ export interface InstitutionalData {
  * @param initialPeriod - 초기 선택 기간 (기본값: "1Y")
  * @returns 차트 및 표시에 필요한 처리된 데이터
  */
-export const useStockData = (initialPeriod: string = '1Y') => {
+export const useStockData = (initialPeriod: string = "1Y", allData: any[]) => {
   const [selectedPeriod, setSelectedPeriod] = useState(initialPeriod);
   const [isClient, setIsClient] = useState(false);
-  
+
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const allData: any[] = jsonData;
-
-  // // 주가 데이터 포맷팅
-  // const formattedStockData: StockDataItem[] = allData.map((item) => ({
-  //   date: item.주가.tradeDate.replace(/\//g, "-"),
-  //   high: item.주가.high || item.주가.open,
-  //   low: item.주가.low || item.주가.open,
-  //   ...item.주가,
-  // }));
-
   // 주가 데이터 포맷팅
   const formattedStockData: StockDataItem[] = allData.map((item) => ({
-    date: item.주가.tradeDate.replace(/\//g, '-'),
+    date: item.주가.tradeDate.replace(/\//g, "-"),
     open: item.주가.open,
     // high: item.주가.high || item.주가.open,
     high: item.주가.high || item.주가.open,
@@ -53,13 +44,15 @@ export const useStockData = (initialPeriod: string = '1Y') => {
   // 기관별 데이터 포맷팅
   const allInstitutionalData: InstitutionalData = {};
   INSTITUTION_KEYS.forEach((key) => {
-    if (allData[0][key]) {
+    if (allData?.[0]?.[key]) {
       allInstitutionalData[key] = allData.map((item) => ({
-        date: item[key].tradeDate.replace(/\//g, '-'),
+        date: item[key].tradeDate.replace(/\//g, "-"),
         value: item[key].collectionVolume,
+        dispersionRatio: item[key].dispersionRatio,
       }));
     }
   });
+  console.debug("allInstitutionalData:", allInstitutionalData);
 
   // 기간에 따라 데이터 필터링
   const filterDataByPeriod = (data: any[] | undefined, period: string) => {
@@ -70,16 +63,16 @@ export const useStockData = (initialPeriod: string = '1Y') => {
     let startDate = new Date();
 
     switch (period) {
-      case '6M':
+      case "6M":
         startDate.setMonth(now.getMonth() - 6);
         break;
-      case '1Y':
+      case "1Y":
         startDate.setFullYear(now.getFullYear() - 1);
         break;
-      case '2Y':
+      case "2Y":
         startDate.setFullYear(now.getFullYear() - 2);
         break;
-      case '5Y':
+      case "5Y":
         startDate.setFullYear(now.getFullYear() - 5);
         break;
       default:
@@ -125,9 +118,9 @@ export const useStockData = (initialPeriod: string = '1Y') => {
 };
 
 export const useTableStockData = async (stockName?: string) => {
-  return await callGetApi('/api/excel', {stockId: stockName, type: 'table'});
-}
+  return await callGetApi("/api/excel", { stockId: stockName, type: "table" });
+};
 
 export const useLastestStockData = async (stockName?: string) => {
-  return await callGetApi('/api/excel', {stockId: stockName, type: 'lastest'});
-}
+  return await callGetApi("/api/excel", { stockId: stockName, type: "lastest" });
+};

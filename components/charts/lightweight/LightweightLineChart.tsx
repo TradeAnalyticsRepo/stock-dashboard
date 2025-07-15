@@ -24,6 +24,8 @@ const LightweightLineChart: React.FC<Props> = ({ chartName, data, color, yFormat
   const seriesRef = useRef<any>(null);
 
   useEffect(() => {
+    console.debug("data:", data);
+
     if (!chartContainerRef.current) return;
 
     // 차트 초기화
@@ -61,6 +63,7 @@ const LightweightLineChart: React.FC<Props> = ({ chartName, data, color, yFormat
       }
       const priceData = param.seriesData.get(seriesRef.current!);
       if (!priceData) return;
+      console.debug("priceData:", priceData);
 
       tooltipRef.current.style.display = "block";
       tooltipRef.current.style.left = param.point.x + 10 + "px";
@@ -69,6 +72,7 @@ const LightweightLineChart: React.FC<Props> = ({ chartName, data, color, yFormat
         <div style="color: #fff; background: rgba(0,0,0,0.7); padding: 6px 10px; border-radius: 8px; font-size: 12px; min-width:100px;">
           <div><strong>일자:</strong> ${param.time}</div>
           <div>매집수량: ${(priceData as any).value}</div>
+          <div>분산비율: ${(priceData as any).dispersionRatio}</div>
         </div>
       `;
     });
@@ -92,9 +96,12 @@ const LightweightLineChart: React.FC<Props> = ({ chartName, data, color, yFormat
   // 데이터가 변경될 때 차트 업데이트
   useEffect(() => {
     if (seriesRef.current && data) {
+      console.debug("data:", data);
+
       const chartData: LineData[] = data.map((item) => ({
         time: `${item.date}`,
         value: item.value,
+        dispersionRatio: item?.dispersionRatio || 0,
       }));
       seriesRef.current.setData(chartData);
     }
