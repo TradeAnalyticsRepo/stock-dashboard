@@ -1,9 +1,9 @@
-import React, { useRef, useEffect } from "react";
-import { createChart, LineData, LineSeries, IChartApi } from "lightweight-charts";
+import React, { useRef, useEffect } from 'react';
+import { createChart, LineData, LineSeries, IChartApi } from 'lightweight-charts';
 
 interface Props {
   chartName: string;
-  data: { date: string; value: number }[];
+  data: { date: string; value: number; dispersionRatio: number }[];
   color: string;
   yFormatter?: (value: number) => string;
   height?: number;
@@ -24,19 +24,17 @@ const LightweightLineChart: React.FC<Props> = ({ chartName, data, color, yFormat
   const seriesRef = useRef<any>(null);
 
   useEffect(() => {
-    console.debug("data:", data);
-
     if (!chartContainerRef.current) return;
 
     // 차트 초기화
     chartRef.current = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
       height,
-      layout: { background: { color: "#111827" }, textColor: "#9CA3AF" },
-      grid: { vertLines: { color: "#374151" }, horzLines: { color: "#374151" } },
+      layout: { background: { color: '#111827' }, textColor: '#9CA3AF' },
+      grid: { vertLines: { color: '#374151' }, horzLines: { color: '#374151' } },
       crosshair: { mode: 1 },
-      rightPriceScale: { borderColor: "#374151" },
-      timeScale: { borderColor: "#374151", timeVisible: true, secondsVisible: false },
+      rightPriceScale: { borderColor: '#374151' },
+      timeScale: { borderColor: '#374151', timeVisible: true, secondsVisible: false },
     });
 
     // 라인 시리즈 추가
@@ -47,7 +45,7 @@ const LightweightLineChart: React.FC<Props> = ({ chartName, data, color, yFormat
 
     // Y축 포맷터 적용
     if (yFormatter) {
-      chartRef.current.priceScale("right").applyOptions({
+      chartRef.current.priceScale('right').applyOptions({
         scaleMargins: { top: 0.1, bottom: 0.1 },
         entireTextOnly: true,
         // @ts-ignore
@@ -58,21 +56,25 @@ const LightweightLineChart: React.FC<Props> = ({ chartName, data, color, yFormat
     // 툴팁 구독 설정
     chartRef.current.subscribeCrosshairMove((param) => {
       if (!param || !param.time || !param.seriesData || !tooltipRef.current || !param.point) {
-        if (tooltipRef.current) tooltipRef.current.style.display = "none";
+        if (tooltipRef.current) tooltipRef.current.style.display = 'none';
         return;
       }
       const priceData = param.seriesData.get(seriesRef.current!);
       if (!priceData) return;
-      console.debug("priceData:", priceData);
 
-      tooltipRef.current.style.display = "block";
-      tooltipRef.current.style.left = param.point.x + 10 + "px";
-      tooltipRef.current.style.top = param.point.y + 10 + "px";
+      // 차트 데이터 내에서 time, value외의 데이터를 가지지 않음.
+      // 원본 데이터에서 찾아서 넣어야함.
+      const matched = data.find((item) => item.date === priceData.time);
+      const dispersionRatio = matched?.dispersionRatio ?? 0;
+
+      tooltipRef.current.style.display = 'block';
+      tooltipRef.current.style.left = param.point.x + 10 + 'px';
+      tooltipRef.current.style.top = param.point.y + 10 + 'px';
       tooltipRef.current.innerHTML = `
         <div style="color: #fff; background: rgba(0,0,0,0.7); padding: 6px 10px; border-radius: 8px; font-size: 12px; min-width:100px;">
           <div><strong>일자:</strong> ${param.time}</div>
           <div>매집수량: ${(priceData as any).value}</div>
-          <div>분산비율: ${(priceData as any).dispersionRatio}</div>
+          <div>분산비율: ${dispersionRatio}</div>
         </div>
       `;
     });
@@ -83,10 +85,10 @@ const LightweightLineChart: React.FC<Props> = ({ chartName, data, color, yFormat
         chartRef.current.applyOptions({ width: chartContainerRef.current.clientWidth });
       }
     };
-    window.addEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener('resize', handleResize);
       if (chartRef.current) {
         chartRef.current.remove();
       }
@@ -96,12 +98,9 @@ const LightweightLineChart: React.FC<Props> = ({ chartName, data, color, yFormat
   // 데이터가 변경될 때 차트 업데이트
   useEffect(() => {
     if (seriesRef.current && data) {
-      console.debug("data:", data);
-
       const chartData: LineData[] = data.map((item) => ({
         time: `${item.date}`,
         value: item.value,
-        dispersionRatio: item?.dispersionRatio || 0,
       }));
       seriesRef.current.setData(chartData);
     }
@@ -110,10 +109,10 @@ const LightweightLineChart: React.FC<Props> = ({ chartName, data, color, yFormat
   return (
     <div
       ref={chartContainerRef}
-      style={{ width: "100%", height: `${height}px`, position: "relative" }}>
+      style={{ width: '100%', height: `${height}px`, position: 'relative' }}>
       <div
         ref={tooltipRef}
-        style={{ position: "absolute", pointerEvents: "none", display: "none", zIndex: 10 }}
+        style={{ position: 'absolute', pointerEvents: 'none', display: 'none', zIndex: 10 }}
       />
     </div>
   );
