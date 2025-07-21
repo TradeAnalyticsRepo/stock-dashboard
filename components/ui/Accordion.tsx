@@ -30,13 +30,11 @@ const AccordionContent = styled.div.withConfig({
   padding: ${(props) => (props.isOpen ? '0 1.5rem 1.5rem' : '0 1.5rem')};
   max-height: ${(props) => (props.isOpen ? '1000px' : '0')};
   overflow: hidden;
-  transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
 `;
 
 const ChevronIcon = styled(ChevronDown).withConfig({
   shouldForwardProp: (prop) => prop !== 'isOpen',
 })<{ isOpen: boolean }>`
-  transition: transform 0.2s ease-in-out;
   transform: ${(props) => (props.isOpen ? 'rotate(180deg)' : 'rotate(0deg)')};
   flex-shrink: 0;
   margin-left: 1rem;

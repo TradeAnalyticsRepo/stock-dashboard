@@ -29,17 +29,41 @@ const Section = styled.section.withConfig({
 })<{ grid?: boolean; flex?: boolean }>`
   ${(props) =>
     props.grid
-      ? `display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;`
+      ? `
+        @media (min-width: 1024px) {
+          column-count: 2;
+          column-gap: 1rem;
+        }
+        & > * {
+          break-inside: avoid;
+          margin-bottom: 1rem;
+        }
+      `
       : props.flex
       ? `display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;`
       : ''}
 `;
-const Card = styled.div`
-  background: #1a1a1a;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  border: 1px solid #27272a;
+
+const ChartGrid = styled.div`
+  @media (min-width: 1024px) {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
 `;
+
+const Column = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+`;
+
+const FullWidthWrapper = styled.div`
+  margin-bottom: 1rem;
+`;
+
 const ToggleButton = styled.button`
   background: #27272a;
   color: #fff;
@@ -55,6 +79,12 @@ const ToggleButton = styled.button`
   &:hover {
     background: #3f3f46;
   }
+`;
+const Card = styled.div`
+  background: #1a1a1a;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  border: 1px solid #27272a;
 `;
 const ChartTitle = styled.h3`
   font-size: 1.25rem;
@@ -127,7 +157,7 @@ const StockDashboardLightweight = ({ stockName, allData }: { stockName?: string 
           ))}
           <ToggleButton onClick={() => setShowAveragePrice((prev) => !prev)}>{showAveragePrice ? '평균값 숨기기' : '평균값 보기'}</ToggleButton>
         </Section>
-        <Section grid>
+        <FullWidthWrapper>
           <Accordion
             defaultOpen
             title={
@@ -138,7 +168,9 @@ const StockDashboardLightweight = ({ stockName, allData }: { stockName?: string 
             }>
             <LightweightCandlestickChart data={stockData} />
           </Accordion>
-          {showAveragePrice && (
+        </FullWidthWrapper>
+        {showAveragePrice && (
+          <FullWidthWrapper>
             <Accordion
               defaultOpen
               title={
@@ -152,26 +184,54 @@ const StockDashboardLightweight = ({ stockName, allData }: { stockName?: string 
                 period={selectedPeriod}
               />
             </Accordion>
-          )}
-          {Object.keys(institutionalData).map((key) => (
-            <Accordion
-              key={key}
-              defaultOpen
-              title={
-                <>
-                  <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8 }} />
-                  {key} 매집수량
-                </>
-              }>
-              <LightweightLineChart
-                chartName={key}
-                data={institutionalData[key]}
-                color={LINE_CHART_COLORS[key] || '#ffffff'}
-                yFormatter={(v) => Math.round(v).toLocaleString()}
-              />
-            </Accordion>
-          ))}
-        </Section>
+          </FullWidthWrapper>
+        )}
+        <ChartGrid>
+          <Column>
+            {Object.keys(institutionalData)
+              .filter((_, index) => index % 2 === 0)
+              .map((key) => (
+                <Accordion
+                  key={key}
+                  defaultOpen
+                  title={
+                    <>
+                      <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8 }} />
+                      {key} 매집수량
+                    </>
+                  }>
+                  <LightweightLineChart
+                    chartName={key}
+                    data={institutionalData[key]}
+                    color={LINE_CHART_COLORS[key] || '#ffffff'}
+                    yFormatter={(v) => Math.round(v).toLocaleString()}
+                  />
+                </Accordion>
+              ))}
+          </Column>
+          <Column>
+            {Object.keys(institutionalData)
+              .filter((_, index) => index % 2 === 1)
+              .map((key) => (
+                <Accordion
+                  key={key}
+                  defaultOpen
+                  title={
+                    <>
+                      <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8 }} />
+                      {key} 매집수량
+                    </>
+                  }>
+                  <LightweightLineChart
+                    chartName={key}
+                    data={institutionalData[key]}
+                    color={LINE_CHART_COLORS[key] || '#ffffff'}
+                    yFormatter={(v) => Math.round(v).toLocaleString()}
+                  />
+                </Accordion>
+              ))}
+          </Column>
+        </ChartGrid>
       </Main>
     </Wrapper>
   );
