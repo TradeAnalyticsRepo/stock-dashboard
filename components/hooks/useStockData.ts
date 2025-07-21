@@ -30,26 +30,30 @@ export const useStockData = (initialPeriod: string = '1Y', allData: any[]) => {
   }, []);
 
   // 주가 데이터 포맷팅
-  const formattedStockData: StockDataItem[] = allData.map((item) => ({
-    date: item.주가.tradeDate.replace(/\//g, '-'),
-    open: item.주가.open,
-    // high: item.주가.high || item.주가.open,
-    high: item.주가.high || item.주가.open,
-    low: item.주가.low || item.주가.close,
-    close: item.주가.close,
-    price: item.주가.close,
-    previousDayComparison: item.주가.previousDayComparison,
-  }));
+  const formattedStockData: StockDataItem[] = allData
+    .filter((item) => item?.주가?.tradeDate)
+    .map((item) => ({
+      date: item.주가.tradeDate.replace(/\//g, '-'),
+      open: item.주가.open,
+      // high: item.주가.high || item.주가.open,
+      high: item.주가.high || item.주가.open,
+      low: item.주가.low || item.주가.close,
+      close: item.주가.close,
+      price: item.주가.close,
+      previousDayComparison: item.주가.previousDayComparison,
+    }));
 
   // 기관별 데이터 포맷팅
   const allInstitutionalData: InstitutionalData = {};
   INSTITUTION_KEYS.forEach((key) => {
     if (allData?.[0]?.[key]) {
-      allInstitutionalData[key] = allData.map((item) => ({
-        date: item[key].tradeDate.replace(/\//g, '-'),
-        value: item[key].collectionVolume,
-        dispersionRatio: item[key].dispersionRatio,
-      }));
+      allInstitutionalData[key] = allData
+        .filter((item) => item?.[key]?.tradeDate)
+        .map((item) => ({
+          date: item[key].tradeDate.replace(/\//g, '-'),
+          value: item[key].collectionVolume,
+          dispersionRatio: item[key].dispersionRatio,
+        }));
     }
   });
   console.debug('allInstitutionalData:', allInstitutionalData);

@@ -1,121 +1,96 @@
-import React, { useRef, useEffect } from 'react';
-import { createChart, LineData, LineSeries, IChartApi } from 'lightweight-charts';
+'use client';
 
-interface Props {
-  chartName: string;
-  data: { date: string; value: number; dispersionRatio: number }[];
-  color: string;
-  yFormatter?: (value: number) => string;
-  height?: number;
+import React, { useRef, useEffect } from 'react';
+import { createChart, LineData, IChartApi, UTCTimestamp, LineSeries } from 'lightweight-charts';
+import styled from 'styled-components';
+
+interface ShareholderData {
+  date: string;
+  value: number;
 }
 
-/**
- * Lightweight-charts를 사용한 라인 차트 컴포넌트
- * - 주주 현황(개인, 외국인, 기관) 데이터를 시각화
- * - 동적인 데이터 업데이트와 부드러운 차트 렌더링을 지원
- * - 툴팁을 통해 각 데이터 포인트의 날짜와 값을 표시
- * @param {Props} props - data, color, yFormatter, height
- * @returns {JSX.Element}
- */
-const LightweightLineChart: React.FC<Props> = ({ chartName, data, color, yFormatter, height = 320 }) => {
+interface LightweightLineChartProps {
+  chartName: string;
+  data: ShareholderData[];
+  color: string;
+  yFormatter: (value: number) => string;
+}
+
+const ChartContainer = styled.div`
+  height: 200px;
+`;
+
+const LightweightLineChart: React.FC<LightweightLineChartProps> = ({ chartName, data, color, yFormatter }) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
-  const tooltipRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
-  const seriesRef = useRef<any>(null);
 
   useEffect(() => {
-    if (!chartContainerRef.current) return;
+    if (!chartContainerRef.current || data.length === 0) return;
 
-    // 차트 초기화
-    chartRef.current = createChart(chartContainerRef.current, {
+    const chart: IChartApi = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
-      height,
-      layout: { background: { color: '#111827' }, textColor: '#9CA3AF' },
-      grid: { vertLines: { color: '#374151' }, horzLines: { color: '#374151' } },
-      crosshair: { mode: 1 },
-      rightPriceScale: { borderColor: '#374151' },
-      timeScale: { borderColor: '#374151', timeVisible: true, secondsVisible: false },
+      height: 200, // 높이를 200px로 고정
+      layout: {
+        background: { color: '#1a1a1a' },
+        textColor: '#d1d5db',
+      },
+      grid: {
+        vertLines: { color: '#27272a' },
+        horzLines: { color: '#27272a' },
+      },
+      timeScale: {
+        borderColor: '#27272a',
+      },
+      rightPriceScale: {
+        borderColor: '#27272a',
+      },
+    });
+    chartRef.current = chart;
+
+    chart.priceScale('right').applyOptions({
+      scaleMargins: {
+        top: 0.1,
+        bottom: 0.1,
+      },
+      // @ts-ignore
+      tickMarkFormatter: (price: number) => {
+        return yFormatter(price);
+      },
     });
 
-    // 라인 시리즈 추가
-    seriesRef.current = chartRef.current.addSeries(LineSeries, {
+    const lineSeries = (chart as any).addSeries(LineSeries, {
       color,
       lineWidth: 2,
+      priceFormat: {
+        type: 'price',
+        precision: 0,
+        minMove: 1,
+      },
     });
 
-    // Y축 포맷터 적용
-    if (yFormatter) {
-      chartRef.current.priceScale('right').applyOptions({
-        scaleMargins: { top: 0.1, bottom: 0.1 },
-        entireTextOnly: true,
-        // @ts-ignore
-        tickMarkFormatter: (price: number) => yFormatter(price),
-      });
-    }
+    const chartData: LineData[] = data.map((item) => ({
+      time: (new Date(item.date).getTime() / 1000) as UTCTimestamp,
+      value: item.value,
+    }));
+    lineSeries.setData(chartData);
 
-    // 툴팁 구독 설정
-    chartRef.current.subscribeCrosshairMove((param) => {
-      if (!param || !param.time || !param.seriesData || !tooltipRef.current || !param.point) {
-        if (tooltipRef.current) tooltipRef.current.style.display = 'none';
-        return;
-      }
-      const priceData = param.seriesData.get(seriesRef.current!);
-      if (!priceData) return;
+    chart.timeScale().fitContent();
 
-      // 차트 데이터 내에서 time, value외의 데이터를 가지지 않음.
-      // 원본 데이터에서 찾아서 넣어야함.
-      const matched = data.find((item) => item.date === priceData.time);
-      const dispersionRatio = matched?.dispersionRatio ?? 0;
-
-      tooltipRef.current.style.display = 'block';
-      tooltipRef.current.style.left = param.point.x + 10 + 'px';
-      tooltipRef.current.style.top = param.point.y + 10 + 'px';
-      tooltipRef.current.innerHTML = `
-        <div style="color: #fff; background: rgba(0,0,0,0.7); padding: 6px 10px; border-radius: 8px; font-size: 12px; min-width:100px;">
-          <div><strong>일자:</strong> ${param.time}</div>
-          <div>매집수량: ${(priceData as any).value}</div>
-          <div>분산비율: ${dispersionRatio}</div>
-        </div>
-      `;
-    });
-
-    // 창 크기 조절 핸들러
     const handleResize = () => {
-      if (chartContainerRef.current && chartRef.current) {
-        chartRef.current.applyOptions({ width: chartContainerRef.current.clientWidth });
-      }
+      chart.applyOptions({
+        width: chartContainerRef.current?.clientWidth,
+      });
     };
+
     window.addEventListener('resize', handleResize);
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      if (chartRef.current) {
-        chartRef.current.remove();
-      }
+      chart.remove();
     };
-  }, [height, yFormatter]);
+  }, [data, color, yFormatter]);
 
-  // 데이터가 변경될 때 차트 업데이트
-  useEffect(() => {
-    if (seriesRef.current && data) {
-      const chartData: LineData[] = data.map((item) => ({
-        time: `${item.date}`,
-        value: item.value,
-      }));
-      seriesRef.current.setData(chartData);
-    }
-  }, [data]);
-
-  return (
-    <div
-      ref={chartContainerRef}
-      style={{ width: '100%', height: `${height}px`, position: 'relative' }}>
-      <div
-        ref={tooltipRef}
-        style={{ position: 'absolute', pointerEvents: 'none', display: 'none', zIndex: 10 }}
-      />
-    </div>
-  );
+  return <ChartContainer ref={chartContainerRef} />;
 };
 
 export default LightweightLineChart;
