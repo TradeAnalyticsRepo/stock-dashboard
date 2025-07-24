@@ -117,11 +117,12 @@ const StockTable = ({ stockName }: { stockName?: string | null }) => {
         console.error(error);
       }
     })();
-  }, []);
+  }, [stockName]);
 
   const formatNumber = (num: number): string => {
     return num.toLocaleString(); // 기본은 시스템 locale (한국이면 1,000 식)
   };
+            // <Title>투자자별 누적 매집 데이터</Title>
 
   return (
     <Wrapper>
@@ -132,7 +133,9 @@ const StockTable = ({ stockName }: { stockName?: string | null }) => {
       <Main>
         <Section>
           <TableCard>
-            <Title>투자자별 누적 매집 데이터</Title>
+
+
+
             <StyledTable>
               <Thead>
                 <tr>

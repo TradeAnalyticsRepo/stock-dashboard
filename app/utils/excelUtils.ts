@@ -159,7 +159,7 @@ export const processingExcelDataForCummulativeGraph = (
         // 타입 안전하게 접근
         const volKey = `${toCamel(value)}CollectionVolume` as keyof typeof volume;
         if (key in item && volKey in volume) {
-          volume[volKey] += (item as any)[key] as number;
+          volume[volKey] += item[key as keyof originalExcelFile] as number;
           sumTotalCollectionVolume += volume[volKey];
         }
       }

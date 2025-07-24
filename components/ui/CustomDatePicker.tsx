@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Calendar, X } from 'lucide-react';
 import styled from 'styled-components';
 

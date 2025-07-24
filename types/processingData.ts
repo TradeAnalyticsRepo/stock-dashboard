@@ -156,9 +156,6 @@ export interface baseDataBeforeProcess {
         year9?: originalExcelFile[];           // 9년
         year10?: originalExcelFile[];          // 10년
     };
-
-    stockPriceList: [],
-    culmulativeList: []
 }
 
 export const excelEnum = Object.freeze({

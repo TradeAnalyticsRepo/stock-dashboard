@@ -167,7 +167,7 @@ export default function Dashboard() {
     try {
       setIsLoading(true);
       setError(null);
-      const result = await callGetApi("/api/getExcelFiles", null);
+      const result = await callGetApi("/api/getExcelFiles", {});
       if (result?.data) {
         setStocks(result.data.stocks);
       }

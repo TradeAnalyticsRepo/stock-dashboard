@@ -127,14 +127,6 @@ const StockDashboardLightweight = ({ stockName, allData }: { stockName?: string 
       </Wrapper>
     );
   }
-
-  const getLatestValue = (data: { value: number }[]) => {
-    if (data && data.length > 0) {
-      return data[data.length - 1].value;
-    }
-    return 0;
-  };
-
   // const latestIndividualVolume = getLatestValue(institutionalData.개인);
   // const latestForeignerVolume = getLatestValue(institutionalData.외국인);
   // const latestCombinedForcesVolume = getLatestValue(institutionalData.세력합);
