@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import styled from "styled-components";
 import { useLastestStockData, useTableStockData } from "./hooks/useStockData";
+import { TableData } from "@/types/processingData";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -122,7 +123,7 @@ const StockTable = ({ stockName }: { stockName?: string | null }) => {
   const formatNumber = (num: number): string => {
     return num.toLocaleString(); // 기본은 시스템 locale (한국이면 1,000 식)
   };
-            // <Title>투자자별 누적 매집 데이터</Title>
+  // <Title>투자자별 누적 매집 데이터</Title>
 
   return (
     <Wrapper>
@@ -133,9 +134,6 @@ const StockTable = ({ stockName }: { stockName?: string | null }) => {
       <Main>
         <Section>
           <TableCard>
-
-
-
             <StyledTable>
               <Thead>
                 <tr>
@@ -157,7 +155,7 @@ const StockTable = ({ stockName }: { stockName?: string | null }) => {
                 </tr>
               </Thead>
               <tbody>
-                {tableData.map((row) => {
+                {tableData.map((row: TableData) => {
                   const backgroudColor = (() => {
                     if (row.tradeDateNm.endsWith("주")) {
                       return "#1F7D5370";
