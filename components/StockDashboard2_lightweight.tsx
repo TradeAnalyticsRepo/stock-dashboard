@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { Activity, Users, Globe, Building } from 'lucide-react';
-import Header from '@/components/Header';
-import StatCard from '@/components/ui/StatCard';
-import PeriodButton from '@/components/ui/PeriodButton';
-import AveragePriceCard from '@/components/ui/AveragePriceCard';
-import LightweightCandlestickChart from '@/components/charts/lightweight/LightweightCandlestickChart';
-import LightweightLineChart from '@/components/charts/lightweight/LightweightLineChart';
-import { useStockData } from '@/components/hooks/useStockData';
-import { LINE_CHART_COLORS, PERIODS } from '@/types/constants';
-import styled from 'styled-components';
-import Accordion from '@/components/ui/Accordion';
+import React, { useEffect, useState } from "react";
+import { Activity, Users, Globe, Building } from "lucide-react";
+import Header from "@/components/Header";
+import StatCard from "@/components/ui/StatCard";
+import PeriodButton from "@/components/ui/PeriodButton";
+import AveragePriceCard from "@/components/ui/AveragePriceCard";
+import LightweightCandlestickChart from "@/components/charts/lightweight/LightweightCandlestickChart";
+import LightweightLineChart from "@/components/charts/lightweight/LightweightLineChart";
+import { useStockData } from "@/components/hooks/useStockData";
+import { LINE_CHART_COLORS, PERIODS } from "@/types/constants";
+import styled from "styled-components";
+import Accordion from "@/components/ui/Accordion";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -25,7 +25,7 @@ const Main = styled.main`
 `;
 // Section: grid, flex prop이 DOM에 전달되지 않도록 withConfig 사용
 const Section = styled.section.withConfig({
-  shouldForwardProp: (prop) => prop !== 'grid' && prop !== 'flex', // grid, flex는 스타일 계산에만 사용, DOM에는 전달하지 않음
+  shouldForwardProp: (prop) => prop !== "grid" && prop !== "flex", // grid, flex는 스타일 계산에만 사용, DOM에는 전달하지 않음
 })<{ grid?: boolean; flex?: boolean }>`
   ${(props) =>
     props.grid
@@ -41,7 +41,7 @@ const Section = styled.section.withConfig({
       `
       : props.flex
       ? `display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;`
-      : ''}
+      : ""}
 `;
 
 const ChartGrid = styled.div`
@@ -80,19 +80,7 @@ const ToggleButton = styled.button`
     background: #3f3f46;
   }
 `;
-const Card = styled.div`
-  background: #1a1a1a;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  border: 1px solid #27272a;
-`;
-const ChartTitle = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0;
-  display: flex;
-  align-items: center;
-`;
+
 const FlexCenter = styled.div`
   min-height: 100vh;
   display: flex;
@@ -106,10 +94,7 @@ const FlexCenter = styled.div`
  * Includes key metrics, period selection buttons, and a chart grid.
  */
 const StockDashboardLightweight = ({ stockName, allData }: { stockName?: string | null; allData: object[] }) => {
-  const { isClient, stockData, institutionalData, selectedPeriod, setSelectedPeriod, priceChangePercent, currentPrice } = useStockData(
-    '10Y',
-    allData
-  );
+  const { isClient, stockData, institutionalData, selectedPeriod, setSelectedPeriod } = useStockData("10Y", allData);
   const [showAveragePrice, setShowAveragePrice] = useState(false);
 
   useEffect(() => {
@@ -127,9 +112,6 @@ const StockDashboardLightweight = ({ stockName, allData }: { stockName?: string 
       </Wrapper>
     );
   }
-  // const latestIndividualVolume = getLatestValue(institutionalData.개인);
-  // const latestForeignerVolume = getLatestValue(institutionalData.외국인);
-  // const latestCombinedForcesVolume = getLatestValue(institutionalData.세력합);
 
   return (
     <Wrapper>
@@ -147,14 +129,14 @@ const StockDashboardLightweight = ({ stockName, allData }: { stockName?: string 
               onClick={setSelectedPeriod}
             />
           ))}
-          <ToggleButton onClick={() => setShowAveragePrice((prev) => !prev)}>{showAveragePrice ? '평균값 숨기기' : '평균값 보기'}</ToggleButton>
+          <ToggleButton onClick={() => setShowAveragePrice((prev) => !prev)}>{showAveragePrice ? "평균값 숨기기" : "평균값 보기"}</ToggleButton>
         </Section>
         <FullWidthWrapper>
           <Accordion
             defaultOpen
             title={
               <>
-                <Activity style={{ color: '#dc2626', marginRight: 8 }} />
+                <Activity style={{ color: "#dc2626", marginRight: 8 }} />
                 주가 차트 (캔들스틱)
               </>
             }>
@@ -167,7 +149,7 @@ const StockDashboardLightweight = ({ stockName, allData }: { stockName?: string 
               defaultOpen
               title={
                 <>
-                  <Users style={{ color: '#f59e0b', marginRight: 8 }} />
+                  <Users style={{ color: "#f59e0b", marginRight: 8 }} />
                   주요기간 평균값
                 </>
               }>
@@ -195,7 +177,7 @@ const StockDashboardLightweight = ({ stockName, allData }: { stockName?: string 
                   <LightweightLineChart
                     chartName={key}
                     data={institutionalData[key]}
-                    color={LINE_CHART_COLORS[key] || '#ffffff'}
+                    color={LINE_CHART_COLORS[key] || "#ffffff"}
                     yFormatter={(v) => Math.round(v).toLocaleString()}
                   />
                 </Accordion>
@@ -217,7 +199,7 @@ const StockDashboardLightweight = ({ stockName, allData }: { stockName?: string 
                   <LightweightLineChart
                     chartName={key}
                     data={institutionalData[key]}
-                    color={LINE_CHART_COLORS[key] || '#ffffff'}
+                    color={LINE_CHART_COLORS[key] || "#ffffff"}
                     yFormatter={(v) => Math.round(v).toLocaleString()}
                   />
                 </Accordion>
@@ -231,6 +213,19 @@ const StockDashboardLightweight = ({ stockName, allData }: { stockName?: string 
 
 export default StockDashboardLightweight;
 
+// const Card = styled.div`
+//   background: #1a1a1a;
+//   border-radius: 0.5rem;
+//   padding: 1.5rem;
+//   border: 1px solid #27272a;
+// `;
+// const ChartTitle = styled.h3`
+//   font-size: 1.25rem;
+//   font-weight: 600;
+//   margin: 0;
+//   display: flex;
+//   align-items: center;
+// `;
 // <Section grid>
 //   <StatCard
 //     title='현재가'

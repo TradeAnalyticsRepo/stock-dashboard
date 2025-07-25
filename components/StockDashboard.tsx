@@ -1,18 +1,18 @@
 "use client";
 
-import React, { useRef } from "react";
-import { Activity, Users, Globe, Building } from "lucide-react";
-import Header from "@/components/Header";
-import StatCard from "@/components/ui/StatCard";
-import PeriodButton from "@/components/ui/PeriodButton";
-import AveragePriceCard from "@/components/ui/AveragePriceCard";
-import RechartsPriceChart from "@/components/charts/recharts/RechartsPriceChart";
-import RechartsShareholderChart from "@/components/charts/recharts/RechartsShareholderChart";
-import { useStockData } from "@/components/hooks/useStockData";
-import { LINE_CHART_COLORS, PERIODS } from "@/types/constants";
-import { processingExcelData } from "@/app/utils/excelUtils";
+// import React, { useRef } from "react";
+// import { Activity, Users, Globe, Building } from "lucide-react";
+// import Header from "@/components/Header";
+// import StatCard from "@/components/ui/StatCard";
+// import PeriodButton from "@/components/ui/PeriodButton";
+// import AveragePriceCard from "@/components/ui/AveragePriceCard";
+// import RechartsPriceChart from "@/components/charts/recharts/RechartsPriceChart";
+// import RechartsShareholderChart from "@/components/charts/recharts/RechartsShareholderChart";
+// import { useStockData } from "@/components/hooks/useStockData";
+// import { LINE_CHART_COLORS, PERIODS } from "@/types/constants";
+// import { processingExcelData } from "@/app/utils/excelUtils";
+// import { useRouter } from "next/navigation";
 import styled from "styled-components";
-import { useRouter } from "next/navigation";
 
 const Wrapper = styled.div`
   min-height: 100vh;
