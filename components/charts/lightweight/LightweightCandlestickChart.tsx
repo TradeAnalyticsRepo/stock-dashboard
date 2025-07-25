@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React, { useRef, useEffect } from 'react';
-import { createChart, CandlestickData, IChartApi, UTCTimestamp, CandlestickSeries } from 'lightweight-charts';
-import { StockDataItem } from '@/types';
-import styled from 'styled-components';
+import React, { useRef, useEffect } from "react";
+import { createChart, CandlestickData, IChartApi, UTCTimestamp, CandlestickSeries } from "lightweight-charts";
+import { StockDataItem } from "@/types";
+import styled from "styled-components";
 
 const ChartContainer = styled.div`
-  height: 300px;
+  height: 150px;
   position: relative;
 `;
 
@@ -23,32 +23,32 @@ const LightweightCandlestickChart: React.FC<LightweightCandlestickChartProps> = 
 
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
-      height: 300,
+      height: 150,
       layout: {
-        background: { color: '#1a1a1a' },
-        textColor: '#d1d5db',
+        background: { color: "#1a1a1a" },
+        textColor: "#d1d5db",
       },
       grid: {
-        vertLines: { color: '#27272a' },
-        horzLines: { color: '#27272a' },
+        vertLines: { color: "#27272a" },
+        horzLines: { color: "#27272a" },
       },
       timeScale: {
-        borderColor: '#27272a',
+        borderColor: "#27272a",
         timeVisible: true,
       },
       rightPriceScale: {
-        borderColor: '#27272a',
+        borderColor: "#27272a",
       },
     });
 
     // 원래대로 addCandlestickSeries 사용
     const candlestickSeries = (chart as any).addSeries(CandlestickSeries, {
-      upColor: '#dc2626',
-      downColor: '#2563eb',
-      borderDownColor: '#2563eb',
-      borderUpColor: '#dc2626',
-      wickDownColor: '#2563eb',
-      wickUpColor: '#dc2626',
+      upColor: "#dc2626",
+      downColor: "#2563eb",
+      borderDownColor: "#2563eb",
+      borderUpColor: "#dc2626",
+      wickDownColor: "#2563eb",
+      wickUpColor: "#dc2626",
     });
 
     const chartData: CandlestickData[] = data.map((item) => ({
@@ -68,9 +68,9 @@ const LightweightCandlestickChart: React.FC<LightweightCandlestickChartProps> = 
       });
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
       chart.remove();
     };
   }, [data]);

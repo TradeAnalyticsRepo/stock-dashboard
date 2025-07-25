@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { useRef, useEffect } from 'react';
-import { createChart, LineData, IChartApi, UTCTimestamp, LineSeries } from 'lightweight-charts';
-import styled from 'styled-components';
+import React, { useRef, useEffect } from "react";
+import { createChart, LineData, IChartApi, UTCTimestamp, LineSeries } from "lightweight-charts";
+import styled from "styled-components";
 
 interface ShareholderData {
   date: string;
@@ -17,7 +17,7 @@ interface LightweightLineChartProps {
 }
 
 const ChartContainer = styled.div`
-  height: 200px;
+  height: 100px;
 `;
 
 const LightweightLineChart: React.FC<LightweightLineChartProps> = ({ chartName, data, color, yFormatter }) => {
@@ -29,25 +29,25 @@ const LightweightLineChart: React.FC<LightweightLineChartProps> = ({ chartName, 
 
     const chart: IChartApi = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
-      height: 200, // 높이를 200px로 고정
+      height: 100, // 높이를 200px로 고정
       layout: {
-        background: { color: '#1a1a1a' },
-        textColor: '#d1d5db',
+        background: { color: "#1a1a1a" },
+        textColor: "#d1d5db",
       },
       grid: {
-        vertLines: { color: '#27272a' },
-        horzLines: { color: '#27272a' },
+        vertLines: { color: "#27272a" },
+        horzLines: { color: "#27272a" },
       },
       timeScale: {
-        borderColor: '#27272a',
+        borderColor: "#27272a",
       },
       rightPriceScale: {
-        borderColor: '#27272a',
+        borderColor: "#27272a",
       },
     });
     chartRef.current = chart;
 
-    chart.priceScale('right').applyOptions({
+    chart.priceScale("right").applyOptions({
       scaleMargins: {
         top: 0.1,
         bottom: 0.1,
@@ -62,7 +62,7 @@ const LightweightLineChart: React.FC<LightweightLineChartProps> = ({ chartName, 
       color,
       lineWidth: 2,
       priceFormat: {
-        type: 'price',
+        type: "price",
         precision: 0,
         minMove: 1,
       },
@@ -82,10 +82,10 @@ const LightweightLineChart: React.FC<LightweightLineChartProps> = ({ chartName, 
       });
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
       chart.remove();
     };
   }, [data, color, yFormatter]);

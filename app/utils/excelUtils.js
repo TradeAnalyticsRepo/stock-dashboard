@@ -1,8 +1,7 @@
-import { baseDataBeforeProcess, ChartData, excelEnum, originalExcelFile, TableData } from "@/types/processingData";
 import { callPostApi } from "./api";
 import * as XLSX from "xlsx";
 
-export const excelFileToJson = async (excelFile: File): Promise<originalExcelFile[]> => {
+export const excelFileToJson = async (excelFile) => {
   const arrayBuffer = await excelFile.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
@@ -11,14 +10,14 @@ export const excelFileToJson = async (excelFile: File): Promise<originalExcelFil
   return XLSX.utils.sheet_to_json(sheet);
 };
 
-export const processingExcelData = async (excelFile: File, stockName: string) => {
+export const processingExcelData = async (excelFile, stockName) => {
   const originalData = await excelFileToJson(excelFile);
   // 명칭줄(첫밴째 인덱스) 제거
   originalData.shift();
-  const baseDataBeforeProcess: baseDataBeforeProcess = {};
+  const baseDataBeforeProcess = {};
   // 기간별 데이터 추출
   baseDataBeforeProcess.stockListByPeriod = stockDataBeforePeriodProcess(originalData);
-  const tableData: TableData[] = processingExcelDataForCummulativePeriod(baseDataBeforeProcess.stockListByPeriod);
+  const tableData = processingExcelDataForCummulativePeriod(baseDataBeforeProcess.stockListByPeriod);
   const cumulativeTableData = {
     stockId: stockName,
     processingData: tableData,
@@ -74,12 +73,12 @@ export const processingExcelData = async (excelFile: File, stockName: string) =>
   await callPostApi("/api/excel", cumulativeTableData);
 };
 
-export const stockDataBeforeCumulateProcess = (data: originalExcelFile[]): baseDataBeforeProcess["cumulativeStockData"] => {
+export const stockDataBeforeCumulateProcess = (data) => {
   const cumulativeStockData = initCumulativeStockData;
 
   data.forEach((item) => {
     // 투자자별 누적합계, 최저점, 최고점
-    Object.keys(excelEnum).forEach((key: string) => {
+    Object.keys(excelEnum).forEach((key) => {
       if (key === "TotalForeAndInst") {
         // 외국인 + 기관
         const cumulativeMount = cumulativeStockData.cumulativeForeMount + cumulativeStockData.cumulativeTotalInsMount;
@@ -112,10 +111,7 @@ export const stockDataBeforeCumulateProcess = (data: originalExcelFile[]): baseD
 };
 
 // 수급계산 로직
-export const processingExcelDataForCummulativeGraph = (
-  data: originalExcelFile[],
-  cumulativeStockData: baseDataBeforeProcess["cumulativeStockData"]
-) => {
+export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData) => {
   const volume = {
     indivCollectionVolume: -cumulativeStockData.minIndivMount,
     totalForeAndInstCollectionVolume: -cumulativeStockData.minTotalForeAndInstMount,
@@ -132,7 +128,7 @@ export const processingExcelDataForCummulativeGraph = (
     etcCollectionVolume: -cumulativeStockData.minEtcMount,
   };
 
-  const stockPriceList: number[] = [];
+  const stockPriceList = [];
   const culmulativeList = {
     개인: [],
     세력합: [],
@@ -147,19 +143,19 @@ export const processingExcelDataForCummulativeGraph = (
     국가매집: [],
     기타법인: [],
   };
-  const result: ChartData[] = [];
+  const result = [];
 
   data.forEach((item) => {
     let sumTotalCollectionVolume = 0;
-    (Object.keys(excelEnum) as (keyof originalExcelFile)[]).forEach((key) => {
+    Object.keys(excelEnum).forEach((key) => {
       const value = excelEnum[key];
       if (value === "TotalForeAndInst") {
         volume.totalForeAndInstCollectionVolume += item["외국인"] + item["기관종합"];
       } else {
         // 타입 안전하게 접근
-        const volKey = `${toCamel(value)}CollectionVolume` as keyof typeof volume;
+        const volKey = `${toCamel(value)}CollectionVolume`;
         if (key in item && volKey in volume) {
-          volume[volKey] += item[key as keyof originalExcelFile] as number;
+          volume[volKey] += item[key];
           sumTotalCollectionVolume += volume[volKey];
         }
       }
@@ -175,7 +171,7 @@ export const processingExcelDataForCummulativeGraph = (
       previousDayComparison: item.__EMPTY,
     };
 
-    const dayValue: ChartData = {
+    const dayValue = {
       주가: {
         ...defaultInfo,
         high: 0,
@@ -313,14 +309,13 @@ export const processingExcelDataForCummulativeGraph = (
     culmulativeList.국가매집.push(volume.natCollectionVolume);
     culmulativeList.기타법인.push(volume.etcCollectionVolume);
 
-
     result.push(dayValue);
   });
 
   return { graphProcessingData: result, stockPriceList: stockPriceList, culmulativeList: culmulativeList };
 };
 
-export const stockDataBeforePeriodProcess = (data: originalExcelFile[]): baseDataBeforeProcess["stockListByPeriod"] => {
+export const stockDataBeforePeriodProcess = (data) => {
   let week = 1,
     month = 1,
     quarter = 1,
@@ -384,13 +379,14 @@ export const stockDataBeforePeriodProcess = (data: originalExcelFile[]): baseDat
 
   return stockListByPeriod;
 };
+
 // 수급분석표 로직
-export const processingExcelDataForCummulativePeriod = (stockList: baseDataBeforeProcess["stockListByPeriod"]): TableData[] => {
-  const result: TableData[] = [];
+export const processingExcelDataForCummulativePeriod = (stockList) => {
+  const result = [];
   const keys = Object.keys(stockList ?? {});
   keys.forEach((key) => {
     if (key === "week") {
-      stockList[key].forEach((data: originalExcelFile) => {
+      stockList[key].forEach((data) => {
         result.push({
           tradeDateNm: data.일자,
           avgMount: data.종가,
@@ -412,7 +408,7 @@ export const processingExcelDataForCummulativePeriod = (stockList: baseDataBefor
         });
       });
     } else {
-      const cumulativeData: TableData = {
+      const cumulativeData = {
         tradeDateNm: "",
         avgMount: 0,
         tradingVolume: 0,
@@ -431,7 +427,7 @@ export const processingExcelDataForCummulativePeriod = (stockList: baseDataBefor
         tradingVolumePens: 0,
         tradingVolumeNat: 0,
       };
-      stockList[key].forEach((data: originalExcelFile, idx: number) => {
+      stockList[key].forEach((data, idx) => {
         cumulativeData.avgMount += data.종가;
         cumulativeData.tradingVolume += data.거래량;
 
@@ -464,8 +460,25 @@ export const processingExcelDataForCummulativePeriod = (stockList: baseDataBefor
   return result;
 };
 
-const calcPercent = (num1: number, num2: number) => Math.floor((num1 / num2) * 100) || 0;
-const toCamel = (str: string) => str[0].toLowerCase() + str.slice(1);
+const calcPercent = (num1, num2) => Math.floor((num1 / num2) * 100) || 0;
+const toCamel = (str) => str[0].toLowerCase() + str.slice(1);
+
+// excelEnum 정의 추가 (원본에서 import 되는 것으로 보임)
+const excelEnum = {
+  개인: "Indiv",
+  외국인: "Fore",
+  기관: "FinInv",
+  기관종합: "TotalIns",
+  기타: "Etc",
+  __EMPTY_1: "GTrust",
+  __EMPTY_2: "STrust",
+  __EMPTY_3: "Bank",
+  __EMPTY_4: "Insur",
+  __EMPTY_5: "EtcFin",
+  __EMPTY_6: "Pens",
+  __EMPTY_7: "Nat",
+  TotalForeAndInst: "TotalForeAndInst",
+};
 
 const initCumulativeStockData = {
   cumulativeIndivMount: 0,
@@ -525,30 +538,7 @@ const initCumulativeStockData = {
   maxGTrustMount: 0,
 };
 
-const initStockListByPeriod: {
-  week: originalExcelFile[];
-  week1: originalExcelFile[];
-  week2: originalExcelFile[];
-  week3: originalExcelFile[];
-  week4: originalExcelFile[];
-  month1: originalExcelFile[];
-  month2: originalExcelFile[];
-  month3: originalExcelFile[];
-  quarter1: originalExcelFile[];
-  quarter2: originalExcelFile[];
-  quarter3: originalExcelFile[];
-  quarter4: originalExcelFile[];
-  year1: originalExcelFile[];
-  year2: originalExcelFile[];
-  year3: originalExcelFile[];
-  year4: originalExcelFile[];
-  year5: originalExcelFile[];
-  year6: originalExcelFile[];
-  year7: originalExcelFile[];
-  year8: originalExcelFile[];
-  year9: originalExcelFile[];
-  year10: originalExcelFile[];
-} = {
+const initStockListByPeriod = {
   week: [],
   week1: [],
   week2: [],
@@ -602,7 +592,7 @@ function pearsonCorrelation(x, y) {
   const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
 
   if (denominator === 0) {
-      return 0; // 또는 NaN, 분모가 0인 경우 처리
+    return 0; // 또는 NaN, 분모가 0인 경우 처리
   }
 
   return (numerator / denominator).toFixed(4);
