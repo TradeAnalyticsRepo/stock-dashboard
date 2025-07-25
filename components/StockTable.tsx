@@ -155,7 +155,7 @@ const StockTable = ({ stockName }: { stockName?: string | null }) => {
                 </tr>
               </Thead>
               <tbody>
-                {tableData.map((row: TableData) => {
+                {tableData.map((row: TableData, idx) => {
                   const backgroudColor = (() => {
                     if (row.tradeDateNm.endsWith("주")) {
                       return "#1F7D5370";
@@ -175,7 +175,7 @@ const StockTable = ({ stockName }: { stockName?: string | null }) => {
 
                   return (
                     // eslint-disable-next-line react/jsx-key
-                    <Row>
+                    <Row key={idx}>
                       <Td style={{ backgroundColor: backgroudColor }}>{row.tradeDateNm}</Td>
                       <Td style={{ backgroundColor: backgroudColor }}>{formatNumber(row.avgMount)}</Td>
                       <Td style={{ backgroundColor: backgroudColor }}>{formatNumber(row.tradingVolume)}</Td>
