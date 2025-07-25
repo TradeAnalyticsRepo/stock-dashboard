@@ -137,23 +137,28 @@ const StockTable = ({ stockName }: { stockName?: string | null }) => {
             <StyledTable>
               <Thead>
                 <tr>
-                  <Th>일자</Th>
-                  <Th>평균단가</Th>
-                  <Th>거래량</Th>
-                  <Th>개인</Th>
-                  <Th>세력합</Th>
-                  <Th>외국인</Th>
-                  <Th>금융투자</Th>
-                  <Th>보험</Th>
-                  <Th>투신</Th>
-                  <Th>기타금융</Th>
-                  <Th>은행</Th>
-                  <Th>연기금</Th>
-                  <Th>사모펀드</Th>
-                  <Th>국가</Th>
-                  <Th>기타법인</Th>
+                  {[
+                    "일자",
+                    "평균단가",
+                    "거래량",
+                    "개인",
+                    "세력합",
+                    "외국인",
+                    "금융투자",
+                    "보험",
+                    "투신",
+                    "기타금융",
+                    "은행",
+                    "연기금",
+                    "사모펀드",
+                    "국가",
+                    "기타법인",
+                  ].map((name, idx) => {
+                    return <Th key={name}>{name}</Th>;
+                  })}
                 </tr>
               </Thead>
+
               <tbody>
                 {tableData.map((row: TableData, idx) => {
                   const backgroudColor = (() => {
