@@ -34,9 +34,9 @@ export const useStockData = (initialPeriod: string = "1Y", allData: any[]) => {
     .map((item) => ({
       date: item.주가.tradeDate.replace(/\//g, "-"),
       open: item.주가.open,
-      // high: item.주가.high || item.주가.open,
       high: item.주가.high || item.주가.open,
       low: item.주가.low || item.주가.close,
+      // color: "#145626",
       close: item.주가.close,
       price: item.주가.close,
       previousDayComparison: item.주가.previousDayComparison,

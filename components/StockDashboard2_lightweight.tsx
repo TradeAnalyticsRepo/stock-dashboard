@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Activity, Users, Globe, Building } from "lucide-react";
 import Header from "@/components/Header";
 import StatCard from "@/components/ui/StatCard";
