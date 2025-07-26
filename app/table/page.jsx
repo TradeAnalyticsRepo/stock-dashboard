@@ -1,6 +1,6 @@
 "use client";
 
-import StockTable from "@/components/StockTable";
+import StockTable from "../../components/StockTable";
 import { useSearchParams } from "next/navigation";
 
 export default function Lightweight() {

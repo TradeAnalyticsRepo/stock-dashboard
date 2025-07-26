@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
 import { TrendingUp, TrendingDown, DollarSign, Calendar } from 'lucide-react';
-import { StockDataItem } from '@/types';
 import CustomDatePicker from './CustomDatePicker';
 import styled, { css } from 'styled-components';
-
-interface Props {
-  data: StockDataItem[];
-  period: string;
-}
 
 const Card = styled.div`
   background: linear-gradient(135deg, #18181b 0%, #27272a 50%, #18181b 100%);
@@ -28,7 +22,7 @@ const Flex = styled.div`
   align-items: center;
   gap: 0.75rem;
 `;
-const IconBox = styled.div<{ color?: string; bg?: string }>`
+const IconBox = styled.div`
   padding: 0.5rem;
   border-radius: 0.5rem;
   background: ${({ bg }) => bg || 'rgba(37,99,235,0.12)'};
@@ -48,7 +42,7 @@ const Sub = styled.p`
 // ChangeBox: positive prop이 DOM에 전달되지 않도록 withConfig 사용
 const ChangeBox = styled.div.withConfig({
   shouldForwardProp: (prop) => prop !== 'positive', // positive는 스타일 계산에만 사용, DOM에는 전달하지 않음
-})<{ positive: boolean }>`
+})`
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -136,7 +130,7 @@ const GridLabel = styled.div`
   color: #a3a3a3;
   margin-bottom: 0.25rem;
 `;
-const GridValue = styled.div<{ color?: string }>`
+const GridValue = styled.div`
   font-size: 1.125rem;
   font-weight: 600;
   color: ${({ color }) => color || '#fff'};
@@ -157,7 +151,7 @@ const IndicatorBarWrap = styled.div`
 // IndicatorBar: positive prop이 DOM에 전달되지 않도록 withConfig 사용
 const IndicatorBar = styled.div.withConfig({
   shouldForwardProp: (prop) => prop !== 'positive' && prop !== 'width', // positive, width 모두 DOM에 전달하지 않음
-})<{ positive: boolean; width: number }>`
+})`
   height: 100%;
   border-radius: 9999px;
   transition: width 0.5s;
@@ -181,8 +175,8 @@ const IndicatorText = styled.div`
  * @param {Props} props - data, period
  * @returns {JSX.Element}
  */
-const AveragePriceCard: React.FC<Props> = ({ data, period }) => {
-  const [customDateRange, setCustomDateRange] = useState<{ startDate: Date; endDate: Date } | null>(null);
+const AveragePriceCard = ({ data, period }) => {
+  const [customDateRange, setCustomDateRange] = useState(null);
   const [useCustomRange, setUseCustomRange] = useState(false);
 
   if (!data || data.length === 0) {
@@ -226,7 +220,7 @@ const AveragePriceCard: React.FC<Props> = ({ data, period }) => {
   const changePercent = allTimeAverage > 0 ? ((averagePrice - allTimeAverage) / allTimeAverage) * 100 : 0;
   const isPositive = changePercent >= 0;
 
-  const getPeriodLabel = (period: string) => {
+  const getPeriodLabel = (period) => {
     switch (period) {
       case '6M':
         return '6개월';
@@ -245,7 +239,7 @@ const AveragePriceCard: React.FC<Props> = ({ data, period }) => {
 
   const dataPoints = calculationData.length;
 
-  const handleCustomDateRangeChange = (startDate: Date, endDate: Date) => {
+  const handleCustomDateRangeChange = (startDate, endDate) => {
     setCustomDateRange({ startDate, endDate });
     setUseCustomRange(true);
   };

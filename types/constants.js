@@ -5,7 +5,7 @@
 /**
  * 투자자별 라인 차트 색상
  */
-export const LINE_CHART_COLORS: { [key: string]: string } = {
+export const LINE_CHART_COLORS = {
   개인: '#3b82f6',
   외국인: '#10b981',
   세력합: '#8b5cf6',
@@ -25,11 +25,6 @@ export const LINE_CHART_COLORS: { [key: string]: string } = {
 export const INSTITUTION_KEYS = ['개인', '세력합', '외국인', '투신_일반', '투신_사모', '은행', '보험', '기타금융', '연기금', '국가매집', '기타법인'];
 
 /**
- * 기간 선택 타입
- */
-export type Period = '6M' | '1Y' | '2Y' | '5Y' | '10Y';
-
-/**
  * 기간 선택 버튼에 표시될 기간 목록
  */
-export const PERIODS: Period[] = ['6M', '1Y', '2Y', '5Y', '10Y'];
+export const PERIODS = ['6M', '1Y', '2Y', '5Y', '10Y'];

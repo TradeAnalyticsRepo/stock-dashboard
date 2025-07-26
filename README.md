@@ -73,3 +73,7 @@ props로 종목에 대한 정보는 받는다 가정하고 개발 진행하고,�
 Token 발급 api는 1일 1번 제한하도록 수정이 필요함.
 
 ---
+
+{ "compilerOptions": { "target": "ES2017", "lib": ["dom", "dom.iterable", "esnext"], "allowJs": true, "skipLibCheck": true, "strict": true, "noEmit": true, "esModuleInterop": true, "module": "esnext", "moduleResolution": "bundler", "resolveJsonModule": true, "isolatedModules": true, "jsx": "preserve", "incremental": true, "plugins": [ { "name": "next" } ], "paths": { "@/_": ["./_"], "@/types": ["./types/index.ts"] } }, "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"], "exclude": ["node_modules"] }
+
+---

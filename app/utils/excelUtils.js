@@ -463,7 +463,7 @@ const calcPercent = (num1, num2) => Math.floor((num1 / num2) * 100) || 0;
 const toCamel = (str) => str[0].toLowerCase() + str.slice(1);
 
 // excelEnum 정의 추가 (원본에서 import 되는 것으로 보임)
-const excelEnum = {
+import { excelEnum } from "../../types/processingData.js";
   개인: "Indiv",
   외국인: "Fore",
   기관: "FinInv",

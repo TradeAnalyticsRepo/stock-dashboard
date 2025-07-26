@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Header from "@/components/Header";
+import Header from "../components/Header";
 import styled from "styled-components";
-import { useLastestStockData, useTableStockData } from "./hooks/useStockData";
-import { TableData } from "@/types/processingData";
+import { useLastestStockData, useTableStockData } from "./hooks/useStockData.js";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -20,7 +19,7 @@ const Main = styled.main`
 // Section: grid, flex prop이 DOM에 전달되지 않도록 withConfig 사용
 const Section = styled.section.withConfig({
   shouldForwardProp: (prop) => prop !== "grid" && prop !== "flex", // grid, flex는 스타일 계산에만 사용, DOM에는 전달하지 않음
-})<{ grid?: boolean; flex?: boolean }>`
+})`
   ${(props) =>
     props.grid
       ? `display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem;
@@ -84,7 +83,7 @@ const Row = styled.tr`
   }
 `;
 
-const StockTable = ({ stockName }: { stockName?: string | null }) => {
+const StockTable = ({ stockName }) => {
   const [tableData, setTableData] = useState([]);
   const [lastestData, setLastestData] = useState({
     개인: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
@@ -120,7 +119,7 @@ const StockTable = ({ stockName }: { stockName?: string | null }) => {
     })();
   }, [stockName]);
 
-  const formatNumber = (num: number): string => {
+  const formatNumber = (num) => {
     return num.toLocaleString(); // 기본은 시스템 locale (한국이면 1,000 식)
   };
   // <Title>투자자별 누적 매집 데이터</Title>
@@ -160,7 +159,7 @@ const StockTable = ({ stockName }: { stockName?: string | null }) => {
               </Thead>
 
               <tbody>
-                {tableData.map((row: TableData, idx) => {
+                {tableData.map((row, idx) => {
                   const backgroudColor = (() => {
                     if (row.tradeDateNm.endsWith("주")) {
                       return "#1F7D5370";
@@ -173,7 +172,7 @@ const StockTable = ({ stockName }: { stockName?: string | null }) => {
                     }
                   })();
 
-                  const color = (num: number) => {
+                  const color = (num) => {
                     if (num > 0) return "#ef4444";
                     else if (num < 0) return "#1d74d6";
                   };

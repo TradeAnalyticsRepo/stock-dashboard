@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
-import { createChart, CandlestickData, UTCTimestamp, MouseEventParams, IChartApi, ISeriesApi, CandlestickSeries } from "lightweight-charts";
-import { StockDataItem } from "@/types";
+import { createChart, CandlestickData, UTCTimestamp, MouseEventParams, CandlestickSeries } from "lightweight-charts";
 import styled from "styled-components";
 
 const ChartContainer = styled.div`
@@ -10,16 +9,11 @@ const ChartContainer = styled.div`
   position: relative;
 `;
 
-interface LightweightCandlestickChartProps {
-  data: StockDataItem[];
-  initialSelectedTime?: UTCTimestamp | null;
-}
-
-const LightweightCandlestickChart: React.FC<LightweightCandlestickChartProps> = ({ data, initialSelectedTime = null }) => {
-  const chartContainerRef = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<IChartApi | null>(null);
-  const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
-  const [selectedTime, setSelectedTime] = useState<UTCTimestamp | null>(initialSelectedTime);
+const LightweightCandlestickChart = ({ data, initialSelectedTime = null }) => {
+  const chartContainerRef = useRef(null);
+  const chartRef = useRef(null);
+  const seriesRef = useRef(null);
+  const [selectedTime, setSelectedTime] = useState(initialSelectedTime);
 
   // Chart creation and event handling effect
   useEffect(() => {
@@ -63,9 +57,9 @@ const LightweightCandlestickChart: React.FC<LightweightCandlestickChartProps> = 
     };
     window.addEventListener("resize", handleResize);
 
-    const handleClick = (param: MouseEventParams) => {
+    const handleClick = (param) => {
       if (!param.time) return;
-      const clickedTime = param.time as UTCTimestamp;
+      const clickedTime = param.time;
       setSelectedTime((current) => (current === clickedTime ? null : clickedTime));
     };
     chart.subscribeClick(handleClick);
@@ -84,8 +78,8 @@ const LightweightCandlestickChart: React.FC<LightweightCandlestickChartProps> = 
     if (!seriesRef.current || !chartRef.current || data.length === 0) return;
 
     const chartData = data.map((item) => {
-      const time = (new Date(item.date).getTime() / 1000) as UTCTimestamp;
-      const dataPoint: CandlestickData & { color?: string } = {
+      const time = new Date(item.date).getTime() / 1000;
+      const dataPoint = {
         time,
         open: item.open,
         high: item.high,
@@ -93,15 +87,10 @@ const LightweightCandlestickChart: React.FC<LightweightCandlestickChartProps> = 
         close: item.close,
       };
 
-      if (item?.color) {
-        dataPoint.color = item.color;
-      }
-
       if (time === selectedTime) {
         dataPoint.color = "#eab308"; // Yellow for selected
         dataPoint.borderColor = "#eab308"; // Yellow for selected
       }
-      4;
       return dataPoint;
     });
 

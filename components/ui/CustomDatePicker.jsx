@@ -2,11 +2,6 @@ import React, { useState } from 'react';
 import { Calendar, X } from 'lucide-react';
 import styled from 'styled-components';
 
-interface Props {
-  onDateRangeChange: (startDate: Date, endDate: Date) => void;
-  className?: string;
-}
-
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
@@ -80,12 +75,12 @@ const XIcon = styled(X)`
  * @param {Props} props - onDateRangeChange, className
  * @returns {JSX.Element}
  */
-const CustomDatePicker: React.FC<Props> = ({ onDateRangeChange, className = '' }) => {
-  const [startDate, setStartDate] = useState<string>('');
-  const [endDate, setEndDate] = useState<string>(new Date().toISOString().split('T')[0]);
+const CustomDatePicker = ({ onDateRangeChange, className = '' }) => {
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
 
   // 날짜 변경 핸들러
-  const handleStartDateChange = (date: string) => {
+  const handleStartDateChange = (date) => {
     setStartDate(date);
     if (date && endDate) {
       const start = new Date(date);
@@ -96,7 +91,7 @@ const CustomDatePicker: React.FC<Props> = ({ onDateRangeChange, className = '' }
     }
   };
 
-  const handleEndDateChange = (date: string) => {
+  const handleEndDateChange = (date) => {
     setEndDate(date);
     if (startDate && date) {
       const start = new Date(startDate);

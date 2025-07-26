@@ -1,10 +1,6 @@
 import axios from "axios";
 
-export const callPostApi = async (
-  url: string,
-  parameter: Record<string, unknown>,
-  headers: Record<string, string> = { "Content-Type": "application/json" }
-) => {
+export const callPostApi = async (url, parameter, headers = { "Content-Type": "application/json" }) => {
   try {
     await axios.post(url, parameter, { headers });
     console.log("callPostApi");
@@ -13,7 +9,7 @@ export const callPostApi = async (
   }
 };
 
-export const callGetApi = async (url: string, parameter?: Record<string, unknown>) => {
+export const callGetApi = async (url, parameter) => {
   try {
     return await axios.get(url, { params: parameter });
   } catch (error) {
@@ -21,7 +17,7 @@ export const callGetApi = async (url: string, parameter?: Record<string, unknown
   }
 };
 
-export const callDeleteApi = async (url: string) => {
+export const callDeleteApi = async (url) => {
   try {
     return await axios.delete(url);
   } catch (error) {

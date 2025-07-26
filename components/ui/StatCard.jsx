@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { TrendingUp, TrendingDown } from 'lucide-react';
-import { StatCardProps } from '@/types';
 
 // 스타일드 컴포넌트 정의
 const Card = styled.div`
@@ -28,13 +27,13 @@ const Value = styled.p`
 // Change: positive prop이 DOM에 전달되지 않도록 withConfig 사용
 const Change = styled.div.withConfig({
   shouldForwardProp: (prop) => prop !== 'positive', // positive는 스타일 계산에만 사용, DOM에는 전달하지 않음
-})<{ positive: boolean }>`
+})`
   display: flex;
   align-items: center;
   margin-top: 0.5rem;
-  color: ${(props: { positive: boolean }) => (props.positive ? '#22c55e' : '#ef4444')};
+  color: ${(props) => (props.positive ? '#22c55e' : '#ef4444')};
 `;
-const IconWrapper = styled.div<{ color?: string }>`
+const IconWrapper = styled.div`
   width: 2rem;
   height: 2rem;
   display: flex;
@@ -48,7 +47,7 @@ const IconWrapper = styled.div<{ color?: string }>`
  * @param {StatCardProps} props - title, value, change, icon, color
  * @returns {JSX.Element}
  */
-const StatCard: React.FC<StatCardProps> = ({ title, value, change, icon: Icon, color }) => (
+const StatCard = ({ title, value, change, icon: Icon, color }) => (
   <Card>
     <CardFlex>
       <div>

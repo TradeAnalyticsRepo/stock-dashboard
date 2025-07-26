@@ -3,12 +3,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Plus, Loader2, MoreVertical, Trash2, Upload } from "lucide-react";
 import styled, { keyframes } from "styled-components";
-import Header from "@/components/Header";
-import StatCard from "@/components/ui/StatCard";
+import Header from "../../components/Header";
+import StatCard from "../../components/ui/StatCard";
 import { Activity } from "lucide-react";
 import { processingExcelData } from "../utils/excelUtils";
-import { callGetApi, callDeleteApi } from "../utils/api";
-import { stockCard } from "@/types";
+import { callGetApi, callDeleteApi } from "../../app/utils/api.js";
 
 // styled-components 정의
 const Wrapper = styled.div`
@@ -152,16 +151,13 @@ const DropdownMenuItem = styled.button`
 
 export default function Dashboard() {
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [stocks, setStocks] = useState<stockCard[]>([]);
-  const [editingCard, setEditingCard] = useState<{
-    index: number;
-    name: string;
-  } | null>(null);
-  const [selectedStockIndex, setSelectedStockIndex] = useState<number | null>(null);
+  const fileInputRef = useRef(null);
+  const [stocks, setStocks] = useState([]);
+  const [editingCard, setEditingCard] = useState(null);
+  const [selectedStockIndex, setSelectedStockIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [menuOpen, setMenuOpen] = useState<number | null>(null);
+  const [error, setError] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(null);
 
   const fetchStockFiles = async () => {
     try {
@@ -183,7 +179,7 @@ export default function Dashboard() {
     fetchStockFiles();
   }, []);
 
-  const handleCardClick = (stock: stockCard, index: number, isMenuClick: boolean = false) => {
+  const handleCardClick = (stock, index, isMenuClick = false) => {
     if (isMenuClick) return;
     if (stock.price === 0 && stock.name) {
       setSelectedStockIndex(index);
@@ -207,7 +203,7 @@ export default function Dashboard() {
     setEditingCard(null);
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file || selectedStockIndex === null) return;
 
@@ -234,7 +230,7 @@ export default function Dashboard() {
     }
   };
 
-  const handleDeleteStock = async (stockName: string) => {
+  const handleDeleteStock = async (stockName) => {
     if (!confirm(`'${stockName}' 종목을 삭제하시겠습니까?`)) return;
 
     try {
@@ -251,13 +247,13 @@ export default function Dashboard() {
     }
   };
 
-  const handleUpdateStock = (index: number) => {
+  const handleUpdateStock = (index) => {
     setSelectedStockIndex(index);
     fileInputRef.current?.click();
     setMenuOpen(null);
   };
 
-  const toggleMenu = (index: number) => {
+  const toggleMenu = (index) => {
     setMenuOpen(menuOpen === index ? null : index);
   };
 
@@ -280,9 +276,7 @@ export default function Dashboard() {
                     type='text'
                     placeholder='종목 이름 입력'
                     value={editingCard.name}
-                    onChange={(e) =>
-                      setEditingCard({ ...editingCard, name: e.target.value })
-                    }
+                    onChange={(e) => setEditingCard({ ...editingCard, name: e.target.value })}
                     autoFocus
                   />
                   <SaveButton
@@ -292,7 +286,9 @@ export default function Dashboard() {
                   </SaveButton>
                 </NewCardInputForm>
               ) : (
-                <CardWrapper key={idx} onClick={() => handleCardClick(stock, idx)}>
+                <CardWrapper
+                  key={idx}
+                  onClick={() => handleCardClick(stock, idx)}>
                   {stock.name && (
                     <CardMenu onClick={(e) => e.stopPropagation()}>
                       <MenuButton onClick={() => toggleMenu(idx)}>
@@ -314,9 +310,7 @@ export default function Dashboard() {
                   )}
                   <StatCard
                     title={stock.name || "이름 없음"}
-                    value={
-                      stock.price > 0 ? `₩${stock.price.toLocaleString()}` : "-"
-                    }
+                    value={stock.price > 0 ? `₩${stock.price.toLocaleString()}` : "-"}
                     change={stock.change}
                     icon={Activity}
                     color={stock.change > 0 ? "text-red-600" : "text-blue-600"}

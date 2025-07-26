@@ -2,12 +2,6 @@ import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 
-interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  children: React.ReactNode;
-}
-
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
@@ -27,11 +21,11 @@ const ModalContent = styled.div`
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 `;
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
+const Modal = ({ isOpen, onClose, children }) => {
   const modalRoot = typeof window !== 'undefined' ? document.body : null;
 
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
+    const handleEsc = (e) => {
       if (e.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', handleEsc);

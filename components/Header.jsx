@@ -51,7 +51,7 @@ const NavLink = styled.a`
 `;
 
 // stockName prop 추가
-const Header = ({ chartType, stockName }: { chartType: "rechart" | "lightweight" | "table"; stockName?: string | null }) => {
+const Header = ({ chartType, stockName }) => {
   return (
     <HeaderWrapper>
       <HeaderInner>

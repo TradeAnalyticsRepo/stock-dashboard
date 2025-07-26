@@ -1,19 +1,17 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { Activity, Users, Globe, Building } from "lucide-react";
-import Header from "@/components/Header";
-import StatCard from "@/components/ui/StatCard";
-import PeriodButton from "@/components/ui/PeriodButton";
-import AveragePriceCard from "@/components/ui/AveragePriceCard";
-import LightweightCandlestickChart from "@/components/charts/lightweight/LightweightCandlestickChart";
-import LightweightLineChart from "@/components/charts/lightweight/LightweightLineChart";
-import { useLastestStockData, useStockData } from "@/components/hooks/useStockData";
-import { LINE_CHART_COLORS, PERIODS } from "@/types/constants";
+import React, { useEffect, useState } from "react";
+import { Activity, Users } from "lucide-react";
+import Header from "../components/Header";
+import PeriodButton from "../components/ui/PeriodButton";
+import AveragePriceCard from "../components/ui/AveragePriceCard";
+import LightweightCandlestickChart from "../components/charts/lightweight/LightweightCandlestickChart";
+import LightweightLineChart from "../components/charts/lightweight/LightweightLineChart";
+import { LINE_CHART_COLORS, PERIODS } from "../types/constants";
 import styled from "styled-components";
-import Accordion from "@/components/ui/Accordion";
-import { ChartData } from "@/types/processingData";
-import Modal from "./ui/Modal";
+import Accordion from "../components/ui/Accordion.jsx";
+import Modal from "../components/ui/Modal.jsx";
+import { useStockData } from "../components/hooks/useStockData";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -28,7 +26,7 @@ const Main = styled.main`
 // Section: grid, flex prop이 DOM에 전달되지 않도록 withConfig 사용
 const Section = styled.section.withConfig({
   shouldForwardProp: (prop) => prop !== "grid" && prop !== "flex", // grid, flex는 스타일 계산에만 사용, DOM에는 전달하지 않음
-})<{ grid?: boolean; flex?: boolean }>`
+})`
   ${(props) =>
     props.grid
       ? `
@@ -116,7 +114,7 @@ const SubTitle = styled.div`
  * Manages data through the useStockData hook.
  * Includes key metrics, period selection buttons, and a chart grid.
  */
-const StockDashboardLightweight = ({ stockName, allData, lastestData }: { stockName?: string | null; allData: object[]; lastestData: ChartData }) => {
+const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
   const { isClient, stockData, institutionalData, selectedPeriod, setSelectedPeriod } = useStockData("10Y", allData);
   const [showAveragePrice, setShowAveragePrice] = useState(false);
 
