@@ -16,14 +16,7 @@ export const processingExcelData = async (excelFile, stockName) => {
   originalData.shift();
   const baseDataBeforeProcess = {};
   // 기간별 데이터 추출
-  const filtered = originalData.filter((row) => {
-    if (!row.일자) {
-      return false;
-    }
-    return Number(row.일자.replaceAll("/", "")) >= 20191001;
-  });
-
-  baseDataBeforeProcess.stockListByPeriod = stockDataBeforePeriodProcess(filtered);
+  baseDataBeforeProcess.stockListByPeriod = stockDataBeforePeriodProcess(originalData);
   const tableData = processingExcelDataForCummulativePeriod(baseDataBeforeProcess.stockListByPeriod);
   const cumulativeTableData = {
     stockId: stockName,
@@ -31,10 +24,15 @@ export const processingExcelData = async (excelFile, stockName) => {
     type: "table",
   };
 
-  const reversedFilteredData = filtered.reverse(); // reverse 원본배열 변경
-  
+  const reversedOriginalData = originalData.reverse(); // reverse 원본배열 변경
+  const filtered = reversedOriginalData.filter((row) => {
+    if (!row.일자) {
+      return false;
+    }
+    return Number(row.일자.replaceAll("/", "")) >= 20201029;
+  });
   // 누적합계, 최고저점, 최고고점 데이터 추출
-  baseDataBeforeProcess.cumulativeStockData = stockDataBeforeCumulateProcess(reversedFilteredData);
+  baseDataBeforeProcess.cumulativeStockData = stockDataBeforeCumulateProcess(filtered);
 
   // 누적합계, 주가선도 등 데이터 가공작업
   const { graphProcessingData, stockPriceList, culmulativeList } = processingExcelDataForCummulativeGraph(
@@ -162,6 +160,9 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         }
       }
     });
+    //   if(idx === data.length - 1){
+    //     console.log(cumulativeStockData.maxIndivMount, cumulativeStockData.minIndivMount, cumulativeStockData.maxIndivMount - cumulativeStockData.minIndivMount ,sumTotalCollectionVolume);
+    //   }
 
     const defaultInfo = {
       tradeDate: item.일자,
@@ -463,7 +464,7 @@ const calcPercent = (num1, num2) => Math.floor((num1 / num2) * 100) || 0;
 const toCamel = (str) => str[0].toLowerCase() + str.slice(1);
 
 // excelEnum 정의 추가 (원본에서 import 되는 것으로 보임)
-import { excelEnum } from "../../types/processingData.js";
+const excelEnum = {
   개인: "Indiv",
   외국인: "Fore",
   기관: "FinInv",
