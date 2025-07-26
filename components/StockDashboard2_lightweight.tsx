@@ -155,16 +155,32 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }: { stockN
           <ToggleButton onClick={() => setShowAveragePrice((prev) => !prev)}>{showAveragePrice ? "평균값 숨기기" : "평균값 보기"}</ToggleButton>
         </Section>
         <FullWidthWrapper>
-          <Accordion
-            defaultOpen
-            title={
-              <>
-                <Activity style={{ color: "#dc2626", marginRight: 8 }} />
-                주가 차트 (캔들스틱)
-              </>
-            }>
-            <LightweightCandlestickChart data={stockData} />
-          </Accordion>
+          <ChartGrid>
+            <Column>
+              <Accordion
+                defaultOpen
+                title={
+                  <>
+                    <Activity style={{ color: "#dc2626", marginRight: 8 }} />
+                    주가 차트 (캔들스틱)
+                  </>
+                }>
+                <LightweightCandlestickChart data={stockData} />
+              </Accordion>
+            </Column>
+            <Column>
+              <Accordion
+                defaultOpen
+                title={
+                  <>
+                    <Activity style={{ color: "#dc2626", marginRight: 8 }} />
+                    주가 차트 (캔들스틱)
+                  </>
+                }>
+                <LightweightCandlestickChart data={stockData} />
+              </Accordion>
+            </Column>
+          </ChartGrid>
         </FullWidthWrapper>
         {/* {showAveragePrice && (
           <FullWidthWrapper>
