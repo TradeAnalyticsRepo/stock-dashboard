@@ -13,6 +13,7 @@ import { LINE_CHART_COLORS, PERIODS } from "@/types/constants";
 import styled from "styled-components";
 import Accordion from "@/components/ui/Accordion";
 import { ChartData } from "@/types/processingData";
+import Modal from "./ui/Modal";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -89,6 +90,16 @@ const FlexCenter = styled.div`
   justify-content: center;
 `;
 
+const CloseButton = styled.button`
+  margin-top: 20px;
+  margin-left: calc(100% - 61px);
+  padding: 8px 16px;
+  background-color: #ddd;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+`;
+
 const SubTitle = styled.div`
   margin-left : auto;
   font-size: 13px;
@@ -97,7 +108,7 @@ const SubTitle = styled.div`
   > div + div{
    margin-left: .5rem;
   }
-`
+`;
 
 /**
  * Main component to display the stock dashboard using Lightweight-charts.
@@ -155,7 +166,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }: { stockN
             <LightweightCandlestickChart data={stockData} />
           </Accordion>
         </FullWidthWrapper>
-        {showAveragePrice && (
+        {/* {showAveragePrice && (
           <FullWidthWrapper>
             <Accordion
               defaultOpen
@@ -171,7 +182,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }: { stockN
               />
             </Accordion>
           </FullWidthWrapper>
-        )}
+        )} */}
         <ChartGrid>
           <Column>
             {Object.keys(institutionalData)
@@ -227,6 +238,14 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }: { stockN
           </Column>
         </ChartGrid>
       </Main>
+       <Modal isOpen={showAveragePrice} onClose={() => setShowAveragePrice(false)}>
+        <h2>모달 제목</h2>
+        <AveragePriceCard
+          data={stockData}
+          period={selectedPeriod}
+        />
+        <CloseButton onClick={() => setShowAveragePrice(false)}>닫기</CloseButton>
+      </Modal>
     </Wrapper>
   );
 };
