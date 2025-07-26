@@ -196,9 +196,10 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }: { stockN
                       <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8 }} />
                       {key} 매집수량
                       <SubTitle>
-                        <div>매집수량 : {lastestData[key].collectionVolume.toLocaleString()}</div>
+                        <div>현재보유량 : {lastestData[key].collectionVolume.toLocaleString()}</div>
                         <div>분산비율 : {lastestData[key].dispersionRatio}%</div>
                         <div>주가선도 : {lastestData[key].stockMomentum}%</div>
+                        <div>상관계수 : {lastestData[key].stockCorrelation}</div>
                       </SubTitle>
                     </>
                   }>
@@ -221,11 +222,12 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }: { stockN
                   title={
                     <>
                       <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8 }} />
-                      {key} 매집수량
+                      {key}
                       <SubTitle>
-                        <div>매집수량 : {lastestData[key].collectionVolume.toLocaleString()}</div>
+                        <div>현재보류량 : {lastestData[key].collectionVolume.toLocaleString()}</div>
                         <div>분산비율 : {lastestData[key].dispersionRatio}%</div>
                         <div>주가선도 : {lastestData[key].stockMomentum}%</div>
+                        <div>상관계수 : {lastestData[key].stockCorrelation}</div>
                       </SubTitle>
                     </>
                   }>
