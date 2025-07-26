@@ -101,12 +101,12 @@ const CloseButton = styled.button`
 `;
 
 const SubTitle = styled.div`
-  margin-left : auto;
-  font-size: 13px;
-  display:flex;
-   
-  > div + div{
-   margin-left: .5rem;
+  margin-left: auto;
+  font-size: 11px;
+  display: flex;
+
+  > div + div {
+    margin-left: 0.5rem;
   }
 `;
 
@@ -124,7 +124,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }: { stockN
       isClient,
       stockData,
       institutionalData,
-      lastestData
+      lastestData,
     });
   }, []);
 
@@ -194,7 +194,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }: { stockN
                   title={
                     <>
                       <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8 }} />
-                      {key} 매집수량
+                      {key}
                       <SubTitle>
                         <div>현재보유량 : {lastestData[key].collectionVolume.toLocaleString()}</div>
                         <div>분산비율 : {lastestData[key].dispersionRatio}%</div>
@@ -242,7 +242,9 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }: { stockN
           </Column>
         </ChartGrid>
       </Main>
-       <Modal isOpen={showAveragePrice} onClose={() => setShowAveragePrice(false)}>
+      <Modal
+        isOpen={showAveragePrice}
+        onClose={() => setShowAveragePrice(false)}>
         <h2>모달 제목</h2>
         <AveragePriceCard
           data={stockData}

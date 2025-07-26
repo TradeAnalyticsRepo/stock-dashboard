@@ -154,7 +154,7 @@ const StockTable = ({ stockName }: { stockName?: string | null }) => {
                     "국가",
                     "기타법인",
                   ].map((name, idx) => {
-                    return <Th key={name}>{name}</Th>;
+                    return <Th key={idx}>{name}</Th>;
                   })}
                 </tr>
               </Thead>

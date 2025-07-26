@@ -1,7 +1,7 @@
-'use client';
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { ChevronDown } from 'lucide-react';
+"use client";
+import React, { useState } from "react";
+import styled from "styled-components";
+import { ChevronDown } from "lucide-react";
 
 const AccordionWrapper = styled.div`
   background: #1a1a1a;
@@ -19,23 +19,23 @@ const AccordionHeader = styled.button`
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
-  font-size: 1.25rem;
+  font-size: 15px;
   font-weight: 600;
   text-align: left;
 `;
 
 const AccordionContent = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== 'isOpen',
+  shouldForwardProp: (prop) => prop !== "isOpen",
 })<{ isOpen: boolean }>`
-  padding: ${(props) => (props.isOpen ? '0 1.5rem 1.5rem' : '0 1.5rem')};
-  max-height: ${(props) => (props.isOpen ? '1000px' : '0')};
+  padding: ${(props) => (props.isOpen ? "0 1.5rem 1.5rem" : "0 1.5rem")};
+  max-height: ${(props) => (props.isOpen ? "1000px" : "0")};
   overflow: hidden;
 `;
 
 const ChevronIcon = styled(ChevronDown).withConfig({
-  shouldForwardProp: (prop) => prop !== 'isOpen',
+  shouldForwardProp: (prop) => prop !== "isOpen",
 })<{ isOpen: boolean }>`
-  transform: ${(props) => (props.isOpen ? 'rotate(180deg)' : 'rotate(0deg)')};
+  transform: ${(props) => (props.isOpen ? "rotate(180deg)" : "rotate(0deg)")};
   flex-shrink: 0;
   margin-left: 1rem;
 `;
@@ -52,14 +52,14 @@ const Accordion: React.FC<AccordionProps> = ({ title, children, defaultOpen = fa
   return (
     <AccordionWrapper>
       <AccordionHeader onClick={() => setIsOpen(!isOpen)}>
-        <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>{title}</div>
+        <div style={{ display: "flex", alignItems: "center", width: "100%" }}>{title}</div>
         <ChevronIcon
           isOpen={isOpen}
           size={24}
         />
       </AccordionHeader>
       <AccordionContent isOpen={isOpen}>
-        <div style={{ paddingTop: isOpen ? '1rem' : '0' }}>{children}</div>
+        <div style={{ paddingTop: isOpen ? "1rem" : "0" }}>{children}</div>
       </AccordionContent>
     </AccordionWrapper>
   );
