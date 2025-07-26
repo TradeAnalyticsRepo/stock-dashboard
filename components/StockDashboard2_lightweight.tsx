@@ -198,6 +198,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }: { stockN
                       <SubTitle>
                         <div>매집수량 : {lastestData[key].collectionVolume.toLocaleString()}</div>
                         <div>분산비율 : {lastestData[key].dispersionRatio}%</div>
+                        <div>주가선도 : {lastestData[key].stockMomentum}%</div>
                       </SubTitle>
                     </>
                   }>
@@ -224,6 +225,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }: { stockN
                       <SubTitle>
                         <div>매집수량 : {lastestData[key].collectionVolume.toLocaleString()}</div>
                         <div>분산비율 : {lastestData[key].dispersionRatio}%</div>
+                        <div>주가선도 : {lastestData[key].stockMomentum}%</div>
                       </SubTitle>
                     </>
                   }>

@@ -16,7 +16,14 @@ export const processingExcelData = async (excelFile, stockName) => {
   originalData.shift();
   const baseDataBeforeProcess = {};
   // 기간별 데이터 추출
-  baseDataBeforeProcess.stockListByPeriod = stockDataBeforePeriodProcess(originalData);
+  const filtered = originalData.filter((row) => {
+    if (!row.일자) {
+      return false;
+    }
+    return Number(row.일자.replaceAll("/", "")) >= 20191001;
+  });
+
+  baseDataBeforeProcess.stockListByPeriod = stockDataBeforePeriodProcess(filtered);
   const tableData = processingExcelDataForCummulativePeriod(baseDataBeforeProcess.stockListByPeriod);
   const cumulativeTableData = {
     stockId: stockName,
@@ -24,15 +31,10 @@ export const processingExcelData = async (excelFile, stockName) => {
     type: "table",
   };
 
-  const reversedOriginalData = originalData.reverse(); // reverse 원본배열 변경
-  const filtered = reversedOriginalData.filter((row) => {
-    if (!row.일자) {
-      return false;
-    }
-    return Number(row.일자.replaceAll("/", "")) >= 20201029;
-  });
+  const reversedFilteredData = filtered.reverse(); // reverse 원본배열 변경
+  
   // 누적합계, 최고저점, 최고고점 데이터 추출
-  baseDataBeforeProcess.cumulativeStockData = stockDataBeforeCumulateProcess(filtered);
+  baseDataBeforeProcess.cumulativeStockData = stockDataBeforeCumulateProcess(reversedFilteredData);
 
   // 누적합계, 주가선도 등 데이터 가공작업
   const { graphProcessingData, stockPriceList, culmulativeList } = processingExcelDataForCummulativeGraph(
@@ -160,9 +162,6 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         }
       }
     });
-    //   if(idx === data.length - 1){
-    //     console.log(cumulativeStockData.maxIndivMount, cumulativeStockData.minIndivMount, cumulativeStockData.maxIndivMount - cumulativeStockData.minIndivMount ,sumTotalCollectionVolume);
-    //   }
 
     const defaultInfo = {
       tradeDate: item.일자,

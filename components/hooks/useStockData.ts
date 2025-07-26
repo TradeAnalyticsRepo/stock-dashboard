@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { StockDataItem } from "@/types";
-import jsonData from "@/excel/11111_graph.json";
 import { INSTITUTION_KEYS } from "@/types/constants";
 import { callGetApi } from "@/app/utils/api";
 
