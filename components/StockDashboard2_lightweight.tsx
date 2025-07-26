@@ -64,6 +64,7 @@ const Column = styled.div`
 
 const FullWidthWrapper = styled.div`
   margin-bottom: 1rem;
+  position: sticky;
 `;
 
 const ToggleButton = styled.button`
@@ -161,7 +162,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }: { stockN
                 defaultOpen
                 title={
                   <>
-                    <Activity style={{ color: "#dc2626", marginRight: 8 }} />
+                    <Activity style={{ color: "#dc2626", marginRight: 8, width: "15px", height: "15px" }} />
                     주가 차트 (캔들스틱)
                   </>
                 }>
@@ -173,7 +174,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }: { stockN
                 defaultOpen
                 title={
                   <>
-                    <Activity style={{ color: "#dc2626", marginRight: 8 }} />
+                    <Activity style={{ color: "#dc2626", marginRight: 8, width: "15px", height: "15px" }} />
                     주가 차트 (캔들스틱)
                   </>
                 }>
@@ -209,7 +210,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }: { stockN
                   defaultOpen
                   title={
                     <>
-                      <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8 }} />
+                      <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8, width: "15px", height: "15px" }} />
                       {key}
                       <SubTitle>
                         <div>현재보유량 : {lastestData[key].collectionVolume.toLocaleString()}</div>
@@ -237,7 +238,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }: { stockN
                   defaultOpen
                   title={
                     <>
-                      <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8 }} />
+                      <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8, width: "15px", height: "15px" }} />
                       {key}
                       <SubTitle>
                         <div>현재보류량 : {lastestData[key].collectionVolume.toLocaleString()}</div>
