@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { callGetApi } from '../utils/api';
 import styled from 'styled-components';
+import { useLastestStockData } from '@/components/hooks/useStockData';
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -23,11 +24,14 @@ export default function Lightweight() {
   const searchParams = useSearchParams();
   const stockName = searchParams.get('name');
   const [allData, setAllData] = useState([]);
-
+  const [lastestData, setLastestData] = useState([]);
   useEffect(() => {
     const getFile = async () => {
       const response = await callGetApi('/api/excel', { stockId: stockName, type: 'graph' });
+      const lastestResponse = await callGetApi("/api/excel", { stockId: stockName, type: "lastest" });
+
       setAllData(response?.data || []);
+      setLastestData(lastestResponse?.data || []);
     };
 
     getFile();
@@ -41,6 +45,7 @@ export default function Lightweight() {
     <StockDashboard2
       stockName={stockName}
       allData={allData}
+      lastestData={lastestData}
     />
   );
 }

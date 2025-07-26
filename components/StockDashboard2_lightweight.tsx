@@ -8,10 +8,11 @@ import PeriodButton from "@/components/ui/PeriodButton";
 import AveragePriceCard from "@/components/ui/AveragePriceCard";
 import LightweightCandlestickChart from "@/components/charts/lightweight/LightweightCandlestickChart";
 import LightweightLineChart from "@/components/charts/lightweight/LightweightLineChart";
-import { useStockData } from "@/components/hooks/useStockData";
+import { useLastestStockData, useStockData } from "@/components/hooks/useStockData";
 import { LINE_CHART_COLORS, PERIODS } from "@/types/constants";
 import styled from "styled-components";
 import Accordion from "@/components/ui/Accordion";
+import { ChartData } from "@/types/processingData";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -88,12 +89,22 @@ const FlexCenter = styled.div`
   justify-content: center;
 `;
 
+const SubTitle = styled.div`
+  margin-left : auto;
+  font-size: 13px;
+  display:flex;
+   
+  > div + div{
+   margin-left: .5rem;
+  }
+`
+
 /**
  * Main component to display the stock dashboard using Lightweight-charts.
  * Manages data through the useStockData hook.
  * Includes key metrics, period selection buttons, and a chart grid.
  */
-const StockDashboardLightweight = ({ stockName, allData }: { stockName?: string | null; allData: object[] }) => {
+const StockDashboardLightweight = ({ stockName, allData, lastestData }: { stockName?: string | null; allData: object[]; lastestData: ChartData }) => {
   const { isClient, stockData, institutionalData, selectedPeriod, setSelectedPeriod } = useStockData("10Y", allData);
   const [showAveragePrice, setShowAveragePrice] = useState(false);
 
@@ -102,6 +113,7 @@ const StockDashboardLightweight = ({ stockName, allData }: { stockName?: string 
       isClient,
       stockData,
       institutionalData,
+      lastestData
     });
   }, []);
 
@@ -172,6 +184,10 @@ const StockDashboardLightweight = ({ stockName, allData }: { stockName?: string 
                     <>
                       <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8 }} />
                       {key} 매집수량
+                      <SubTitle>
+                        <div>매집수량 : {lastestData[key].collectionVolume.toLocaleString()}</div>
+                        <div>분산비율 : {lastestData[key].dispersionRatio}%</div>
+                      </SubTitle>
                     </>
                   }>
                   <LightweightLineChart
@@ -194,6 +210,10 @@ const StockDashboardLightweight = ({ stockName, allData }: { stockName?: string 
                     <>
                       <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8 }} />
                       {key} 매집수량
+                      <SubTitle>
+                        <div>매집수량 : {lastestData[key].collectionVolume.toLocaleString()}</div>
+                        <div>분산비율 : {lastestData[key].dispersionRatio}%</div>
+                      </SubTitle>
                     </>
                   }>
                   <LightweightLineChart

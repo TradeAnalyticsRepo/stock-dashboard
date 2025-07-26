@@ -52,7 +52,7 @@ const Accordion: React.FC<AccordionProps> = ({ title, children, defaultOpen = fa
   return (
     <AccordionWrapper>
       <AccordionHeader onClick={() => setIsOpen(!isOpen)}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>{title}</div>
+        <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>{title}</div>
         <ChevronIcon
           isOpen={isOpen}
           size={24}
