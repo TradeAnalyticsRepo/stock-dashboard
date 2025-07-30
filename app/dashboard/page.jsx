@@ -1,13 +1,13 @@
-"use client";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { Plus, Loader2, MoreVertical, Trash2, Upload } from "lucide-react";
-import styled, { keyframes } from "styled-components";
-import Header from "../../components/Header";
-import StatCard from "../../components/ui/StatCard";
-import { Activity } from "lucide-react";
-import { processingExcelData } from "../utils/excelUtils";
-import { callGetApi, callDeleteApi } from "../../app/utils/api.js";
+'use client';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { Plus, Loader2, MoreVertical, Trash2, Upload } from 'lucide-react';
+import styled, { keyframes } from 'styled-components';
+import Header from '../../components/Header';
+import StatCard from '../../components/ui/StatCard';
+import { Activity } from 'lucide-react';
+import { processingExcelData } from '../utils/excelUtils';
+import { callGetApi, callDeleteApi } from '../../app/utils/api.js';
 
 // styled-components 정의
 const Wrapper = styled.div`
@@ -163,13 +163,13 @@ export default function Dashboard() {
     try {
       setIsLoading(true);
       setError(null);
-      const result = await callGetApi("/api/getExcelFiles", {});
+      const result = await callGetApi('/api/getExcelFiles', {});
       if (result?.data) {
         setStocks(result.data.stocks);
       }
     } catch (error) {
-      console.error("Error fetching files:", error);
-      setError("종목 목록을 불러오는데 실패했습니다.");
+      console.error('Error fetching files:', error);
+      setError('종목 목록을 불러오는데 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -190,9 +190,9 @@ export default function Dashboard() {
   };
 
   const handleAddCard = () => {
-    const newStocks = [...stocks, { name: "", change: 0, price: 0 }];
+    const newStocks = [...stocks, { name: '', change: 0, price: 0 }];
     setStocks(newStocks);
-    setEditingCard({ index: newStocks.length - 1, name: "" });
+    setEditingCard({ index: newStocks.length - 1, name: '' });
   };
 
   const handleSaveName = () => {
@@ -209,7 +209,7 @@ export default function Dashboard() {
 
     const stockName = stocks[selectedStockIndex].name;
     if (!stockName) {
-      console.error("Stock name is not defined.");
+      console.error('Stock name is not defined.');
       return;
     }
 
@@ -219,12 +219,12 @@ export default function Dashboard() {
       await processingExcelData(file, stockName);
       await fetchStockFiles();
     } catch (error) {
-      console.error("Error processing excel file:", error);
-      setError("엑셀 파일 처리 중 오류가 발생했습니다. 파일 형식을 확인해주세요.");
+      console.error('Error processing excel file:', error);
+      setError('엑셀 파일 처리 중 오류가 발생했습니다. 파일 형식을 확인해주세요.');
     } finally {
       setSelectedStockIndex(null);
       if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+        fileInputRef.current.value = '';
       }
       setIsLoading(false);
     }
@@ -239,8 +239,8 @@ export default function Dashboard() {
       await callDeleteApi(`/api/excel?stockId=${stockName}`);
       await fetchStockFiles();
     } catch (error) {
-      console.error("Error deleting stock:", error);
-      setError("종목 삭제 중 오류가 발생했습니다.");
+      console.error('Error deleting stock:', error);
+      setError('종목 삭제 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
       setMenuOpen(null);
@@ -263,7 +263,7 @@ export default function Dashboard() {
       <Main>
         {error && <ErrorMessage>{error}</ErrorMessage>}
         {isLoading && (
-          <div style={{ display: "flex", justifyContent: "center", padding: "2rem" }}>
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
             <LoadingSpinner size={40} />
           </div>
         )}
@@ -309,11 +309,11 @@ export default function Dashboard() {
                     </CardMenu>
                   )}
                   <StatCard
-                    title={stock.name || "이름 없음"}
-                    value={stock.price > 0 ? `₩${stock.price.toLocaleString()}` : "-"}
+                    title={stock.name || '이름 없음'}
+                    value={stock.price > 0 ? `₩${stock.price.toLocaleString()}` : '-'}
                     change={stock.change}
                     icon={Activity}
-                    color={stock.change > 0 ? "text-red-600" : "text-blue-600"}
+                    color={stock.change > 0 ? 'text-red-600' : 'text-blue-600'}
                   />
                 </CardWrapper>
               )
