@@ -24,7 +24,4 @@ export const LINE_CHART_COLORS = {
  */
 export const INSTITUTION_KEYS = ['개인', '세력합', '외국인', '투신_일반', '투신_사모', '은행', '보험', '기타금융', '연기금', '국가매집', '기타법인'];
 
-/**
- * 기간 선택 버튼에 표시될 기간 목록
- */
-export const PERIODS = ['6M', '1Y', '2Y', '5Y', '10Y'];
+

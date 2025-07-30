@@ -4,11 +4,13 @@ import { callGetApi } from "../../app/utils/api.js";
 
 /**
  * 주식 데이터 처리를 위한 커스텀 훅
- * @param initialPeriod - 초기 선택 기간 (기본값: "1Y")
  * @returns 차트 및 표시에 필요한 처리된 데이터
  */
-export const useStockData = (initialPeriod = "1Y", allData) => {
-  const [selectedPeriod, setSelectedPeriod] = useState(initialPeriod);
+export const useStockData = (allData) => {
+  const [dateRange, setDateRange] = useState({
+    from: new Date(new Date().setFullYear(new Date().getFullYear() - 10)),
+    to: new Date(),
+  });
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -45,41 +47,23 @@ export const useStockData = (initialPeriod = "1Y", allData) => {
   console.debug("allInstitutionalData:", allInstitutionalData);
 
   // 기간에 따라 데이터 필터링
-  const filterDataByPeriod = (data, period) => {
-    if (!data) {
+  const filterDataByDateRange = (data, range) => {
+    if (!data || !range.from || !range.to) {
       return [];
     }
-    const now = new Date();
-    let startDate = new Date();
-
-    switch (period) {
-      case "6M":
-        startDate.setMonth(now.getMonth() - 6);
-        break;
-      case "1Y":
-        startDate.setFullYear(now.getFullYear() - 1);
-        break;
-      case "2Y":
-        startDate.setFullYear(now.getFullYear() - 2);
-        break;
-      case "5Y":
-        startDate.setFullYear(now.getFullYear() - 5);
-      case "10Y":
-        startDate.setFullYear(now.getFullYear() - 10);
-        break;
-      default:
-        return data;
-    }
-    return data.filter((item) => new Date(item.date) >= startDate);
+    return data.filter((item) => {
+      const itemDate = new Date(item.date);
+      return itemDate >= range.from && itemDate <= range.to;
+    });
   };
 
   // 기간에 따라 필터링된 데이터
-  const stockData = filterDataByPeriod(formattedStockData, selectedPeriod);
+  const stockData = filterDataByDateRange(formattedStockData, dateRange);
 
   // 기관별 데이터를 기간에 따라 필터링
   const institutionalData = {};
   Object.keys(allInstitutionalData).forEach((key) => {
-    institutionalData[key] = filterDataByPeriod(allInstitutionalData[key], selectedPeriod);
+    institutionalData[key] = filterDataByDateRange(allInstitutionalData[key], dateRange);
   });
 
   // 현재가 및 등락률 계산
@@ -102,8 +86,8 @@ export const useStockData = (initialPeriod = "1Y", allData) => {
     isClient,
     stockData,
     institutionalData,
-    selectedPeriod,
-    setSelectedPeriod,
+    dateRange,
+    setDateRange,
     priceChangePercent,
     currentPrice,
   };

@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import { Activity, Users } from "lucide-react";
-import Header from "../components/Header";
-import PeriodButton from "../components/ui/PeriodButton";
-import AveragePriceCard from "../components/ui/AveragePriceCard";
-import LightweightCandlestickChart from "../components/charts/lightweight/LightweightCandlestickChart";
-import LightweightLineChart from "../components/charts/lightweight/LightweightLineChart";
-import { LINE_CHART_COLORS, PERIODS } from "../types/constants";
-import styled from "styled-components";
-import Accordion from "../components/ui/Accordion.jsx";
-import Modal from "../components/ui/Modal.jsx";
-import { useStockData } from "../components/hooks/useStockData";
+import React, { useEffect, useState } from 'react';
+import { Activity, Users } from 'lucide-react';
+import Header from '../components/Header';
+import AveragePriceCard from '../components/ui/AveragePriceCard';
+import LightweightCandlestickChart from '../components/charts/lightweight/LightweightCandlestickChart';
+import LightweightLineChart from '../components/charts/lightweight/LightweightLineChart';
+import { LINE_CHART_COLORS } from '../types/constants';
+import styled from 'styled-components';
+import Accordion from '../components/ui/Accordion.jsx';
+import Modal from '../components/ui/Modal.jsx';
+import { useStockData } from '../components/hooks/useStockData';
+import CustomDatePicker from './ui/CustomDatePicker';
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -25,7 +25,7 @@ const Main = styled.main`
 `;
 // Section: grid, flex prop이 DOM에 전달되지 않도록 withConfig 사용
 const Section = styled.section.withConfig({
-  shouldForwardProp: (prop) => prop !== "grid" && prop !== "flex", // grid, flex는 스타일 계산에만 사용, DOM에는 전달하지 않음
+  shouldForwardProp: (prop) => prop !== 'grid' && prop !== 'flex', // grid, flex는 스타일 계산에만 사용, DOM에는 전달하지 않음
 })`
   ${(props) =>
     props.grid
@@ -41,7 +41,7 @@ const Section = styled.section.withConfig({
       `
       : props.flex
       ? `display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;`
-      : ""}
+      : ''}
 `;
 
 const ChartGrid = styled.div`
@@ -115,7 +115,7 @@ const SubTitle = styled.div`
  * Includes key metrics, period selection buttons, and a chart grid.
  */
 const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
-  const { isClient, stockData, institutionalData, selectedPeriod, setSelectedPeriod } = useStockData("10Y", allData);
+  const { isClient, stockData, institutionalData, dateRange, setDateRange } = useStockData(allData);
   const [showAveragePrice, setShowAveragePrice] = useState(false);
 
   useEffect(() => {
@@ -143,15 +143,8 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
       />
       <Main>
         <Section flex>
-          {PERIODS.map((period) => (
-            <PeriodButton
-              key={period}
-              period={period}
-              active={selectedPeriod === period}
-              onClick={setSelectedPeriod}
-            />
-          ))}
-          <ToggleButton onClick={() => setShowAveragePrice((prev) => !prev)}>{showAveragePrice ? "평균값 숨기기" : "평균값 보기"}</ToggleButton>
+          <CustomDatePicker onDateRangeChange={(from, to) => setDateRange({ from, to })} />
+          <ToggleButton onClick={() => setShowAveragePrice((prev) => !prev)}>{showAveragePrice ? '평균값 숨기기' : '평균값 보기'}</ToggleButton>
         </Section>
         <FullWidthWrapper>
           <ChartGrid>
@@ -160,7 +153,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
                 defaultOpen
                 title={
                   <>
-                    <Activity style={{ color: "#dc2626", marginRight: 8, width: "15px", height: "15px" }} />
+                    <Activity style={{ color: '#dc2626', marginRight: 8, width: '15px', height: '15px' }} />
                     주가 차트 (캔들스틱)
                   </>
                 }>
@@ -172,7 +165,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
                 defaultOpen
                 title={
                   <>
-                    <Activity style={{ color: "#dc2626", marginRight: 8, width: "15px", height: "15px" }} />
+                    <Activity style={{ color: '#dc2626', marginRight: 8, width: '15px', height: '15px' }} />
                     주가 차트 (캔들스틱)
                   </>
                 }>
@@ -208,7 +201,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
                   defaultOpen
                   title={
                     <>
-                      <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8, width: "15px", height: "15px" }} />
+                      <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8, width: '15px', height: '15px' }} />
                       {key}
                       <SubTitle>
                         <div>현재보유량 : {lastestData[key].collectionVolume.toLocaleString()}</div>
@@ -221,7 +214,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
                   <LightweightLineChart
                     chartName={key}
                     data={institutionalData[key]}
-                    color={LINE_CHART_COLORS[key] || "#ffffff"}
+                    color={LINE_CHART_COLORS[key] || '#ffffff'}
                     yFormatter={(v) => Math.round(v).toLocaleString()}
                   />
                 </Accordion>
@@ -236,7 +229,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
                   defaultOpen
                   title={
                     <>
-                      <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8, width: "15px", height: "15px" }} />
+                      <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8, width: '15px', height: '15px' }} />
                       {key}
                       <SubTitle>
                         <div>현재보류량 : {lastestData[key].collectionVolume.toLocaleString()}</div>
@@ -249,7 +242,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
                   <LightweightLineChart
                     chartName={key}
                     data={institutionalData[key]}
-                    color={LINE_CHART_COLORS[key] || "#ffffff"}
+                    color={LINE_CHART_COLORS[key] || '#ffffff'}
                     yFormatter={(v) => Math.round(v).toLocaleString()}
                   />
                 </Accordion>
@@ -261,10 +254,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
         isOpen={showAveragePrice}
         onClose={() => setShowAveragePrice(false)}>
         <h2>모달 제목</h2>
-        <AveragePriceCard
-          data={stockData}
-          period={selectedPeriod}
-        />
+        <AveragePriceCard data={stockData} />
         <CloseButton onClick={() => setShowAveragePrice(false)}>닫기</CloseButton>
       </Modal>
     </Wrapper>

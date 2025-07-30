@@ -76,7 +76,10 @@ const XIcon = styled(X)`
  * @returns {JSX.Element}
  */
 const CustomDatePicker = ({ onDateRangeChange, className = '' }) => {
-  const [startDate, setStartDate] = useState('');
+  const tenYearsAgo = new Date();
+  tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
+
+  const [startDate, setStartDate] = useState(tenYearsAgo.toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
 
   // 날짜 변경 핸들러
