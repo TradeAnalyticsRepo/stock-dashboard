@@ -82,11 +82,32 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
   const [isSettingsModalOpen, setSettingsModalOpen] = useState(false);
 
   const availableLineCharts = useMemo(() => Object.keys(institutionalData), [institutionalData]);
-  const [selectedLineCharts, setSelectedLineCharts] = useState([]);
+  const [selectedLineCharts, setSelectedLineCharts] = useState(availableLineCharts);
+
+  // Create a stable, stringified version of the available charts for the useEffect dependency
+  const stringifiedAvailableCharts = JSON.stringify(availableLineCharts);
 
   useEffect(() => {
-    setSelectedLineCharts(availableLineCharts);
-  }, [availableLineCharts]);
+    if (!stockName) return;
+    const storageKey = `chartSettings-${stockName}`;
+    const savedCharts = localStorage.getItem(storageKey);
+    if (savedCharts) {
+      setSelectedLineCharts(JSON.parse(savedCharts));
+    } else {
+      // Only set default if available charts are loaded
+      if (availableLineCharts.length > 0) {
+        setSelectedLineCharts(availableLineCharts);
+      }
+    }
+  }, [stockName, stringifiedAvailableCharts]); // Depend on the stable string
+
+  const handleChartSelectionChange = (newSelectedCharts) => {
+    setSelectedLineCharts(newSelectedCharts);
+    if (stockName) {
+      const storageKey = `chartSettings-${stockName}`;
+      localStorage.setItem(storageKey, JSON.stringify(newSelectedCharts));
+    }
+  };
 
   const renderLineChart = (chartName) => {
     if (!institutionalData[chartName] || !lastestData[chartName]) return null;
@@ -140,7 +161,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
         onClose={() => setSettingsModalOpen(false)}
         availableCharts={availableLineCharts}
         selectedCharts={selectedLineCharts}
-        onChartSelectionChange={setSelectedLineCharts}
+        onChartSelectionChange={handleChartSelectionChange}
       />
     </Wrapper>
   );
