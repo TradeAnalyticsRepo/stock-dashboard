@@ -1,18 +1,18 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Activity, Users } from 'lucide-react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Activity, Users, Settings } from 'lucide-react';
 import Header from '../components/Header';
-import AveragePriceCard from '../components/ui/AveragePriceCard';
 import LightweightCandlestickChart from '../components/charts/lightweight/LightweightCandlestickChart';
 import LightweightLineChart from '../components/charts/lightweight/LightweightLineChart';
 import { LINE_CHART_COLORS } from '../types/constants';
 import styled from 'styled-components';
 import Accordion from '../components/ui/Accordion.jsx';
-import Modal from '../components/ui/Modal.jsx';
 import { useStockData } from '../components/hooks/useStockData';
 import CustomDatePicker from './ui/CustomDatePicker';
+import ChartSettingsModal from './ui/ChartSettingsModal';
 
+// Styled Components
 const Wrapper = styled.div`
   min-height: 100vh;
   background: #000;
@@ -23,49 +23,28 @@ const Main = styled.main`
   margin: 0 auto;
   padding: 1.5rem;
 `;
-// Section: grid, flex prop이 DOM에 전달되지 않도록 withConfig 사용
-const Section = styled.section.withConfig({
-  shouldForwardProp: (prop) => prop !== 'grid' && prop !== 'flex', // grid, flex는 스타일 계산에만 사용, DOM에는 전달하지 않음
-})`
-  ${(props) =>
-    props.grid
-      ? `
-        @media (min-width: 1024px) {
-          column-count: 2;
-          column-gap: 1rem;
-        }
-        & > * {
-          break-inside: avoid;
-          margin-bottom: 1rem;
-        }
-      `
-      : props.flex
-      ? `display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;`
-      : ''}
+const ControlsSection = styled.section`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
 `;
-
 const ChartGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
   @media (min-width: 1024px) {
-    display: flex;
-    gap: 1rem;
+    grid-template-columns: 1fr 1fr;
     align-items: flex-start;
   }
 `;
-
 const Column = styled.div`
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  width: 100%;
 `;
-
-const FullWidthWrapper = styled.div`
-  margin-bottom: 1rem;
-  position: sticky;
-`;
-
-const ToggleButton = styled.button`
+const SettingsButton = styled.button`
   background: #27272a;
   color: #fff;
   border: 1px solid #3f3f46;
@@ -76,230 +55,95 @@ const ToggleButton = styled.button`
   cursor: pointer;
   transition: background-color 0.2s;
   margin-left: auto;
-
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   &:hover {
     background: #3f3f46;
   }
 `;
-
 const FlexCenter = styled.div`
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
 `;
-
-const CloseButton = styled.button`
-  margin-top: 20px;
-  margin-left: calc(100% - 61px);
-  padding: 8px 16px;
-  background-color: #ddd;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-`;
-
 const SubTitle = styled.div`
   margin-left: auto;
   font-size: 11px;
   display: flex;
-
   > div + div {
     margin-left: 0.5rem;
   }
 `;
 
-/**
- * Main component to display the stock dashboard using Lightweight-charts.
- * Manages data through the useStockData hook.
- * Includes key metrics, period selection buttons, and a chart grid.
- */
 const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
-  const { isClient, stockData, institutionalData, dateRange, setDateRange } = useStockData(allData);
-  const [showAveragePrice, setShowAveragePrice] = useState(false);
+  const { isClient, stockData, institutionalData, setDateRange } = useStockData(allData);
+  const [isSettingsModalOpen, setSettingsModalOpen] = useState(false);
+
+  const availableLineCharts = useMemo(() => Object.keys(institutionalData), [institutionalData]);
+  const [selectedLineCharts, setSelectedLineCharts] = useState([]);
 
   useEffect(() => {
-    console.log({
-      isClient,
-      stockData,
-      institutionalData,
-      lastestData,
-    });
-  }, []);
+    setSelectedLineCharts(availableLineCharts);
+  }, [availableLineCharts]);
+
+  const renderLineChart = (chartName) => {
+    if (!institutionalData[chartName] || !lastestData[chartName]) return null;
+    return (
+      <Accordion key={chartName} defaultOpen title={<><Users style={{ color: LINE_CHART_COLORS[chartName], marginRight: 8, width: '15px', height: '15px' }} />{chartName}<SubTitle><div>현재보유량: {lastestData[chartName].collectionVolume.toLocaleString()}</div><div>분산비율: {lastestData[chartName].dispersionRatio}%</div><div>주가선도: {lastestData[chartName].stockMomentum}%</div><div>상관계수: {lastestData[chartName].stockCorrelation}</div></SubTitle></>}>
+        <LightweightLineChart
+          chartName={chartName}
+          data={institutionalData[chartName]}
+          color={LINE_CHART_COLORS[chartName] || '#ffffff'}
+          yFormatter={(v) => Math.round(v).toLocaleString()}
+        />
+      </Accordion>
+    );
+  };
 
   if (!isClient) {
-    return (
-      <Wrapper>
-        <FlexCenter>로딩 중...</FlexCenter>
-      </Wrapper>
-    );
+    return <Wrapper><FlexCenter>로딩 중...</FlexCenter></Wrapper>;
   }
 
   return (
     <Wrapper>
-      <Header
-        chartType='lightweight'
-        stockName={stockName}
-      />
+      <Header chartType='lightweight' stockName={stockName} />
       <Main>
-        <Section flex>
+        <ControlsSection>
           <CustomDatePicker onDateRangeChange={(from, to) => setDateRange({ from, to })} />
-          <ToggleButton onClick={() => setShowAveragePrice((prev) => !prev)}>{showAveragePrice ? '평균값 숨기기' : '평균값 보기'}</ToggleButton>
-        </Section>
-        <FullWidthWrapper>
-          <ChartGrid>
-            <Column>
-              <Accordion
-                defaultOpen
-                title={
-                  <>
-                    <Activity style={{ color: '#dc2626', marginRight: 8, width: '15px', height: '15px' }} />
-                    주가 차트 (캔들스틱)
-                  </>
-                }>
-                <LightweightCandlestickChart data={stockData} />
-              </Accordion>
-            </Column>
-            <Column>
-              <Accordion
-                defaultOpen
-                title={
-                  <>
-                    <Activity style={{ color: '#dc2626', marginRight: 8, width: '15px', height: '15px' }} />
-                    주가 차트 (캔들스틱)
-                  </>
-                }>
-                <LightweightCandlestickChart data={stockData} />
-              </Accordion>
-            </Column>
-          </ChartGrid>
-        </FullWidthWrapper>
-        {/* {showAveragePrice && (
-          <FullWidthWrapper>
-            <Accordion
-              defaultOpen
-              title={
-                <>
-                  <Users style={{ color: "#f59e0b", marginRight: 8 }} />
-                  주요기간 평균값
-                </>
-              }>
-              <AveragePriceCard
-                data={stockData}
-                period={selectedPeriod}
-              />
-            </Accordion>
-          </FullWidthWrapper>
-        )} */}
+          <SettingsButton onClick={() => setSettingsModalOpen(true)}>
+            <Settings size={16} />
+            차트 설정
+          </SettingsButton>
+        </ControlsSection>
+
         <ChartGrid>
           <Column>
-            {Object.keys(institutionalData)
-              .filter((_, index) => index % 2 === 0)
-              .map((key) => (
-                <Accordion
-                  key={key}
-                  defaultOpen
-                  title={
-                    <>
-                      <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8, width: '15px', height: '15px' }} />
-                      {key}
-                      <SubTitle>
-                        <div>현재보유량 : {lastestData[key].collectionVolume.toLocaleString()}</div>
-                        <div>분산비율 : {lastestData[key].dispersionRatio}%</div>
-                        <div>주가선도 : {lastestData[key].stockMomentum}%</div>
-                        <div>상관계수 : {lastestData[key].stockCorrelation}</div>
-                      </SubTitle>
-                    </>
-                  }>
-                  <LightweightLineChart
-                    chartName={key}
-                    data={institutionalData[key]}
-                    color={LINE_CHART_COLORS[key] || '#ffffff'}
-                    yFormatter={(v) => Math.round(v).toLocaleString()}
-                  />
-                </Accordion>
-              ))}
+            <Accordion defaultOpen title={<><Activity style={{ color: '#dc2626', marginRight: 8, width: '15px', height: '15px' }} />주가 차트 (캔들스틱)</>}>
+              <LightweightCandlestickChart data={stockData} />
+            </Accordion>
+            {selectedLineCharts.filter((_, index) => index % 2 === 0).map(renderLineChart)}
           </Column>
+
           <Column>
-            {Object.keys(institutionalData)
-              .filter((_, index) => index % 2 === 1)
-              .map((key) => (
-                <Accordion
-                  key={key}
-                  defaultOpen
-                  title={
-                    <>
-                      <Users style={{ color: LINE_CHART_COLORS[key], marginRight: 8, width: '15px', height: '15px' }} />
-                      {key}
-                      <SubTitle>
-                        <div>현재보류량 : {lastestData[key].collectionVolume.toLocaleString()}</div>
-                        <div>분산비율 : {lastestData[key].dispersionRatio}%</div>
-                        <div>주가선도 : {lastestData[key].stockMomentum}%</div>
-                        <div>상관계수 : {lastestData[key].stockCorrelation}</div>
-                      </SubTitle>
-                    </>
-                  }>
-                  <LightweightLineChart
-                    chartName={key}
-                    data={institutionalData[key]}
-                    color={LINE_CHART_COLORS[key] || '#ffffff'}
-                    yFormatter={(v) => Math.round(v).toLocaleString()}
-                  />
-                </Accordion>
-              ))}
+            <Accordion defaultOpen title={<><Activity style={{ color: '#dc2626', marginRight: 8, width: '15px', height: '15px' }} />주가 차트 (캔들스틱)</>}>
+              <LightweightCandlestickChart data={stockData} />
+            </Accordion>
+            {selectedLineCharts.filter((_, index) => index % 2 === 1).map(renderLineChart)}
           </Column>
         </ChartGrid>
       </Main>
-      <Modal
-        isOpen={showAveragePrice}
-        onClose={() => setShowAveragePrice(false)}>
-        <h2>모달 제목</h2>
-        <AveragePriceCard data={stockData} />
-        <CloseButton onClick={() => setShowAveragePrice(false)}>닫기</CloseButton>
-      </Modal>
+
+      <ChartSettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setSettingsModalOpen(false)}
+        availableCharts={availableLineCharts}
+        selectedCharts={selectedLineCharts}
+        onChartSelectionChange={setSelectedLineCharts}
+      />
     </Wrapper>
   );
 };
 
 export default StockDashboardLightweight;
-
-// const Card = styled.div`
-//   background: #1a1a1a;
-//   border-radius: 0.5rem;
-//   padding: 1.5rem;
-//   border: 1px solid #27272a;
-// `;
-// const ChartTitle = styled.h3`
-//   font-size: 1.25rem;
-//   font-weight: 600;
-//   margin: 0;
-//   display: flex;
-//   align-items: center;
-// `;
-// <Section grid>
-//   <StatCard
-//     title='현재가'
-//     value={`₩${currentPrice.toLocaleString()}`}
-//     change={priceChangePercent}
-//     icon={Activity}
-//     color='text-red-600'
-//   />
-//   <StatCard
-//     title='개인 매집수량'
-//     value={latestIndividualVolume.toLocaleString()}
-//     icon={Users}
-//     color='text-blue-500'
-//   />
-//   <StatCard
-//     title='외국인 매집수량'
-//     value={latestForeignerVolume.toLocaleString()}
-//     icon={Globe}
-//     color='text-green-500'
-//   />
-//   <StatCard
-//     title='세력합 매집수량'
-//     value={latestCombinedForcesVolume.toLocaleString()}
-//     icon={Building}
-//     color='text-purple-500'
-//   />
-// </Section>

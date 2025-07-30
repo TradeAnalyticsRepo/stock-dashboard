@@ -1,11 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { INSTITUTION_KEYS } from "../../types/constants";
 import { callGetApi } from "../../app/utils/api.js";
 
-/**
- * 주식 데이터 처리를 위한 커스텀 훅
- * @returns 차트 및 표시에 필요한 처리된 데이터
- */
 export const useStockData = (allData) => {
   const [dateRange, setDateRange] = useState({
     from: new Date(new Date().setFullYear(new Date().getFullYear() - 10)),
@@ -17,67 +13,57 @@ export const useStockData = (allData) => {
     setIsClient(true);
   }, []);
 
-  // 주가 데이터 포맷팅
-  const formattedStockData = allData
-    .filter((item) => item?.주가?.tradeDate)
-    .map((item) => ({
-      date: item.주가.tradeDate.replace(/\//g, "-"),
-      open: item.주가.open,
-      high: item.주가.high || item.주가.open,
-      low: item.주가.low || item.주가.close,
-      // color: "#145626",
-      close: item.주가.close,
-      price: item.주가.close,
-      previousDayComparison: item.주가.previousDayComparison,
-    }));
+  const formattedStockData = useMemo(() => {
+    return allData
+      .filter((item) => item?.주가?.tradeDate)
+      .map((item) => ({
+        date: item.주가.tradeDate.replace(/\//g, "-"),
+        open: item.주가.open,
+        high: item.주가.high || item.주가.open,
+        low: item.주가.low || item.주가.close,
+        close: item.주가.close,
+        price: item.주가.close,
+        previousDayComparison: item.주가.previousDayComparison,
+      }));
+  }, [allData]);
 
-  // 기관별 데이터 포맷팅
-  const allInstitutionalData = {};
-  INSTITUTION_KEYS.forEach((key) => {
-    if (allData?.[0]?.[key]) {
-      allInstitutionalData[key] = allData
-        .filter((item) => item?.[key]?.tradeDate)
-        .map((item) => ({
-          date: item[key].tradeDate.replace(/\//g, "-"),
-          value: item[key].collectionVolume,
-          dispersionRatio: item[key].dispersionRatio,
-        }));
-    }
-  });
-  console.debug("allInstitutionalData:", allInstitutionalData);
+  const allInstitutionalData = useMemo(() => {
+    const data = {};
+    INSTITUTION_KEYS.forEach((key) => {
+      if (allData?.[0]?.[key]) {
+        data[key] = allData
+          .filter((item) => item?.[key]?.tradeDate)
+          .map((item) => ({
+            date: item[key].tradeDate.replace(/\//g, "-"),
+            value: item[key].collectionVolume,
+            dispersionRatio: item[key].dispersionRatio,
+          }));
+      }
+    });
+    return data;
+  }, [allData]);
 
-  // 기간에 따라 데이터 필터링
   const filterDataByDateRange = (data, range) => {
-    if (!data || !range.from || !range.to) {
-      return [];
-    }
+    if (!data || !range.from || !range.to) return [];
     return data.filter((item) => {
       const itemDate = new Date(item.date);
       return itemDate >= range.from && itemDate <= range.to;
     });
   };
 
-  // 기간에 따라 필터링된 데이터
-  const stockData = filterDataByDateRange(formattedStockData, dateRange);
+  const stockData = useMemo(() => filterDataByDateRange(formattedStockData, dateRange), [formattedStockData, dateRange]);
 
-  // 기관별 데이터를 기간에 따라 필터링
-  const institutionalData = {};
-  Object.keys(allInstitutionalData).forEach((key) => {
-    institutionalData[key] = filterDataByDateRange(allInstitutionalData[key], dateRange);
-  });
+  const institutionalData = useMemo(() => {
+    const data = {};
+    Object.keys(allInstitutionalData).forEach((key) => {
+      data[key] = filterDataByDateRange(allInstitutionalData[key], dateRange);
+    });
+    return data;
+  }, [allInstitutionalData, dateRange]);
 
-  // 현재가 및 등락률 계산
-  const {
-    open: 전일가,
-    close: 현재가,
-    previousDayComparison: 전일대비,
-  } = stockData.length > 0
+  const { open: 전일가, close: 현재가, previousDayComparison: 전일대비 } = stockData.length > 0
     ? stockData[stockData.length - 1]
-    : {
-        open: 0,
-        close: 0,
-        previousDayComparison: 0,
-      };
+    : { open: 0, close: 0, previousDayComparison: 0 };
 
   const currentPrice = 현재가;
   const priceChangePercent = 전일가 !== 0 ? (전일대비 / 전일가) * 100 : 0;
@@ -86,10 +72,7 @@ export const useStockData = (allData) => {
     isClient,
     stockData,
     institutionalData,
-    dateRange,
     setDateRange,
-    priceChangePercent,
-    currentPrice,
   };
 };
 

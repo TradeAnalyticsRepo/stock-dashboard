@@ -78,9 +78,10 @@ const XIcon = styled(X)`
 const CustomDatePicker = ({ onDateRangeChange, className = '' }) => {
   const tenYearsAgo = new Date();
   tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
-
-  const [startDate, setStartDate] = useState(tenYearsAgo.toISOString().split('T')[0]);
-  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+  const initStartDt = tenYearsAgo.toISOString().split('T')[0];
+  const initEndDt = new Date().toISOString().split('T')[0];
+  const [startDate, setStartDate] = useState(initStartDt);
+  const [endDate, setEndDate] = useState(initEndDt);
 
   // 날짜 변경 핸들러
   const handleStartDateChange = (date) => {
@@ -107,8 +108,8 @@ const CustomDatePicker = ({ onDateRangeChange, className = '' }) => {
 
   // 날짜 범위 초기화
   const handleClear = () => {
-    setStartDate('');
-    setEndDate(new Date().toISOString().split('T')[0]);
+    setStartDate(initStartDt);
+    setEndDate(initEndDt);
   };
 
   // 최대 날짜 계산 (오늘)
