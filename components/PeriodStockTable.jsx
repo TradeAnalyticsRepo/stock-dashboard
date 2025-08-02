@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Header from "../components/Header";
+import Header from "./Header.jsx";
 import styled from "styled-components";
 import { useLastestStockData, useTableStockData } from "./hooks/useStockData.js";
+import { processingExcelDataForCummulativePeriod, processingPeriodTableData, stockDataBeforePeriodProcessByCondition } from "../app/utils/excelUtils.js";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -83,36 +84,37 @@ const Row = styled.tr`
   }
 `;
 
-const StockTable = ({ stockName }) => {
+const PeriodStockTable = ({ stockName, from, to }) => {
   const [tableData, setTableData] = useState([]);
-  const [lastestData, setLastestData] = useState({
-    개인: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
-    세력합: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
-    외국인: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
-    금융투자: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
-    보험: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
-    투신_일반: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
-    기타금융: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
-    은행: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
-    연기금: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
-    투신_사모: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
-    국가매집: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
-    기타법인: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
-  });
+  // const [lastestData, setLastestData] = useState({
+  //   개인: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
+  //   세력합: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
+  //   외국인: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
+  //   금융투자: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
+  //   보험: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
+  //   투신_일반: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
+  //   기타금융: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
+  //   은행: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
+  //   연기금: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
+  //   투신_사모: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
+  //   국가매집: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
+  //   기타법인: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
+  // });
   useEffect(() => {
     (async () => {
       try {
         // eslint-disable-next-line react-hooks/rules-of-hooks
-        const tableResult = await useTableStockData(stockName);
+        const tableResult = await processingPeriodTableData(stockName, formatDate(from, 'compact'), formatDate(to, 'compact'));
+        
         // eslint-disable-next-line react-hooks/rules-of-hooks
-        const lastestResult = await useLastestStockData(stockName);
-        if (tableResult?.status === 200) {
-          setTableData(tableResult.data);
-        }
+        // const lastestResult = await useLastestStockData(stockName);
+        
+        setTableData(tableResult);
+        
 
-        if (lastestResult?.status === 200) {
-          setLastestData(lastestResult?.data);
-        }
+        // if (lastestResult?.status === 200) {
+        //   setLastestData(lastestResult?.data);
+        // }
       } catch (error) {
         console.error(error);
       }
@@ -123,12 +125,25 @@ const StockTable = ({ stockName }) => {
     return num.toLocaleString(); // 기본은 시스템 locale (한국이면 1,000 식)
   };
   // <Title>투자자별 누적 매집 데이터</Title>
+  const formatDate = (date, formatType) =>{
+  date = new Date(date);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // 0-based
+  const day = String(date.getDate()).padStart(2, '0');
 
+  if (formatType === 'dash') {
+    return `${year}-${month}-${day}`;
+  } else if (formatType === 'compact') {
+    return `${year}${month}${day}`;
+  } else {
+    throw new Error('Invalid formatType. Use "dash" or "compact".');
+  }
+}
   return (
     <Wrapper>
       <Header
         chartType='table'
-        stockName={stockName}
+        stockName={stockName + '  ( ' + formatDate(from, 'dash') + ' ~ ' + formatDate(to, 'dash') + ' )'}
       />
       <Main>
         <Section>
@@ -184,35 +199,57 @@ const StockTable = ({ stockName }) => {
                       <Td style={{ backgroundColor: backgroudColor }}>{formatNumber(row.avgMount)}</Td>
                       <Td style={{ backgroundColor: backgroudColor }}>{formatNumber(row.tradingVolume)}</Td>
                       <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeIndiv) }}>
-                        {formatNumber(row.tradingVolumeIndiv)}
+                        <span>{formatNumber(row.tradingVolumeIndiv)}</span>
+                        <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceIndiv)})`}</span>
                       </Td>
                       <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeTotalIns) }}>
                         {formatNumber(row.tradingVolumeTotalIns)}
+                        {/* <span style={{color: '#fff'}}>{` (${formatNumber(tradingVolumeTotalIns)})`}</span> */}
                       </Td>
-                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeFore) }}>{formatNumber(row.tradingVolumeFore)}</Td>
+                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeFore) }}>
+                        {formatNumber(row.tradingVolumeFore)}
+                        <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceFore)})`}</span>
+                      </Td>
                       <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeFinInv) }}>
                         {formatNumber(row.tradingVolumeFinInv)}
+                        <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceFinInv)})`}</span>
                       </Td>
                       <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeInsur) }}>
                         {formatNumber(row.tradingVolumeInsur)}
+                        <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceInsur)})`}</span>
                       </Td>
                       <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeGTrust) }}>
                         {formatNumber(row.tradingVolumeGTrust)}
+                        <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceGTrust)})`}</span>
                       </Td>
                       <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeEtcFin) }}>
                         {formatNumber(row.tradingVolumeEtcFin)}
+                        <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceEtcFin)})`}</span>
                       </Td>
-                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeBank) }}>{formatNumber(row.tradingVolumeBank)}</Td>
-                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumePens) }}>{formatNumber(row.tradingVolumePens)}</Td>
+                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeBank) }}>
+                        {formatNumber(row.tradingVolumeBank)}
+                        <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceBank)})`}</span>
+                      </Td>
+                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumePens) }}>
+                        {formatNumber(row.tradingVolumePens)}
+                        <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPricePens)})`}</span>
+                      </Td>
                       <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeSTrust) }}>
                         {formatNumber(row.tradingVolumeSTrust)}
+                        <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceSTrust)})`}</span>
                       </Td>
-                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeNat) }}>{formatNumber(row.tradingVolumeNat)}</Td>
-                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeEtc) }}>{formatNumber(row.tradingVolumeEtc)}</Td>
+                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeNat) }}>
+                        {formatNumber(row.tradingVolumeNat)}
+                        <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceNat)})`}</span>
+                      </Td>
+                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeEtc) }}>
+                        {formatNumber(row.tradingVolumeEtc)}
+                        <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceEtc)})`}</span>
+                      </Td>
                     </Row>
                   );
                 })}
-                <Row>
+                {/* <Row>
                   <Td style={{ backgroundColor: "#22222270" }}>{"현재보유량"}</Td>
                   <Td style={{ backgroundColor: "#22222270" }}>{""}</Td>
                   <Td style={{ backgroundColor: "#22222270" }}>{""}</Td>
@@ -313,7 +350,7 @@ const StockTable = ({ stockName }) => {
                   <Td style={{ backgroundColor: "#22222270" }}>{lastestData.투신_사모.stockMomentum + "%"}</Td>
                   <Td style={{ backgroundColor: "#22222270" }}>{lastestData.국가매집.stockMomentum + "%"}</Td>
                   <Td style={{ backgroundColor: "#22222270" }}>{lastestData.기타법인.stockMomentum + "%"}</Td>
-                </Row>
+                </Row> */}
               </tbody>
             </StyledTable>
           </TableCard>
@@ -323,4 +360,4 @@ const StockTable = ({ stockName }) => {
   );
 };
 
-export default StockTable;
+export default PeriodStockTable;

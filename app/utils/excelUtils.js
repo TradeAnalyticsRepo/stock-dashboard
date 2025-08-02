@@ -1,5 +1,6 @@
-import { callPostApi } from "./api";
+import { callGetApi, callPostApi } from "./api";
 import * as XLSX from "xlsx";
+
 
 export const excelFileToJson = async (excelFile) => {
   const arrayBuffer = await excelFile.arrayBuffer();
@@ -72,6 +73,47 @@ export const processingExcelData = async (excelFile, stockName) => {
   await callPostApi("/api/excel", cumulativeLastestData);
   await callPostApi("/api/excel", cumulativeTableData);
 };
+
+export const processingPeriodTableData = async (stockName, from, to) => {
+  const { data } = await callGetApi("/api/excel", { stockId: stockName, type: "graph" });
+  const filtered = data.filter(row =>  {
+    const date = row.주가.tradeDate.replaceAll("/", "");
+    return from <= date && date <= to;
+  })
+  
+  const excelData = filtered.map(data => ({
+    일자: data.주가.tradeDate,
+    종가: data.주가.close,
+    거래량: data.주가.tradingVolume,
+
+    개인: data.개인.tradingVolume,
+    외국인: data.외국인.tradingVolume,
+    기관: data.금융투자.tradingVolume,
+    기관종합: data.세력합.tradingVolume,
+    기타: data.기타법인.tradingVolume,
+    __EMPTY_1: data.투신_일반.tradingVolume,
+    __EMPTY_2: data.투신_사모.tradingVolume,
+    __EMPTY_3: data.은행.tradingVolume,
+    __EMPTY_4: data.보험.tradingVolume,
+    __EMPTY_5: data.기타금융.tradingVolume,
+    __EMPTY_6: data.연기금.tradingVolume,
+    __EMPTY_7: data.국가매집.tradingVolume
+  }))
+
+  const stockListByPeriod = stockDataBeforePeriodProcess(excelData, true);
+  const tableData = processingExcelDataForCummulativePeriod(stockListByPeriod, true);
+  const resultData = tableData.map(data => {
+    const keys = Object.keys(data);
+    keys.forEach(key => {
+      if(key.startsWith('totalPrice')) {
+        data[`avgPrice${key.replace('totalPrice', '')}`] = Math.floor(data[key] / data[`${key.replace('totalPrice', 'tradingVolume')}`]) || 0;
+      }
+    })
+    return data;
+  })
+  console.log(resultData);
+  return resultData;
+}
 
 export const stockDataBeforeCumulateProcess = (data) => {
   const cumulativeStockData = initCumulativeStockData;
@@ -186,6 +228,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         dispersionRatio: calcPercent(volume.indivCollectionVolume, cumulativeStockData.maxIndivMount - cumulativeStockData.minIndivMount),
         stockMomentum: calcPercent(cumulativeStockData.maxIndivMount - cumulativeStockData.minIndivMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxIndivMount - cumulativeStockData.minIndivMount,
+        minColVolume: cumulativeStockData.minIndivMount,
       },
       세력합: {
         ...defaultInfo,
@@ -201,6 +244,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
           sumTotalCollectionVolume
         ),
         maxColVolume: cumulativeStockData.maxTotalForeAndInstMount - cumulativeStockData.minTotalForeAndInstMount,
+        minColVolume: cumulativeStockData.minTotalForeAndInstMount,
       },
       외국인: {
         ...defaultInfo,
@@ -210,6 +254,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         dispersionRatio: calcPercent(volume.foreCollectionVolume, cumulativeStockData.maxForeMount - cumulativeStockData.minForeMount),
         stockMomentum: calcPercent(cumulativeStockData.maxForeMount - cumulativeStockData.minForeMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxForeMount - cumulativeStockData.minForeMount,
+        minColVolume: cumulativeStockData.minForeMount,
       },
       금융투자: {
         ...defaultInfo,
@@ -219,6 +264,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         dispersionRatio: calcPercent(volume.finInvCollectionVolume, cumulativeStockData.maxFinInvMount - cumulativeStockData.minFinInvMount),
         stockMomentum: calcPercent(cumulativeStockData.maxFinInvMount - cumulativeStockData.minFinInvMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxFinInvMount - cumulativeStockData.minFinInvMount,
+        minColVolume: cumulativeStockData.minFinInvMount,
       },
       투신_일반: {
         ...defaultInfo,
@@ -228,6 +274,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         dispersionRatio: calcPercent(volume.gTrustCollectionVolume, cumulativeStockData.maxGTrustMount - cumulativeStockData.minGTrustMount),
         stockMomentum: calcPercent(cumulativeStockData.maxGTrustMount - cumulativeStockData.minGTrustMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxGTrustMount - cumulativeStockData.minGTrustMount,
+        minColVolume: cumulativeStockData.minGTrustMount,
       },
       투신_사모: {
         ...defaultInfo,
@@ -237,6 +284,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         dispersionRatio: calcPercent(volume.sTrustCollectionVolume, cumulativeStockData.maxSTrustMount - cumulativeStockData.minSTrustMount),
         stockMomentum: calcPercent(cumulativeStockData.maxSTrustMount - cumulativeStockData.minSTrustMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxSTrustMount - cumulativeStockData.minSTrustMount,
+        minColVolume: cumulativeStockData.minSTrustMount,
       },
       은행: {
         ...defaultInfo,
@@ -246,6 +294,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         dispersionRatio: calcPercent(volume.bankCollectionVolume, cumulativeStockData.maxBankMount - cumulativeStockData.minBankMount),
         stockMomentum: calcPercent(cumulativeStockData.maxBankMount - cumulativeStockData.minBankMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxBankMount - cumulativeStockData.minBankMount,
+        minColVolume: cumulativeStockData.minBankMount,
       },
       보험: {
         ...defaultInfo,
@@ -255,6 +304,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         dispersionRatio: calcPercent(volume.insurCollectionVolume, cumulativeStockData.maxInsurMount - cumulativeStockData.minInsurMount),
         stockMomentum: calcPercent(cumulativeStockData.maxInsurMount - cumulativeStockData.minInsurMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxInsurMount - cumulativeStockData.minInsurMount,
+        minColVolume: cumulativeStockData.minInsurMount,
       },
       기타금융: {
         ...defaultInfo,
@@ -264,6 +314,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         dispersionRatio: calcPercent(volume.etcFinCollectionVolume, cumulativeStockData.maxEtcFinMount - cumulativeStockData.minEtcFinMount),
         stockMomentum: calcPercent(cumulativeStockData.maxEtcFinMount - cumulativeStockData.minEtcFinMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxEtcFinMount - cumulativeStockData.minEtcFinMount,
+        minColVolume: cumulativeStockData.minEtcFinMount,
       },
       연기금: {
         ...defaultInfo,
@@ -273,6 +324,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         dispersionRatio: calcPercent(volume.pensCollectionVolume, cumulativeStockData.maxPensMount - cumulativeStockData.minPensMount),
         stockMomentum: calcPercent(cumulativeStockData.maxPensMount - cumulativeStockData.minPensMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxPensMount - cumulativeStockData.minPensMount,
+        minColVolume: cumulativeStockData.minPensMount,
       },
       국가매집: {
         ...defaultInfo,
@@ -282,6 +334,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         dispersionRatio: calcPercent(volume.natCollectionVolume, cumulativeStockData.maxNatMount - cumulativeStockData.minNatMount),
         stockMomentum: calcPercent(cumulativeStockData.maxNatMount - cumulativeStockData.minNatMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxNatMount - cumulativeStockData.minNatMount,
+        minColVolume: cumulativeStockData.minNatMount,
       },
 
       기타법인: {
@@ -292,6 +345,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         dispersionRatio: calcPercent(volume.etcCollectionVolume, cumulativeStockData.maxEtcMount - cumulativeStockData.minEtcMount),
         stockMomentum: calcPercent(cumulativeStockData.maxEtcMount - cumulativeStockData.minEtcMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxEtcMount - cumulativeStockData.minEtcMount,
+        minColVolume: cumulativeStockData.minEtcMount,
       },
     };
 
@@ -315,7 +369,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
   return { graphProcessingData: result, stockPriceList: stockPriceList, culmulativeList: culmulativeList };
 };
 
-export const stockDataBeforePeriodProcess = (data) => {
+export const stockDataBeforePeriodProcess = (data, isPeriodProcessing = false) => {
   let week = 1,
     month = 1,
     quarter = 1,
@@ -342,7 +396,7 @@ export const stockDataBeforePeriodProcess = (data) => {
       }
     }
 
-    if (month < 4) {
+    if (isPeriodProcessing || month < 4) {
       const monthList = stockListByPeriod[`month${month}`] || [];
       if (monthList.length < 20) {
         const tradeDateNm = `${month}월`;
@@ -381,13 +435,14 @@ export const stockDataBeforePeriodProcess = (data) => {
 };
 
 // 수급분석표 로직
-export const processingExcelDataForCummulativePeriod = (stockList) => {
+export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg = false) => {
   const result = [];
   const keys = Object.keys(stockList ?? {});
   keys.forEach((key) => {
     if (key === "week") {
       stockList[key].forEach((data) => {
-        result.push({
+        let resultData = {};
+        const baseData = {
           tradeDateNm: data.일자,
           avgMount: data.종가,
           tradingVolume: data.거래량,
@@ -405,7 +460,28 @@ export const processingExcelDataForCummulativePeriod = (stockList) => {
           tradingVolumeEtcFin: data.__EMPTY_5,
           tradingVolumePens: data.__EMPTY_6,
           tradingVolumeNat: data.__EMPTY_7,
-        });
+        }
+
+        if(setPriceAvg) {
+          const appendData = {
+            totalPriceIndiv: data.개인 * data.종가,
+            totalPriceTotalForeAndInst: data.외국인 + data.기관종합 * data.종가,
+            totalPriceFore: data.외국인 * data.종가,
+            totalPriceTotalIns: data.기관종합 * data.종가,
+            totalPriceFinInv: data.기관 * data.종가,
+            totalPriceEtc: data.기타 * data.종가,
+            totalPriceGTrust: data.__EMPTY_1 * data.종가,
+            totalPriceSTrust: data.__EMPTY_2 * data.종가,
+            totalPriceBank: data.__EMPTY_3 * data.종가,
+            totalPriceInsur: data.__EMPTY_4 * data.종가,
+            totalPriceEtcFin: data.__EMPTY_5 * data.종가,
+            totalPricePens: data.__EMPTY_6 * data.종가,
+            totalPriceNat: data.__EMPTY_7 * data.종가,
+          }
+          resultData = Object.assign({}, baseData, appendData);
+        }
+        result.push(resultData);
+        ;
       });
     } else {
       const cumulativeData = {
@@ -426,6 +502,20 @@ export const processingExcelDataForCummulativePeriod = (stockList) => {
         tradingVolumeEtcFin: 0,
         tradingVolumePens: 0,
         tradingVolumeNat: 0,
+
+        totalPriceIndiv: 0,
+        totalPriceTotalForeAndInst: 0,
+        totalPriceFore: 0,
+        totalPriceTotalIns: 0,
+        totalPriceFinInv: 0,
+        totalPriceEtc: 0,
+        totalPriceGTrust: 0,
+        totalPriceSTrust: 0,
+        totalPriceBank: 0,
+        totalPriceInsur: 0,
+        totalPriceEtcFin: 0,
+        totalPricePens: 0,
+        totalPriceNat: 0,
       };
       stockList[key].forEach((data, idx) => {
         cumulativeData.avgMount += data.종가;
@@ -444,6 +534,22 @@ export const processingExcelDataForCummulativePeriod = (stockList) => {
         cumulativeData.tradingVolumeEtcFin += data.__EMPTY_5;
         cumulativeData.tradingVolumePens += data.__EMPTY_6;
         cumulativeData.tradingVolumeNat += data.__EMPTY_7;
+
+        if(setPriceAvg) {
+          cumulativeData.totalPriceIndiv += data.개인 * data.종가;
+          cumulativeData.totalPriceTotalForeAndInst += data.외국인 + data.기관종합 * data.종가;
+          cumulativeData.totalPriceFore += data.외국인 * data.종가;
+          cumulativeData.totalPriceTotalIns += data.기관종합 * data.종가;
+          cumulativeData.totalPriceFinInv += data.기관 * data.종가;
+          cumulativeData.totalPriceEtc += data.기타 * data.종가;
+          cumulativeData.totalPriceGTrust += data.__EMPTY_1 * data.종가;
+          cumulativeData.totalPriceSTrust += data.__EMPTY_2 * data.종가;
+          cumulativeData.totalPriceBank += data.__EMPTY_3 * data.종가;
+          cumulativeData.totalPriceInsur += data.__EMPTY_4 * data.종가;
+          cumulativeData.totalPriceEtcFin += data.__EMPTY_5 * data.종가;
+          cumulativeData.totalPricePens += data.__EMPTY_6 * data.종가;
+          cumulativeData.totalPriceNat += data.__EMPTY_7 * data.종가;
+        }
 
         if (idx + 1 === stockList[key].length) {
           result.push(
@@ -547,6 +653,15 @@ const initStockListByPeriod = {
   month1: [],
   month2: [],
   month3: [],
+  month4: [],
+  month5: [],
+  month6: [],
+  month7: [],
+  month8: [],
+  month9: [],
+  month10: [],
+  month11: [],
+  month12: [],
   quarter1: [],
   quarter2: [],
   quarter3: [],

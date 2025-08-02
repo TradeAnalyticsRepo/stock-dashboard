@@ -50,8 +50,25 @@ const NavLink = styled.a`
   }
 `;
 
+const NavBox = styled.div`
+  display: flex;
+`
+
+const WindowLink = styled.div`
+  margin-left : 1rem;
+  color: #d1d5db;
+  transition: color 0.2s;
+  text-decoration: none;
+  cursor: pointer;
+  &:hover {
+    color: #fff;
+  }
+`
+
 // stockName prop 추가
 const Header = ({ chartType, stockName }) => {
+ 
+
   return (
     <HeaderWrapper>
       <HeaderInner>
@@ -64,7 +81,10 @@ const Header = ({ chartType, stockName }) => {
             </Title>
           </Left>
         </NavLink>
-        <Nav>{chartType !== "table" && <NavLink href={`/table?name=${stockName}`}>수급분석표</NavLink>}</Nav>
+        {/* <NavBox>
+          <Nav>{chartType !== "table" && <WindowLink onClick={() => openNewWindow(period)}>기간수급분석표</WindowLink>}</Nav>
+          <Nav>{chartType !== "table" && <WindowLink onClick={openNewWindow}>수급분석표</WindowLink>}</Nav>
+        </NavBox> */}
       </HeaderInner>
     </HeaderWrapper>
   );

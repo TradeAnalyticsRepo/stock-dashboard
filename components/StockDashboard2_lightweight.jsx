@@ -26,7 +26,7 @@ const Main = styled.main`
 const ControlsSection = styled.section`
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: end;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
 `;
@@ -62,6 +62,16 @@ const SettingsButton = styled.button`
     background: #3f3f46;
   }
 `;
+
+const TableBtnBox = styled.div`
+  position: absolute;
+  left: 44%;
+
+  ${SettingsButton} + ${SettingsButton} {
+    margin-left : 1em;
+  }
+`;
+
 const FlexCenter = styled.div`
   min-height: 100vh;
   display: flex;
@@ -78,7 +88,7 @@ const SubTitle = styled.div`
 `;
 
 const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
-  const { isClient, stockData, institutionalData, setDateRange } = useStockData(allData);
+  const { isClient, stockData, institutionalData, dateRange, setDateRange } = useStockData(allData);
   const [isSettingsModalOpen, setSettingsModalOpen] = useState(false);
 
   const availableLineCharts = useMemo(() => Object.keys(institutionalData), [institutionalData]);
@@ -100,6 +110,11 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
       }
     }
   }, [stockName, stringifiedAvailableCharts]); // Depend on the stable string
+
+  const openNewWindow = (dateRange) => {
+    const url = dateRange ? `/periodTable?name=${stockName}&from=${dateRange.from}&to=${dateRange.to}` : `/table?name=${stockName}`;
+    window.open(url, '_blank', `width=${window.innerWidth},height=${window.innerHeight}`);
+  }
 
   const handleChartSelectionChange = (newSelectedCharts) => {
     setSelectedLineCharts(newSelectedCharts);
@@ -133,6 +148,14 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
       <Main>
         <ControlsSection>
           <CustomDatePicker onDateRangeChange={(from, to) => setDateRange({ from, to })} />
+            <TableBtnBox>
+              <SettingsButton onClick={() => openNewWindow(dateRange)}>
+                기간 수급분석표
+              </SettingsButton>
+              <SettingsButton onClick={() => openNewWindow()}>
+                수급분석표
+              </SettingsButton>
+            </TableBtnBox>
           <SettingsButton onClick={() => setSettingsModalOpen(true)}>
             <Settings size={16} />
             차트 설정

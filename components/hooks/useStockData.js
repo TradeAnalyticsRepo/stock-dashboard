@@ -72,6 +72,7 @@ export const useStockData = (allData) => {
     isClient,
     stockData,
     institutionalData,
+    dateRange,
     setDateRange,
   };
 };
