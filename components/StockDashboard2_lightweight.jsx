@@ -92,6 +92,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
   const { isClient, stockData, institutionalData, dateRange, setDateRange } = useStockData(allData);
   const [isSettingsModalOpen, setSettingsModalOpen] = useState(false);
   const [memo, setMemo] = useState('');
+  const [zoomPercentage, setZoomPercentage] = useState(100); // Default to 100% zoom
 
   const availableLineCharts = useMemo(() => Object.keys(institutionalData), [institutionalData]);
   const [selectedLineCharts, setSelectedLineCharts] = useState(availableLineCharts);
@@ -163,6 +164,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
           data={institutionalData[chartName]}
           color={LINE_CHART_COLORS[chartName] || '#ffffff'}
           yFormatter={(v) => Math.round(v).toLocaleString()}
+          zoomPercentage={zoomPercentage}
         />
       </Accordion>
     );
@@ -189,10 +191,28 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
             <SettingsButton onClick={() => openNewWindow(dateRange)}>기간 수급분석표</SettingsButton>
             <SettingsButton onClick={() => openNewWindow()}>수급분석표</SettingsButton>
           </TableBtnBox>
-          <SettingsButton onClick={() => setSettingsModalOpen(true)}>
-            <Settings size={16} />
-            차트 설정
-          </SettingsButton>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <input
+              type="number"
+              placeholder="Zoom %"
+              value={zoomPercentage}
+              onChange={(e) => setZoomPercentage(e.target.value)}
+              style={{
+                background: '#27272a',
+                color: '#fff',
+                border: '1px solid #3f3f46',
+                padding: '0.5rem 1rem',
+                borderRadius: '0.375rem',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                width: '80px',
+              }}
+            />
+            <SettingsButton onClick={() => setSettingsModalOpen(true)}>
+              <Settings size={16} />
+              차트 설정
+            </SettingsButton>
+          </div>
         </ControlsSection>
 
         <ChartGrid>
@@ -205,7 +225,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
                   주가 차트 (캔들스틱)
                 </>
               }>
-              <LightweightCandlestickChart data={stockData} />
+              <LightweightCandlestickChart data={stockData} zoomPercentage={zoomPercentage} />
             </Accordion>
             {selectedLineCharts.filter((_, index) => index % 2 === 0).map(renderLineChart)}
           </Column>
@@ -219,7 +239,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
                   주가 차트 (캔들스틱)
                 </>
               }>
-              <LightweightCandlestickChart data={stockData} />
+              <LightweightCandlestickChart data={stockData} zoomPercentage={zoomPercentage} />
             </Accordion>
             {selectedLineCharts.filter((_, index) => index % 2 === 1).map(renderLineChart)}
           </Column>

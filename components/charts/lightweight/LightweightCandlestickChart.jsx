@@ -9,7 +9,7 @@ const ChartContainer = styled.div`
   position: relative;
 `;
 
-const LightweightCandlestickChart = ({ data, initialSelectedTime = null }) => {
+const LightweightCandlestickChart = ({ data, initialSelectedTime = null, zoomPercentage = 100 }) => {
   const chartContainerRef = useRef(null);
   const chartRef = useRef(null);
   const seriesRef = useRef(null);
@@ -97,6 +97,18 @@ const LightweightCandlestickChart = ({ data, initialSelectedTime = null }) => {
     seriesRef.current.setData(chartData);
     chartRef.current.timeScale().fitContent();
   }, [data, selectedTime]);
+
+  // Zoom effect
+  useEffect(() => {
+    if (!chartRef.current) return;
+
+    const timeScale = chartRef.current.timeScale();
+    const defaultBarSpacing = 5; // You might need to adjust this default value
+    const newBarSpacing = defaultBarSpacing * (zoomPercentage / 100);
+    timeScale.applyOptions({
+      barSpacing: newBarSpacing,
+    });
+  }, [zoomPercentage]);
 
   return <ChartContainer ref={chartContainerRef} />;
 };

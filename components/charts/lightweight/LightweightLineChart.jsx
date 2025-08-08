@@ -8,7 +8,7 @@ const ChartContainer = styled.div`
   height: 100px;
 `;
 
-const LightweightLineChart = ({ chartName, data, color, yFormatter }) => {
+const LightweightLineChart = ({ chartName, data, color, yFormatter, zoomPercentage = 100 }) => {
   const chartContainerRef = useRef(null);
   const chartRef = useRef(null);
 
@@ -76,6 +76,18 @@ const LightweightLineChart = ({ chartName, data, color, yFormatter }) => {
       chart.remove();
     };
   }, [data, color, yFormatter]);
+
+  // Zoom effect
+  useEffect(() => {
+    if (!chartRef.current) return;
+
+    const timeScale = chartRef.current.timeScale();
+    const defaultBarSpacing = 5; // You might need to adjust this default value
+    const newBarSpacing = defaultBarSpacing * (zoomPercentage / 100);
+    timeScale.applyOptions({
+      barSpacing: newBarSpacing,
+    });
+  }, [zoomPercentage]);
 
   return <ChartContainer ref={chartContainerRef} />;
 };
