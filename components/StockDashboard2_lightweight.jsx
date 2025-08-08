@@ -11,6 +11,7 @@ import Accordion from '../components/ui/Accordion.jsx';
 import { useStockData } from '../components/hooks/useStockData';
 import CustomDatePicker from './ui/CustomDatePicker';
 import ChartSettingsModal from './ui/ChartSettingsModal';
+import Memo from './ui/Memo';
 
 // Styled Components
 const Wrapper = styled.div`
@@ -34,8 +35,8 @@ const ChartGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
-  @media (min-width: 1024px) {
-    grid-template-columns: 1fr 1fr;
+  @media (min-width: 1280px) {
+    grid-template-columns: 1fr 1fr 320px; /* Two columns for charts, one for memo */
     align-items: flex-start;
   }
 `;
@@ -90,6 +91,7 @@ const SubTitle = styled.div`
 const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
   const { isClient, stockData, institutionalData, dateRange, setDateRange } = useStockData(allData);
   const [isSettingsModalOpen, setSettingsModalOpen] = useState(false);
+  const [memo, setMemo] = useState('');
 
   const availableLineCharts = useMemo(() => Object.keys(institutionalData), [institutionalData]);
   const [selectedLineCharts, setSelectedLineCharts] = useState(availableLineCharts);
@@ -109,6 +111,12 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
         setSelectedLineCharts(availableLineCharts);
       }
     }
+
+    const memoKey = `memo-${stockName}`;
+    const savedMemo = localStorage.getItem(memoKey);
+    if (savedMemo) {
+      setMemo(savedMemo);
+    }
   }, [stockName, stringifiedAvailableCharts]); // Depend on the stable string
 
   const openNewWindow = (dateRange) => {
@@ -121,6 +129,14 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
     if (stockName) {
       const storageKey = `chartSettings-${stockName}`;
       localStorage.setItem(storageKey, JSON.stringify(newSelectedCharts));
+    }
+  };
+
+  const handleSaveMemo = (newMemo) => {
+    setMemo(newMemo);
+    if (stockName) {
+      const memoKey = `memo-${stockName}`;
+      localStorage.setItem(memoKey, newMemo);
     }
   };
 
@@ -176,6 +192,8 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
             </Accordion>
             {selectedLineCharts.filter((_, index) => index % 2 === 1).map(renderLineChart)}
           </Column>
+
+          <Memo memo={memo} onSave={handleSaveMemo} />
         </ChartGrid>
       </Main>
 
