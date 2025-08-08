@@ -20,7 +20,7 @@ const Wrapper = styled.div`
   color: #fff;
 `;
 const Main = styled.main`
-  max-width: 80rem;
+  max-width: 110rem;
   margin: 0 auto;
   padding: 1.5rem;
 `;
@@ -69,7 +69,7 @@ const TableBtnBox = styled.div`
   left: 44%;
 
   ${SettingsButton} + ${SettingsButton} {
-    margin-left : 1em;
+    margin-left: 1em;
   }
 `;
 
@@ -122,7 +122,7 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
   const openNewWindow = (dateRange) => {
     const url = dateRange ? `/periodTable?name=${stockName}&from=${dateRange.from}&to=${dateRange.to}` : `/table?name=${stockName}`;
     window.open(url, '_blank', `width=${window.innerWidth},height=${window.innerHeight}`);
-  }
+  };
 
   const handleChartSelectionChange = (newSelectedCharts) => {
     setSelectedLineCharts(newSelectedCharts);
@@ -143,7 +143,21 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
   const renderLineChart = (chartName) => {
     if (!institutionalData[chartName] || !lastestData[chartName]) return null;
     return (
-      <Accordion key={chartName} defaultOpen title={<><Users style={{ color: LINE_CHART_COLORS[chartName], marginRight: 8, width: '15px', height: '15px' }} />{chartName}<SubTitle><div>현재보유량: {lastestData[chartName].collectionVolume.toLocaleString()}</div><div>분산비율: {lastestData[chartName].dispersionRatio}%</div><div>주가선도: {lastestData[chartName].stockMomentum}%</div><div>상관계수: {lastestData[chartName].stockCorrelation}</div></SubTitle></>}>
+      <Accordion
+        key={chartName}
+        defaultOpen
+        title={
+          <>
+            <Users style={{ color: LINE_CHART_COLORS[chartName], marginRight: 8, width: '15px', height: '15px' }} />
+            {chartName}
+            <SubTitle>
+              <div>현재보유량: {lastestData[chartName].collectionVolume.toLocaleString()}</div>
+              <div>분산비율: {lastestData[chartName].dispersionRatio}%</div>
+              <div>주가선도: {lastestData[chartName].stockMomentum}%</div>
+              <div>상관계수: {lastestData[chartName].stockCorrelation}</div>
+            </SubTitle>
+          </>
+        }>
         <LightweightLineChart
           chartName={chartName}
           data={institutionalData[chartName]}
@@ -155,23 +169,26 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
   };
 
   if (!isClient) {
-    return <Wrapper><FlexCenter>로딩 중...</FlexCenter></Wrapper>;
+    return (
+      <Wrapper>
+        <FlexCenter>로딩 중...</FlexCenter>
+      </Wrapper>
+    );
   }
 
   return (
     <Wrapper>
-      <Header chartType='lightweight' stockName={stockName} />
+      <Header
+        chartType='lightweight'
+        stockName={stockName}
+      />
       <Main>
         <ControlsSection>
           <CustomDatePicker onDateRangeChange={(from, to) => setDateRange({ from, to })} />
-            <TableBtnBox>
-              <SettingsButton onClick={() => openNewWindow(dateRange)}>
-                기간 수급분석표
-              </SettingsButton>
-              <SettingsButton onClick={() => openNewWindow()}>
-                수급분석표
-              </SettingsButton>
-            </TableBtnBox>
+          <TableBtnBox>
+            <SettingsButton onClick={() => openNewWindow(dateRange)}>기간 수급분석표</SettingsButton>
+            <SettingsButton onClick={() => openNewWindow()}>수급분석표</SettingsButton>
+          </TableBtnBox>
           <SettingsButton onClick={() => setSettingsModalOpen(true)}>
             <Settings size={16} />
             차트 설정
@@ -180,20 +197,37 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
 
         <ChartGrid>
           <Column>
-            <Accordion defaultOpen title={<><Activity style={{ color: '#dc2626', marginRight: 8, width: '15px', height: '15px' }} />주가 차트 (캔들스틱)</>}>
+            <Accordion
+              defaultOpen
+              title={
+                <>
+                  <Activity style={{ color: '#dc2626', marginRight: 8, width: '15px', height: '15px' }} />
+                  주가 차트 (캔들스틱)
+                </>
+              }>
               <LightweightCandlestickChart data={stockData} />
             </Accordion>
             {selectedLineCharts.filter((_, index) => index % 2 === 0).map(renderLineChart)}
           </Column>
 
           <Column>
-            <Accordion defaultOpen title={<><Activity style={{ color: '#dc2626', marginRight: 8, width: '15px', height: '15px' }} />주가 차트 (캔들스틱)</>}>
+            <Accordion
+              defaultOpen
+              title={
+                <>
+                  <Activity style={{ color: '#dc2626', marginRight: 8, width: '15px', height: '15px' }} />
+                  주가 차트 (캔들스틱)
+                </>
+              }>
               <LightweightCandlestickChart data={stockData} />
             </Accordion>
             {selectedLineCharts.filter((_, index) => index % 2 === 1).map(renderLineChart)}
           </Column>
 
-          <Memo memo={memo} onSave={handleSaveMemo} />
+          <Memo
+            memo={memo}
+            onSave={handleSaveMemo}
+          />
         </ChartGrid>
       </Main>
 
