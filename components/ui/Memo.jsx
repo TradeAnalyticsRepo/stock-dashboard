@@ -97,6 +97,7 @@ const Memo = ({ memo, onSave }) => {
     <MemoContainer>
       <MemoHeader>메모</MemoHeader>
       <MemoTextarea
+        spellCheck="false"
         value={currentMemo}
         onChange={(e) => setCurrentMemo(e.target.value)}
         placeholder="여기에 메모를 입력하세요..."
