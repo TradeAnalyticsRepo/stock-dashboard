@@ -19,9 +19,18 @@ export const processingExcelData = async (excelFile, stockName) => {
   // 기간별 데이터 추출
   baseDataBeforeProcess.stockListByPeriod = stockDataBeforePeriodProcess(originalData);
   const tableData = processingExcelDataForCummulativePeriod(baseDataBeforeProcess.stockListByPeriod);
+  const resultData = tableData.map(data => {
+    const keys = Object.keys(data);
+    keys.forEach(key => {
+      if(key.startsWith('totalPrice')) {
+        data[`avgPrice${key.replace('totalPrice', '')}`] = Math.floor(data[key] / data[`${key.replace('totalPrice', 'tradingVolume')}`]) || 0;
+      }
+    })
+    return data;
+  })
   const cumulativeTableData = {
     stockId: stockName,
-    processingData: tableData,
+    processingData: resultData,
     type: "table",
   };
 
@@ -80,7 +89,7 @@ export const processingPeriodTableData = async (stockName, from, to) => {
     const date = row.주가.tradeDate.replaceAll("/", "");
     return from <= date && date <= to;
   })
-  
+  filtered.reverse();
   const excelData = filtered.map(data => ({
     일자: data.주가.tradeDate,
     종가: data.주가.close,
@@ -111,7 +120,7 @@ export const processingPeriodTableData = async (stockName, from, to) => {
     })
     return data;
   })
-  console.log(resultData);
+
   return resultData;
 }
 
@@ -430,6 +439,7 @@ export const stockDataBeforePeriodProcess = (data, isPeriodProcessing = false) =
       nextYear.push(Object.assign({}, item, { tradeDateNm: tradeDateNm }));
     }
   });
+  console.log(stockListByPeriod);
 
   return stockListByPeriod;
 };
@@ -462,7 +472,7 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
           tradingVolumeNat: data.__EMPTY_7,
         }
 
-        if(setPriceAvg) {
+        
           const appendData = {
             totalPriceIndiv: data.개인 * data.종가,
             totalPriceTotalForeAndInst: data.외국인 + data.기관종합 * data.종가,
@@ -478,10 +488,9 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
             totalPricePens: data.__EMPTY_6 * data.종가,
             totalPriceNat: data.__EMPTY_7 * data.종가,
           }
-          resultData = Object.assign({}, baseData, appendData);
-        }
+        resultData = Object.assign({}, baseData, appendData);
+        
         result.push(resultData);
-        ;
       });
     } else {
       const cumulativeData = {
@@ -535,21 +544,19 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
         cumulativeData.tradingVolumePens += data.__EMPTY_6;
         cumulativeData.tradingVolumeNat += data.__EMPTY_7;
 
-        if(setPriceAvg) {
-          cumulativeData.totalPriceIndiv += data.개인 * data.종가;
-          cumulativeData.totalPriceTotalForeAndInst += data.외국인 + data.기관종합 * data.종가;
-          cumulativeData.totalPriceFore += data.외국인 * data.종가;
-          cumulativeData.totalPriceTotalIns += data.기관종합 * data.종가;
-          cumulativeData.totalPriceFinInv += data.기관 * data.종가;
-          cumulativeData.totalPriceEtc += data.기타 * data.종가;
-          cumulativeData.totalPriceGTrust += data.__EMPTY_1 * data.종가;
-          cumulativeData.totalPriceSTrust += data.__EMPTY_2 * data.종가;
-          cumulativeData.totalPriceBank += data.__EMPTY_3 * data.종가;
-          cumulativeData.totalPriceInsur += data.__EMPTY_4 * data.종가;
-          cumulativeData.totalPriceEtcFin += data.__EMPTY_5 * data.종가;
-          cumulativeData.totalPricePens += data.__EMPTY_6 * data.종가;
-          cumulativeData.totalPriceNat += data.__EMPTY_7 * data.종가;
-        }
+        cumulativeData.totalPriceIndiv += data.개인 * data.종가;
+        cumulativeData.totalPriceTotalForeAndInst += data.외국인 + data.기관종합 * data.종가;
+        cumulativeData.totalPriceFore += data.외국인 * data.종가;
+        cumulativeData.totalPriceTotalIns += data.기관종합 * data.종가;
+        cumulativeData.totalPriceFinInv += data.기관 * data.종가;
+        cumulativeData.totalPriceEtc += data.기타 * data.종가;
+        cumulativeData.totalPriceGTrust += data.__EMPTY_1 * data.종가;
+        cumulativeData.totalPriceSTrust += data.__EMPTY_2 * data.종가;
+        cumulativeData.totalPriceBank += data.__EMPTY_3 * data.종가;
+        cumulativeData.totalPriceInsur += data.__EMPTY_4 * data.종가;
+        cumulativeData.totalPriceEtcFin += data.__EMPTY_5 * data.종가;
+        cumulativeData.totalPricePens += data.__EMPTY_6 * data.종가;
+        cumulativeData.totalPriceNat += data.__EMPTY_7 * data.종가;
 
         if (idx + 1 === stockList[key].length) {
           result.push(
@@ -562,7 +569,7 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
       });
     }
   });
-
+  console.log(result);
   return result;
 };
 

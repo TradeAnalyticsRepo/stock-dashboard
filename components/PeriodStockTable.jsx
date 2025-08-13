@@ -131,25 +131,66 @@ const PeriodStockTable = ({ stockName, from, to }) => {
   const month = String(date.getMonth() + 1).padStart(2, '0'); // 0-based
   const day = String(date.getDate()).padStart(2, '0');
 
-  if (formatType === 'dash') {
-    return `${year}-${month}-${day}`;
-  } else if (formatType === 'compact') {
-    return `${year}${month}${day}`;
-  } else {
-    throw new Error('Invalid formatType. Use "dash" or "compact".');
+    if (formatType === 'dash') {
+      return `${year}-${month}-${day}`;
+    } else if (formatType === 'compact') {
+      return `${year}${month}${day}`;
+    } else {
+      throw new Error('Invalid formatType. Use "dash" or "compact".');
+    }
   }
-}
+
+  const wrapperStyle = {
+    minHeight: "100vh",
+    background: "#000",
+    color: "#fff",
+  };
+  const mainStyle = {
+    maxWidth: "90rem",
+    margin: "0 auto",
+    padding: "1.5rem",
+  };
+  const tableCardStyle = {
+    backgroundColor: "#1e1e1e",
+    color: "white",
+    borderRadius: "1rem",
+    padding: "1.5rem",
+    marginTop: "2rem",
+    boxShadow: "0 0 10px rgba(0, 0, 0, 0.3)",
+    overflowX: "auto",
+  };
+  const styledTableStyle = {
+    width: "100%",
+    minWidth: "1200px",
+    borderCollapse: "collapse",
+    fontSize: "0.75rem",
+  };
+  const theadStyle = {
+    backgroundColor: "#2b2b2b",
+    color: "#ccc",
+  };
+  const thStyle = {
+    padding: "0.5rem 1rem",
+    textAlign: "left",
+    whiteSpace: "nowrap",
+  };
+  const tdStyle = {
+    padding: "0.5rem 1rem",
+    borderTop: "1px solid #333",
+    whiteSpace: "nowrap",
+  };
+  
   return (
-    <Wrapper>
+    <div style={wrapperStyle}>
       <Header
         chartType='table'
         stockName={stockName + '  ( ' + formatDate(from, 'dash') + ' ~ ' + formatDate(to, 'dash') + ' )'}
       />
-      <Main>
-        <Section>
-          <TableCard>
-            <StyledTable>
-              <Thead>
+      <main style={mainStyle}>
+        <section>
+          <div style={tableCardStyle}>
+            <table style={styledTableStyle}>
+              <thead style={theadStyle}>
                 <tr>
                   {[
                     "일자",
@@ -171,7 +212,7 @@ const PeriodStockTable = ({ stockName, from, to }) => {
                     return <Th key={idx}>{name}</Th>;
                   })}
                 </tr>
-              </Thead>
+              </thead>
 
               <tbody>
                 {tableData.map((row, idx) => {
@@ -194,59 +235,59 @@ const PeriodStockTable = ({ stockName, from, to }) => {
 
                   return (
                     // eslint-disable-next-line react/jsx-key
-                    <Row key={idx}>
-                      <Td style={{ backgroundColor: backgroudColor }}>{row.tradeDateNm}</Td>
-                      <Td style={{ backgroundColor: backgroudColor }}>{formatNumber(row.avgMount)}</Td>
-                      <Td style={{ backgroundColor: backgroudColor }}>{formatNumber(row.tradingVolume)}</Td>
-                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeIndiv) }}>
+                    <tr key={idx}>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor }}>{row.tradeDateNm}</td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor }}>{formatNumber(row.avgMount)}</td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor }}>{formatNumber(row.tradingVolume)}</td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeIndiv) }}>
                         <span>{formatNumber(row.tradingVolumeIndiv)}</span>
                         <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceIndiv)})`}</span>
-                      </Td>
-                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeTotalIns) }}>
+                      </td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeTotalIns) }}>
                         {formatNumber(row.tradingVolumeTotalIns)}
                         {/* <span style={{color: '#fff'}}>{` (${formatNumber(tradingVolumeTotalIns)})`}</span> */}
-                      </Td>
-                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeFore) }}>
+                      </td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeFore) }}>
                         {formatNumber(row.tradingVolumeFore)}
                         <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceFore)})`}</span>
-                      </Td>
-                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeFinInv) }}>
+                      </td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeFinInv) }}>
                         {formatNumber(row.tradingVolumeFinInv)}
                         <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceFinInv)})`}</span>
-                      </Td>
-                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeInsur) }}>
+                      </td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeInsur) }}>
                         {formatNumber(row.tradingVolumeInsur)}
                         <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceInsur)})`}</span>
-                      </Td>
-                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeGTrust) }}>
+                      </td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeGTrust) }}>
                         {formatNumber(row.tradingVolumeGTrust)}
                         <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceGTrust)})`}</span>
-                      </Td>
-                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeEtcFin) }}>
+                      </td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeEtcFin) }}>
                         {formatNumber(row.tradingVolumeEtcFin)}
                         <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceEtcFin)})`}</span>
-                      </Td>
-                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeBank) }}>
+                      </td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeBank) }}>
                         {formatNumber(row.tradingVolumeBank)}
                         <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceBank)})`}</span>
-                      </Td>
-                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumePens) }}>
+                      </td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumePens) }}>
                         {formatNumber(row.tradingVolumePens)}
                         <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPricePens)})`}</span>
-                      </Td>
-                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeSTrust) }}>
+                      </td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeSTrust) }}>
                         {formatNumber(row.tradingVolumeSTrust)}
                         <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceSTrust)})`}</span>
-                      </Td>
-                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeNat) }}>
+                      </td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeNat) }}>
                         {formatNumber(row.tradingVolumeNat)}
                         <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceNat)})`}</span>
-                      </Td>
-                      <Td style={{ backgroundColor: backgroudColor, color: color(row.tradingVolumeEtc) }}>
+                      </td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeEtc) }}>
                         {formatNumber(row.tradingVolumeEtc)}
                         <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceEtc)})`}</span>
-                      </Td>
-                    </Row>
+                      </td>
+                    </tr>
                   );
                 })}
                 {/* <Row>
@@ -352,11 +393,11 @@ const PeriodStockTable = ({ stockName, from, to }) => {
                   <Td style={{ backgroundColor: "#22222270" }}>{lastestData.기타법인.stockMomentum + "%"}</Td>
                 </Row> */}
               </tbody>
-            </StyledTable>
-          </TableCard>
-        </Section>
-      </Main>
-    </Wrapper>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
   );
 };
 
