@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React, { useRef, useEffect, useState } from "react";
-import { createChart, CandlestickData, UTCTimestamp, MouseEventParams, CandlestickSeries } from "lightweight-charts";
-import styled from "styled-components";
+import React, { useRef, useEffect, useState } from 'react';
+import { createChart, CandlestickData, UTCTimestamp, MouseEventParams, CandlestickSeries } from 'lightweight-charts';
+import styled from 'styled-components';
 
 const ChartContainer = styled.div`
   height: 150px;
@@ -23,30 +23,52 @@ const LightweightCandlestickChart = ({ data, initialSelectedTime = null, zoomPer
       width: chartContainerRef.current.clientWidth,
       height: 150,
       layout: {
-        background: { color: "#1a1a1a" },
-        textColor: "#d1d5db",
+        background: { color: '#1a1a1a' },
+        textColor: '#d1d5db',
       },
       grid: {
-        vertLines: { color: "#27272a" },
-        horzLines: { color: "#27272a" },
+        vertLines: { color: '#27272a' },
+        horzLines: { color: '#27272a' },
       },
       timeScale: {
-        borderColor: "#27272a",
+        borderColor: '#27272a',
         timeVisible: true,
       },
       rightPriceScale: {
-        borderColor: "#27272a",
+        borderColor: '#27272a',
+      },
+      crosshair: {
+        mode: 1,
+        vertLine: {
+          color: '#d1d5db',
+          width: 1,
+          style: 0,
+        },
+        horzLine: {
+          color: '#d1d5db',
+          width: 1,
+          style: 0,
+        },
+      },
+      localization: {
+        timeFormatter: (time) => {
+          const date = new Date(time * 1000);
+          const year = date.getFullYear().toString().slice(-2); // 연도의 마지막 2자리
+          const month = (date.getMonth() + 1).toString().padStart(2, '0'); // 월을 2자리로
+          const day = date.getDate().toString().padStart(2, '0'); // 일을 2자리로
+          return `${year}년 ${month} ${day}`;
+        },
       },
     });
     chartRef.current = chart;
 
     const candlestickSeries = chart.addSeries(CandlestickSeries, {
-      upColor: "#dc2626",
-      downColor: "#2563eb",
-      borderDownColor: "#2563eb",
-      borderUpColor: "#dc2626",
-      wickDownColor: "#2563eb",
-      wickUpColor: "#dc2626",
+      upColor: '#dc2626',
+      downColor: '#2563eb',
+      borderDownColor: '#2563eb',
+      borderUpColor: '#dc2626',
+      wickDownColor: '#2563eb',
+      wickUpColor: '#dc2626',
     });
     seriesRef.current = candlestickSeries;
 
@@ -55,7 +77,7 @@ const LightweightCandlestickChart = ({ data, initialSelectedTime = null, zoomPer
         width: chartContainerRef.current?.clientWidth,
       });
     };
-    window.addEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
 
     const handleClick = (param) => {
       if (!param.time) return;
@@ -66,7 +88,7 @@ const LightweightCandlestickChart = ({ data, initialSelectedTime = null, zoomPer
 
     return () => {
       chart.unsubscribeClick(handleClick);
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener('resize', handleResize);
       chart.remove();
       chartRef.current = null;
       seriesRef.current = null;
@@ -88,8 +110,8 @@ const LightweightCandlestickChart = ({ data, initialSelectedTime = null, zoomPer
       };
 
       if (time === selectedTime) {
-        dataPoint.color = "#eab308"; // Yellow for selected
-        dataPoint.borderColor = "#eab308"; // Yellow for selected
+        dataPoint.color = '#eab308'; // Yellow for selected
+        dataPoint.borderColor = '#eab308'; // Yellow for selected
       }
       return dataPoint;
     });
