@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, X } from 'lucide-react';
 import styled from 'styled-components';
 
@@ -72,16 +72,31 @@ const XIcon = styled(X)`
  * - 시작일과 종료일을 각각 독립적으로 선택 가능
  * - 간단하고 직관적인 UI
  * - 기존 기간 버튼과 별개로 동작
- * @param {Props} props - onDateRangeChange, className
+ * @param {Props} props - onDateRangeChange, className, startDate, endDate
  * @returns {JSX.Element}
  */
-const CustomDatePicker = ({ onDateRangeChange, className = '' }) => {
+const CustomDatePicker = ({ onDateRangeChange, className = '', startDate: externalStartDate, endDate: externalEndDate }) => {
   const tenYearsAgo = new Date();
   tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
   const initStartDt = tenYearsAgo.toISOString().split('T')[0];
   const initEndDt = new Date().toISOString().split('T')[0];
-  const [startDate, setStartDate] = useState(initStartDt);
-  const [endDate, setEndDate] = useState(initEndDt);
+
+  // 외부에서 전달받은 값이 있으면 사용, 없으면 기본값 사용
+  const [startDate, setStartDate] = useState(externalStartDate || initStartDt);
+  const [endDate, setEndDate] = useState(externalEndDate || initEndDt);
+
+  // 외부에서 전달받은 값이 변경되면 내부 state 업데이트
+  useEffect(() => {
+    if (externalStartDate) {
+      setStartDate(externalStartDate);
+    }
+  }, [externalStartDate]);
+
+  useEffect(() => {
+    if (externalEndDate) {
+      setEndDate(externalEndDate);
+    }
+  }, [externalEndDate]);
 
   // 날짜 변경 핸들러
   const handleStartDateChange = (date) => {

@@ -27,9 +27,42 @@ const Main = styled.main`
 const ControlsSection = styled.section`
   display: flex;
   flex-wrap: wrap;
-  align-items: end;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 1rem;
   margin-bottom: 1.5rem;
+  justify-content: space-between;
+`;
+const PeriodButton = styled.button`
+  background: #27272a;
+  color: #fff;
+  border: 1px solid #3f3f46;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover {
+    background: #3f3f46;
+    border-color: #52525b;
+  }
+  &:active {
+    background: #52525b;
+  }
+`;
+const DatePickerContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+`;
+const RightControls = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
 `;
 const ChartGrid = styled.div`
   display: grid;
@@ -65,11 +98,11 @@ const SettingsButton = styled.button`
 `;
 
 const TableBtnBox = styled.div`
-  position: absolute;
-  left: 44%;
+  display: flex;
+  gap: 0.5rem;
 
   ${SettingsButton} + ${SettingsButton} {
-    margin-left: 1em;
+    margin-left: 0;
   }
 `;
 
@@ -141,6 +174,13 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
     }
   };
 
+  const setPeriod = (days) => {
+    const to = new Date();
+    const from = new Date();
+    from.setDate(to.getDate() - days);
+    setDateRange({ from, to });
+  };
+
   const renderLineChart = (chartName) => {
     if (!institutionalData[chartName] || !lastestData[chartName]) return null;
     return (
@@ -186,33 +226,53 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
       />
       <Main>
         <ControlsSection>
-          <CustomDatePicker onDateRangeChange={(from, to) => setDateRange({ from, to })} />
-          <TableBtnBox>
-            <SettingsButton onClick={() => openNewWindow(dateRange)}>기간 수급분석표</SettingsButton>
-            <SettingsButton onClick={() => openNewWindow()}>수급분석표</SettingsButton>
-          </TableBtnBox>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <input
-              type="number"
-              placeholder="Zoom %"
-              value={zoomPercentage}
-              onChange={(e) => setZoomPercentage(e.target.value)}
-              style={{
-                background: '#27272a',
-                color: '#fff',
-                border: '1px solid #3f3f46',
-                padding: '0.5rem 1rem',
-                borderRadius: '0.375rem',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                width: '80px',
-              }}
+          <DatePickerContainer>
+            <CustomDatePicker
+              onDateRangeChange={(from, to) => setDateRange({ from, to })}
+              startDate={dateRange.from?.toISOString().split('T')[0]}
+              endDate={dateRange.to?.toISOString().split('T')[0]}
             />
-            <SettingsButton onClick={() => setSettingsModalOpen(true)}>
-              <Settings size={16} />
-              차트 설정
-            </SettingsButton>
-          </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div style={{ fontSize: '0.75rem', color: '#a3a3a3', marginBottom: '0.25rem' }}>간편 기간 설정</div>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <PeriodButton onClick={() => setPeriod(30)}>1개월</PeriodButton>
+                <PeriodButton onClick={() => setPeriod(90)}>3개월</PeriodButton>
+                <PeriodButton onClick={() => setPeriod(180)}>6개월</PeriodButton>
+                <PeriodButton onClick={() => setPeriod(365)}>1년</PeriodButton>
+                <PeriodButton onClick={() => setPeriod(730)}>2년</PeriodButton>
+                <PeriodButton onClick={() => setPeriod(1095)}>3년</PeriodButton>
+                <PeriodButton onClick={() => setPeriod(3650)}>10년</PeriodButton>
+              </div>
+            </div>
+          </DatePickerContainer>
+          <RightControls>
+            <TableBtnBox>
+              <SettingsButton onClick={() => openNewWindow(dateRange)}>기간 수급분석표</SettingsButton>
+              <SettingsButton onClick={() => openNewWindow()}>수급분석표</SettingsButton>
+            </TableBtnBox>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <input
+                type='number'
+                placeholder='Zoom %'
+                value={zoomPercentage}
+                onChange={(e) => setZoomPercentage(e.target.value)}
+                style={{
+                  background: '#27272a',
+                  color: '#fff',
+                  border: '1px solid #3f3f46',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  width: '80px',
+                }}
+              />
+              <SettingsButton onClick={() => setSettingsModalOpen(true)}>
+                <Settings size={16} />
+                차트 설정
+              </SettingsButton>
+            </div>
+          </RightControls>
         </ControlsSection>
 
         <ChartGrid>
@@ -225,7 +285,10 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
                   주가 차트 (캔들스틱)
                 </>
               }>
-              <LightweightCandlestickChart data={stockData} zoomPercentage={zoomPercentage} />
+              <LightweightCandlestickChart
+                data={stockData}
+                zoomPercentage={zoomPercentage}
+              />
             </Accordion>
             {selectedLineCharts.filter((_, index) => index % 2 === 0).map(renderLineChart)}
           </Column>
@@ -239,7 +302,10 @@ const StockDashboardLightweight = ({ stockName, allData, lastestData }) => {
                   주가 차트 (캔들스틱)
                 </>
               }>
-              <LightweightCandlestickChart data={stockData} zoomPercentage={zoomPercentage} />
+              <LightweightCandlestickChart
+                data={stockData}
+                zoomPercentage={zoomPercentage}
+              />
             </Accordion>
             {selectedLineCharts.filter((_, index) => index % 2 === 1).map(renderLineChart)}
           </Column>
