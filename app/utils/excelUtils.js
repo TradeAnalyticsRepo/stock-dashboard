@@ -526,7 +526,9 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
         totalPricePens: 0,
         totalPriceNat: 0,
       };
+      let startDt = ''
       stockList[key].forEach((data, idx) => {
+        if(idx === 0) startDt = data.일자;
         cumulativeData.avgMount += data.종가;
         cumulativeData.tradingVolume += data.거래량;
 
@@ -563,13 +565,15 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
             Object.assign({}, cumulativeData, {
               tradeDateNm: data.tradeDateNm,
               avgMount: Math.floor(cumulativeData.avgMount / stockList[key].length),
+              startDt : startDt,
+              endDt: data.일자
             })
           );
+          console.log(result)
         }
       });
     }
   });
-  console.log(result);
   return result;
 };
 

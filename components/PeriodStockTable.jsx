@@ -5,87 +5,14 @@ import Header from "./Header.jsx";
 import styled from "styled-components";
 import { useLastestStockData, useTableStockData } from "./hooks/useStockData.js";
 import { processingExcelDataForCummulativePeriod, processingPeriodTableData, stockDataBeforePeriodProcessByCondition } from "../app/utils/excelUtils.js";
-
-const Wrapper = styled.div`
-  min-height: 100vh;
-  background: #000;
-  color: #fff;
-`;
-const Main = styled.main`
-  max-width: 90rem;
-  margin: 0 auto;
-  padding: 1.5rem;
-`;
-
-// Section: grid, flex prop이 DOM에 전달되지 않도록 withConfig 사용
-const Section = styled.section.withConfig({
-  shouldForwardProp: (prop) => prop !== "grid" && prop !== "flex", // grid, flex는 스타일 계산에만 사용, DOM에는 전달하지 않음
-})`
-  ${(props) =>
-    props.grid
-      ? `display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem;
-        @media (min-width: 768px) { grid-template-columns: repeat(4, 1fr); }
-        @media (min-width: 1024px) { grid-template-columns: repeat(2, 1fr); }
-      `
-      : props.flex
-      ? `display: flex; gap: 0.5rem; margin-bottom: 1.5rem;`
-      : ""}
-`;
-const FlexCenter = styled.div`
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const TableCard = styled.div`
-  background-color: #1e1e1e;
-  color: white;
-  border-radius: 1rem;
-  padding: 1.5rem;
-  margin-top: 2rem;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  overflow-x: auto;
-`;
-
-const Title = styled.h2`
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-`;
-
-const StyledTable = styled.table`
-  width: 100%;
-  min-width: 1200px;
-  border-collapse: collapse;
-  font-size: 0.75rem;
-`;
-
-const Thead = styled.thead`
-  background-color: #2b2b2b;
-  color: #ccc;
-`;
-
-const Th = styled.th`
-  padding: 0.5rem 1rem;
-  text-align: left;
-  white-space: nowrap;
-`;
-
-const Td = styled.td`
-  padding: 0.5rem 1rem;
-  border-top: 1px solid #333;
-  white-space: nowrap;
-`;
-
-const Row = styled.tr`
-  &:hover {
-    background-color: #2a2a2a;
-  }
-`;
+import CustomDatePicker from "./ui/CustomDatePicker.jsx";
 
 const PeriodStockTable = ({ stockName, from, to }) => {
   const [tableData, setTableData] = useState([]);
+  const [dateRange, setDateRange] = useState({
+    from: from,
+    to: to
+  });
   // const [lastestData, setLastestData] = useState({
   //   개인: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
   //   세력합: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
@@ -120,6 +47,29 @@ const PeriodStockTable = ({ stockName, from, to }) => {
       }
     })();
   }, [stockName]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        console.log(dateRange);
+        const { from, to } = dateRange;
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const tableResult = await processingPeriodTableData(stockName, formatDate(from, 'compact'), formatDate(to, 'compact'));
+        
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        // const lastestResult = await useLastestStockData(stockName);
+        
+        setTableData(tableResult);
+        
+
+        // if (lastestResult?.status === 200) {
+        //   setLastestData(lastestResult?.data);
+        // }
+      } catch (error) {
+        console.error(error);
+      }
+    })();
+  }, [dateRange])
 
   const formatNumber = (num) => {
     return num.toLocaleString(); // 기본은 시스템 locale (한국이면 1,000 식)
@@ -162,6 +112,7 @@ const PeriodStockTable = ({ stockName, from, to }) => {
   const styledTableStyle = {
     width: "100%",
     minWidth: "1200px",
+    marginTop:'8px',
     borderCollapse: "collapse",
     fontSize: "0.75rem",
   };
@@ -184,11 +135,16 @@ const PeriodStockTable = ({ stockName, from, to }) => {
     <div style={wrapperStyle}>
       <Header
         chartType='table'
-        stockName={stockName + '  ( ' + formatDate(from, 'dash') + ' ~ ' + formatDate(to, 'dash') + ' )'}
+        stockName={stockName + '  ( ' + formatDate(dateRange.from, 'dash') + ' ~ ' + formatDate(dateRange.to, 'dash') + ' )'}
       />
       <main style={mainStyle}>
         <section>
           <div style={tableCardStyle}>
+            <CustomDatePicker
+              onDateRangeChange={(from, to) => setDateRange({ from, to })}
+              startDate={new Date(dateRange.from).toISOString().split('T')[0]}
+              endDate={new Date(dateRange.to).toISOString().split('T')[0]}
+            />
             <table style={styledTableStyle}>
               <thead style={theadStyle}>
                 <tr>
@@ -209,7 +165,7 @@ const PeriodStockTable = ({ stockName, from, to }) => {
                     "국가",
                     "기타법인",
                   ].map((name, idx) => {
-                    return <Th key={idx}>{name}</Th>;
+                    return <th style={thStyle} key={idx}>{name}</th>;
                   })}
                 </tr>
               </thead>
@@ -236,7 +192,10 @@ const PeriodStockTable = ({ stockName, from, to }) => {
                   return (
                     // eslint-disable-next-line react/jsx-key
                     <tr key={idx}>
-                      <td style={{ ...tdStyle, backgroundColor: backgroudColor }}>{row.tradeDateNm}</td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor }}>
+                        {row.tradeDateNm}
+                        { row.startDt && <> <br/> <span style={{fontSize: '8px'}}>{`${row.startDt}~${row.endDt}`}</span> </>}
+                      </td>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor }}>{formatNumber(row.avgMount)}</td>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor }}>{formatNumber(row.tradingVolume)}</td>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeIndiv) }}>

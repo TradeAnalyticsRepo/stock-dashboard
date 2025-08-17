@@ -141,7 +141,10 @@ const StockTable = ({ stockName }) => {
                   return (
                     // eslint-disable-next-line react/jsx-key
                     <tr key={idx}>
-                      <td style={{ ...tdStyle, backgroundColor: backgroudColor }}>{row.tradeDateNm}</td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor }}>
+                        {row.tradeDateNm}
+                        { row.startDt && <> <br/> <span style={{fontSize: '8px'}}>{`${row.startDt}~${row.endDt}`}</span> </>}
+                      </td>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor }}>{formatNumber(row.avgMount)}</td>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor }}>{formatNumber(row.tradingVolume)}</td>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeIndiv) }}>
