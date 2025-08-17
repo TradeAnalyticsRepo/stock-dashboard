@@ -111,17 +111,17 @@ export const processingPeriodTableData = async (stockName, from, to) => {
 
   const stockListByPeriod = stockDataBeforePeriodProcess(excelData, true);
   const tableData = processingExcelDataForCummulativePeriod(stockListByPeriod, true);
-  const resultData = tableData.map(data => {
-    const keys = Object.keys(data);
-    keys.forEach(key => {
-      if(key.startsWith('totalPrice')) {
-        data[`avgPrice${key.replace('totalPrice', '')}`] = Math.floor(data[key] / data[`${key.replace('totalPrice', 'tradingVolume')}`]) || 0;
-      }
-    })
-    return data;
-  })
+  // const resultData = tableData.map(data => {
+  //   const keys = Object.keys(data);
+  //   keys.forEach(key => {
+  //     if(key.startsWith('totalPrice')) {
+  //       data[`avgPrice${key.replace('totalPrice', '')}`] = Math.floor(data[key] / data[`${key.replace('totalPrice', 'tradingVolume')}`]) || 0;
+  //     }
+  //   })
+  //   return data;
+  // })
 
-  return resultData;
+  return tableData;
 }
 
 export const stockDataBeforeCumulateProcess = (data) => {
@@ -474,19 +474,18 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
 
         
           const appendData = {
-            totalPriceIndiv: data.개인 * data.종가,
-            totalPriceTotalForeAndInst: data.외국인 + data.기관종합 * data.종가,
-            totalPriceFore: data.외국인 * data.종가,
-            totalPriceTotalIns: data.기관종합 * data.종가,
-            totalPriceFinInv: data.기관 * data.종가,
-            totalPriceEtc: data.기타 * data.종가,
-            totalPriceGTrust: data.__EMPTY_1 * data.종가,
-            totalPriceSTrust: data.__EMPTY_2 * data.종가,
-            totalPriceBank: data.__EMPTY_3 * data.종가,
-            totalPriceInsur: data.__EMPTY_4 * data.종가,
-            totalPriceEtcFin: data.__EMPTY_5 * data.종가,
-            totalPricePens: data.__EMPTY_6 * data.종가,
-            totalPriceNat: data.__EMPTY_7 * data.종가,
+            avgPriceIndiv: Math.floor((data.개인 * data.종가) / data.개인) || 0,
+            avgPriceFore: Math.floor((data.외국인 * data.종가) / data.외국인) || 0,
+            avgPriceTotalIns: Math.floor((data.기관종합 * data.종가) / data.기관종합) || 0,
+            avgPriceFinInv: Math.floor((data.기관 * data.종가) / data.기관) || 0,
+            avgPriceEtc: Math.floor((data.기타 * data.종가) / data.기타) || 0,
+            avgPriceGTrust: Math.floor((data.__EMPTY_1 * data.종가) / data.__EMPTY_1) || 0,
+            avgPriceSTrust: Math.floor((data.__EMPTY_2 * data.종가) / data.__EMPTY_2) || 0,
+            avgPriceBank: Math.floor((data.__EMPTY_3 * data.종가) / data.__EMPTY_3) || 0,
+            avgPriceInsur: Math.floor((data.__EMPTY_4 * data.종가) / data.__EMPTY_4) || 0,
+            avgPriceEtcFin: Math.floor((data.__EMPTY_5 * data.종가) / data.__EMPTY_5) || 0,
+            avgPricePens: Math.floor((data.__EMPTY_6 * data.종가) / data.__EMPTY_6) || 0,
+            avgPriceNat: Math.floor((data.__EMPTY_7 * data.종가) / data.__EMPTY_7) || 0,
           }
         resultData = Object.assign({}, baseData, appendData);
         
@@ -512,25 +511,37 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
         tradingVolumePens: 0,
         tradingVolumeNat: 0,
 
-        totalPriceIndiv: 0,
-        totalPriceTotalForeAndInst: 0,
-        totalPriceFore: 0,
-        totalPriceTotalIns: 0,
-        totalPriceFinInv: 0,
-        totalPriceEtc: 0,
-        totalPriceGTrust: 0,
-        totalPriceSTrust: 0,
-        totalPriceBank: 0,
-        totalPriceInsur: 0,
-        totalPriceEtcFin: 0,
-        totalPricePens: 0,
-        totalPriceNat: 0,
+        avgPriceIndiv: 0,
+        avgPriceTotalForeAndInst: 0,
+        avgPriceFore: 0,
+        avgPriceTotalIns: 0,
+        avgPriceFinInv: 0,
+        avgPriceEtc: 0,
+        avgPriceGTrust: 0,
+        avgPriceSTrust: 0,
+        avgPriceBank: 0,
+        avgPriceInsur: 0,
+        avgPriceEtcFin: 0,
+        avgPricePens: 0,
+        avgPriceNat: 0,
       };
       let startDt = ''
       stockList[key].forEach((data, idx) => {
         if(idx === 0) startDt = data.일자;
         cumulativeData.avgMount += data.종가;
         cumulativeData.tradingVolume += data.거래량;
+        setAvgPrice(cumulativeData, data, '개인', 'Indiv');
+        setAvgPrice(cumulativeData, data, '외국인', 'Fore');
+        setAvgPrice(cumulativeData, data, '기관종합', 'TotalIns');
+        setAvgPrice(cumulativeData, data, '기관', 'FinInv');
+        setAvgPrice(cumulativeData, data, '기타', 'Etc');
+        setAvgPrice(cumulativeData, data, '__EMPTY_1', 'GTrust');
+        setAvgPrice(cumulativeData, data, '__EMPTY_2', 'STrust');
+        setAvgPrice(cumulativeData, data, '__EMPTY_3', 'Bank');
+        setAvgPrice(cumulativeData, data, '__EMPTY_4', 'Insur');
+        setAvgPrice(cumulativeData, data, '__EMPTY_5', 'EtcFin');
+        setAvgPrice(cumulativeData, data, '__EMPTY_6', 'Pens');
+        setAvgPrice(cumulativeData, data, '__EMPTY_7', 'Nat');
 
         cumulativeData.tradingVolumeIndiv += data.개인;
         cumulativeData.tradingVolumeTotalForeAndInst += data.외국인 + data.기관종합;
@@ -545,20 +556,6 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
         cumulativeData.tradingVolumeEtcFin += data.__EMPTY_5;
         cumulativeData.tradingVolumePens += data.__EMPTY_6;
         cumulativeData.tradingVolumeNat += data.__EMPTY_7;
-
-        cumulativeData.totalPriceIndiv += data.개인 * data.종가;
-        cumulativeData.totalPriceTotalForeAndInst += data.외국인 + data.기관종합 * data.종가;
-        cumulativeData.totalPriceFore += data.외국인 * data.종가;
-        cumulativeData.totalPriceTotalIns += data.기관종합 * data.종가;
-        cumulativeData.totalPriceFinInv += data.기관 * data.종가;
-        cumulativeData.totalPriceEtc += data.기타 * data.종가;
-        cumulativeData.totalPriceGTrust += data.__EMPTY_1 * data.종가;
-        cumulativeData.totalPriceSTrust += data.__EMPTY_2 * data.종가;
-        cumulativeData.totalPriceBank += data.__EMPTY_3 * data.종가;
-        cumulativeData.totalPriceInsur += data.__EMPTY_4 * data.종가;
-        cumulativeData.totalPriceEtcFin += data.__EMPTY_5 * data.종가;
-        cumulativeData.totalPricePens += data.__EMPTY_6 * data.종가;
-        cumulativeData.totalPriceNat += data.__EMPTY_7 * data.종가;
 
         if (idx + 1 === stockList[key].length) {
           result.push(
@@ -576,6 +573,14 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
   });
   return result;
 };
+
+const setAvgPrice = (cumulativeData, data, krKey, enKey) => {
+  if(data[krKey] > 0 && cumulativeData[`tradingVolume${enKey}`] >= 0) {
+    cumulativeData[`avgPrice${enKey}`] = Math.floor(((cumulativeData[`avgPrice${enKey}`] * cumulativeData[`tradingVolume${enKey}`]) + (data[krKey] * data.종가)) / (cumulativeData[`tradingVolume${enKey}`] + data[krKey]));
+  } else if( data[krKey] > 0 && cumulativeData[`tradingVolume${enKey}`] < 0) {
+    cumulativeData[`avgPrice${enKey}`] = data.종가;
+  }
+}
 
 const calcPercent = (num1, num2) => Math.floor((num1 / num2) * 100) || 0;
 const toCamel = (str) => str[0].toLowerCase() + str.slice(1);
