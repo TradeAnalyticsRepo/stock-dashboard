@@ -75,12 +75,12 @@ const StockTable = ({ stockName }) => {
     color: "#ccc",
   };
   const thStyle = {
-    padding: "0.5rem 1rem",
+    padding: "0.5rem 1px",
     textAlign: "left",
     whiteSpace: "nowrap",
   };
   const tdStyle = {
-    padding: "0.5rem 1rem",
+    padding: "0.5rem 1px",
     borderTop: "1px solid #333",
     whiteSpace: "nowrap",
   };
@@ -143,7 +143,7 @@ const StockTable = ({ stockName }) => {
                     <tr key={idx}>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor }}>
                         {row.tradeDateNm}
-                        { row.startDt && <> <br/> <span style={{fontSize: '8px'}}>{`${row.startDt}~${row.endDt}`}</span> </>}
+                        { row.startDt && <span style={{fontSize: '8px'}}>{`${row.endDt}~${row.startDt}`}</span>}
                       </td>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor }}>{formatNumber(row.avgMount)}</td>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor }}>{formatNumber(row.tradingVolume)}</td>
@@ -201,103 +201,103 @@ const StockTable = ({ stockName }) => {
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{"현재보유량"}</td>
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{""}</td>
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{""}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.개인.collectionVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.세력합.collectionVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.외국인.collectionVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.금융투자.collectionVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.보험.collectionVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.투신_일반.collectionVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.기타금융.collectionVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.은행.collectionVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.연기금.collectionVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.투신_사모.collectionVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.국가매집.collectionVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.기타법인.collectionVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.개인.collectionVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.세력합.collectionVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.외국인.collectionVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.금융투자.collectionVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.보험.collectionVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.투신_일반.collectionVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.기타금융.collectionVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.은행.collectionVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.연기금.collectionVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.투신_사모.collectionVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.국가매집.collectionVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.기타법인.collectionVolume)}</td>
                 </tr>
                 <tr>
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{"상관계수"}</td>
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{""}</td>
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{""}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.개인.stockCorrelation}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.세력합.stockCorrelation}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.외국인.stockCorrelation}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.금융투자.stockCorrelation}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.보험.stockCorrelation}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.투신_일반.stockCorrelation}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.기타금융.stockCorrelation}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.은행.stockCorrelation}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.연기금.stockCorrelation}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.투신_사모.stockCorrelation}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.국가매집.stockCorrelation}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.기타법인.stockCorrelation}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.개인.stockCorrelation}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.세력합.stockCorrelation}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.외국인.stockCorrelation}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.금융투자.stockCorrelation}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.보험.stockCorrelation}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.투신_일반.stockCorrelation}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.기타금융.stockCorrelation}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.은행.stockCorrelation}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.연기금.stockCorrelation}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.투신_사모.stockCorrelation}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.국가매집.stockCorrelation}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.기타법인.stockCorrelation}</td>
                 </tr>
                 <tr>
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{"최대보유량"}</td>
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{""}</td>
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{""}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.개인.maxColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.세력합.maxColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.외국인.maxColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.금융투자.maxColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.보험.maxColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.투신_일반.maxColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.기타금융.maxColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.은행.maxColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.연기금.maxColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.투신_사모.maxColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.국가매집.maxColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.기타법인.maxColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.개인.maxColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.세력합.maxColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.외국인.maxColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.금융투자.maxColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.보험.maxColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.투신_일반.maxColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.기타금융.maxColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.은행.maxColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.연기금.maxColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.투신_사모.maxColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.국가매집.maxColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.기타법인.maxColVolume)}</td>
                 </tr>
                 <tr>
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{"최소보유량"}</td>
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{""}</td>
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{""}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.개인.minColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.세력합.minColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.외국인.minColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.금융투자.minColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.보험.minColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.투신_일반.minColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.기타금융.minColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.은행.minColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.연기금.minColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.투신_사모.minColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.국가매집.minColVolume)}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{formatNumber(lastestData.기타법인.minColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.개인.minColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.세력합.minColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.외국인.minColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.금융투자.minColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.보험.minColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.투신_일반.minColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.기타금융.minColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.은행.minColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.연기금.minColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.투신_사모.minColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.국가매집.minColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.기타법인.minColVolume)}</td>
                 </tr>
                 <tr>
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{"분산비율"}</td>
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{""}</td>
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{""}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.개인.dispersionRatio + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.세력합.dispersionRatio + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.외국인.dispersionRatio + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.금융투자.dispersionRatio + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.보험.dispersionRatio + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.투신_일반.dispersionRatio + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.기타금융.dispersionRatio + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.은행.dispersionRatio + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.연기금.dispersionRatio + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.투신_사모.dispersionRatio + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.국가매집.dispersionRatio + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.기타법인.dispersionRatio + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.개인.dispersionRatio + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.세력합.dispersionRatio + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.외국인.dispersionRatio + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.금융투자.dispersionRatio + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.보험.dispersionRatio + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.투신_일반.dispersionRatio + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.기타금융.dispersionRatio + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.은행.dispersionRatio + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.연기금.dispersionRatio + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.투신_사모.dispersionRatio + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.국가매집.dispersionRatio + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.기타법인.dispersionRatio + "%"}</td>
                 </tr>
                 <tr>
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{"주가선도"}</td>
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{""}</td>
                   <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{""}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.개인.stockMomentum + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.세력합.stockMomentum + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.외국인.stockMomentum + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.금융투자.stockMomentum + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.보험.stockMomentum + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.투신_일반.stockMomentum + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.기타금융.stockMomentum + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.은행.stockMomentum + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.연기금.stockMomentum + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.투신_사모.stockMomentum + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.국가매집.stockMomentum + "%"}</td>
-                  <td style={{ ...tdStyle, backgroundColor: "#22222270" }}>{lastestData.기타법인.stockMomentum + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.개인.stockMomentum + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.세력합.stockMomentum + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.외국인.stockMomentum + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.금융투자.stockMomentum + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.보험.stockMomentum + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.투신_일반.stockMomentum + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.기타금융.stockMomentum + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.은행.stockMomentum + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.연기금.stockMomentum + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.투신_사모.stockMomentum + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.국가매집.stockMomentum + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.기타법인.stockMomentum + "%"}</td>
                 </tr>
               </tbody>
             </table>

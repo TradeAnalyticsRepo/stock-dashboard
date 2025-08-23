@@ -28,6 +28,7 @@ export const processingExcelData = async (excelFile, stockName) => {
     })
     return data;
   })
+
   const cumulativeTableData = {
     stockId: stockName,
     processingData: resultData,
@@ -108,7 +109,7 @@ export const processingPeriodTableData = async (stockName, from, to) => {
     __EMPTY_6: data.연기금.tradingVolume,
     __EMPTY_7: data.국가매집.tradingVolume
   }))
-
+  
   const stockListByPeriod = stockDataBeforePeriodProcess(excelData, true);
   const tableData = processingExcelDataForCummulativePeriod(stockListByPeriod, true);
   // const resultData = tableData.map(data => {
@@ -387,7 +388,7 @@ export const stockDataBeforePeriodProcess = (data, isPeriodProcessing = false) =
   /**
    * 기간별 list 잘라서 넣어주기
    */
-  const stockListByPeriod = initStockListByPeriod;
+  const stockListByPeriod = structuredClone(initStockListByPeriod);
   data.forEach((item) => {
     if (stockListByPeriod?.week?.length < 5) {
       stockListByPeriod?.week?.push(item);
@@ -439,7 +440,6 @@ export const stockDataBeforePeriodProcess = (data, isPeriodProcessing = false) =
       nextYear.push(Object.assign({}, item, { tradeDateNm: tradeDateNm }));
     }
   });
-  console.log(stockListByPeriod);
 
   return stockListByPeriod;
 };
@@ -556,17 +556,15 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
         cumulativeData.tradingVolumeEtcFin += data.__EMPTY_5;
         cumulativeData.tradingVolumePens += data.__EMPTY_6;
         cumulativeData.tradingVolumeNat += data.__EMPTY_7;
-
         if (idx + 1 === stockList[key].length) {
           result.push(
             Object.assign({}, cumulativeData, {
               tradeDateNm: data.tradeDateNm,
               avgMount: Math.floor(cumulativeData.avgMount / stockList[key].length),
-              startDt : startDt,
-              endDt: data.일자
+              startDt : startDt.slice(2),
+              endDt: data.일자.slice(2)
             })
           );
-          console.log(result)
         }
       });
     }

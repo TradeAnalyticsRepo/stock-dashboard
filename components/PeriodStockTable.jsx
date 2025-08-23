@@ -27,26 +27,6 @@ const PeriodStockTable = ({ stockName, from, to }) => {
   //   국가매집: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
   //   기타법인: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
   // });
-  useEffect(() => {
-    (async () => {
-      try {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const tableResult = await processingPeriodTableData(stockName, formatDate(from, 'compact'), formatDate(to, 'compact'));
-        
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        // const lastestResult = await useLastestStockData(stockName);
-        
-        setTableData(tableResult);
-        
-
-        // if (lastestResult?.status === 200) {
-        //   setLastestData(lastestResult?.data);
-        // }
-      } catch (error) {
-        console.error(error);
-      }
-    })();
-  }, [stockName]);
 
   useEffect(() => {
     (async () => {
@@ -121,12 +101,12 @@ const PeriodStockTable = ({ stockName, from, to }) => {
     color: "#ccc",
   };
   const thStyle = {
-    padding: "0.5rem 1rem",
+    padding: "0.5rem 1px",
     textAlign: "left",
     whiteSpace: "nowrap",
   };
   const tdStyle = {
-    padding: "0.5rem 1rem",
+    padding: "0.5rem 1px",
     borderTop: "1px solid #333",
     whiteSpace: "nowrap",
   };
@@ -175,7 +155,7 @@ const PeriodStockTable = ({ stockName, from, to }) => {
                   const backgroudColor = (() => {
                     if (row.tradeDateNm.endsWith("주")) {
                       return "#1F7D5370";
-                    } else if (row.tradeDateNm.endsWith("월")) {
+                    } else if (row.tradeDateNm.endsWith("개월")) {
                       return "#255F3870";
                     } else if (row.tradeDateNm.endsWith("분기")) {
                       return "#27391C70";
@@ -194,7 +174,7 @@ const PeriodStockTable = ({ stockName, from, to }) => {
                     <tr key={idx}>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor }}>
                         {row.tradeDateNm}
-                        { row.startDt && <> <br/> <span style={{fontSize: '8px'}}>{`${row.startDt}~${row.endDt}`}</span> </>}
+                        { row.startDt && <span style={{fontSize: '8px'}}>{`${row.endDt}~${row.startDt}`}</span>}
                       </td>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor }}>{formatNumber(row.avgMount)}</td>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor }}>{formatNumber(row.tradingVolume)}</td>
