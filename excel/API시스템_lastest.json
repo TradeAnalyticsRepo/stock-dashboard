@@ -56,7 +56,7 @@
     "stockMomentum": 13,
     "maxColVolume": 731655
   },
-  "투신_일반": {
+  "투신": {
     "tradeDate": "2025/06/05",
     "open": 17120,
     "close": 17030,
@@ -68,7 +68,7 @@
     "stockMomentum": 13,
     "maxColVolume": 724673
   },
-  "투신_사모": {
+  "사모펀드": {
     "tradeDate": "2025/06/05",
     "open": 17120,
     "close": 17030,

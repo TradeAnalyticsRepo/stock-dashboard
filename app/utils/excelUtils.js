@@ -1,12 +1,11 @@
-import { callGetApi, callPostApi } from "./api";
-import * as XLSX from "xlsx";
-
+import { callGetApi, callPostApi } from './api';
+import * as XLSX from 'xlsx';
 
 export const excelFileToJson = async (excelFile) => {
   const arrayBuffer = await excelFile.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
-  const workbook = XLSX.read(buffer, { type: "buffer" });
+  const workbook = XLSX.read(buffer, { type: 'buffer' });
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   return XLSX.utils.sheet_to_json(sheet);
 };
@@ -19,20 +18,20 @@ export const processingExcelData = async (excelFile, stockName) => {
   // 기간별 데이터 추출
   baseDataBeforeProcess.stockListByPeriod = stockDataBeforePeriodProcess(originalData);
   const tableData = processingExcelDataForCummulativePeriod(baseDataBeforeProcess.stockListByPeriod);
-  const resultData = tableData.map(data => {
+  const resultData = tableData.map((data) => {
     const keys = Object.keys(data);
-    keys.forEach(key => {
-      if(key.startsWith('totalPrice')) {
+    keys.forEach((key) => {
+      if (key.startsWith('totalPrice')) {
         data[`avgPrice${key.replace('totalPrice', '')}`] = Math.floor(data[key] / data[`${key.replace('totalPrice', 'tradingVolume')}`]) || 0;
       }
-    })
+    });
     return data;
-  })
+  });
 
   const cumulativeTableData = {
     stockId: stockName,
     processingData: resultData,
-    type: "table",
+    type: 'table',
   };
 
   const reversedOriginalData = originalData.reverse(); // reverse 원본배열 변경
@@ -40,7 +39,7 @@ export const processingExcelData = async (excelFile, stockName) => {
     if (!row.일자) {
       return false;
     }
-    return Number(row.일자.replaceAll("/", "")) >= 20201029;
+    return Number(row.일자.replaceAll('/', '')) >= 20201029;
   });
   // 누적합계, 최고저점, 최고고점 데이터 추출
   baseDataBeforeProcess.cumulativeStockData = stockDataBeforeCumulateProcess(filtered);
@@ -57,8 +56,8 @@ export const processingExcelData = async (excelFile, stockName) => {
   latestGraphData.세력합.stockCorrelation = pearsonCorrelation(stockPriceList, culmulativeList.세력합);
   latestGraphData.외국인.stockCorrelation = pearsonCorrelation(stockPriceList, culmulativeList.외국인);
   latestGraphData.금융투자.stockCorrelation = pearsonCorrelation(stockPriceList, culmulativeList.금융투자);
-  latestGraphData.투신_일반.stockCorrelation = pearsonCorrelation(stockPriceList, culmulativeList.투신_일반);
-  latestGraphData.투신_사모.stockCorrelation = pearsonCorrelation(stockPriceList, culmulativeList.투신_사모);
+  latestGraphData.투신.stockCorrelation = pearsonCorrelation(stockPriceList, culmulativeList.투신);
+  latestGraphData.사모펀드.stockCorrelation = pearsonCorrelation(stockPriceList, culmulativeList.사모펀드);
   latestGraphData.보험.stockCorrelation = pearsonCorrelation(stockPriceList, culmulativeList.보험);
   latestGraphData.기타금융.stockCorrelation = pearsonCorrelation(stockPriceList, culmulativeList.기타금융);
   latestGraphData.연기금.stockCorrelation = pearsonCorrelation(stockPriceList, culmulativeList.연기금);
@@ -68,30 +67,30 @@ export const processingExcelData = async (excelFile, stockName) => {
   const cumulativeGraphData = {
     stockId: stockName,
     processingData: graphProcessingData,
-    type: "graph",
+    type: 'graph',
   };
 
   const cumulativeLastestData = {
     stockId: stockName,
     processingData: latestGraphData,
-    type: "lastest",
+    type: 'lastest',
   };
 
   //   console.log(cumulativeGraphData, cumulativeLastestData);
   // 그래프 json파일 생성
-  await callPostApi("/api/excel", cumulativeGraphData);
-  await callPostApi("/api/excel", cumulativeLastestData);
-  await callPostApi("/api/excel", cumulativeTableData);
+  await callPostApi('/api/excel', cumulativeGraphData);
+  await callPostApi('/api/excel', cumulativeLastestData);
+  await callPostApi('/api/excel', cumulativeTableData);
 };
 
 export const processingPeriodTableData = async (stockName, from, to) => {
-  const { data } = await callGetApi("/api/excel", { stockId: stockName, type: "graph" });
-  const filtered = data.filter(row =>  {
-    const date = row.주가.tradeDate.replaceAll("/", "");
+  const { data } = await callGetApi('/api/excel', { stockId: stockName, type: 'graph' });
+  const filtered = data.filter((row) => {
+    const date = row.주가.tradeDate.replaceAll('/', '');
     return from <= date && date <= to;
-  })
+  });
   filtered.reverse();
-  const excelData = filtered.map(data => ({
+  const excelData = filtered.map((data) => ({
     일자: data.주가.tradeDate,
     종가: data.주가.close,
     거래량: data.주가.tradingVolume,
@@ -101,15 +100,15 @@ export const processingPeriodTableData = async (stockName, from, to) => {
     기관: data.금융투자.tradingVolume,
     기관종합: data.세력합.tradingVolume,
     기타: data.기타법인.tradingVolume,
-    __EMPTY_1: data.투신_일반.tradingVolume,
-    __EMPTY_2: data.투신_사모.tradingVolume,
+    __EMPTY_1: data.투신.tradingVolume,
+    __EMPTY_2: data.사모펀드.tradingVolume,
     __EMPTY_3: data.은행.tradingVolume,
     __EMPTY_4: data.보험.tradingVolume,
     __EMPTY_5: data.기타금융.tradingVolume,
     __EMPTY_6: data.연기금.tradingVolume,
-    __EMPTY_7: data.국가매집.tradingVolume
-  }))
-  
+    __EMPTY_7: data.국가매집.tradingVolume,
+  }));
+
   const stockListByPeriod = stockDataBeforePeriodProcess(excelData, true);
   const tableData = processingExcelDataForCummulativePeriod(stockListByPeriod, true);
   // const resultData = tableData.map(data => {
@@ -123,7 +122,7 @@ export const processingPeriodTableData = async (stockName, from, to) => {
   // })
 
   return tableData;
-}
+};
 
 export const stockDataBeforeCumulateProcess = (data) => {
   const cumulativeStockData = initCumulativeStockData;
@@ -131,7 +130,7 @@ export const stockDataBeforeCumulateProcess = (data) => {
   data.forEach((item) => {
     // 투자자별 누적합계, 최저점, 최고점
     Object.keys(excelEnum).forEach((key) => {
-      if (key === "TotalForeAndInst") {
+      if (key === 'TotalForeAndInst') {
         // 외국인 + 기관
         const cumulativeMount = cumulativeStockData.cumulativeForeMount + cumulativeStockData.cumulativeTotalInsMount;
         cumulativeStockData.cumulativeTotalForeAndInstMount = cumulativeMount;
@@ -186,8 +185,8 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
     세력합: [],
     외국인: [],
     금융투자: [],
-    투신_일반: [],
-    투신_사모: [],
+    투신: [],
+    사모펀드: [],
     은행: [],
     보험: [],
     기타금융: [],
@@ -201,8 +200,8 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
     let sumTotalCollectionVolume = 0;
     Object.keys(excelEnum).forEach((key) => {
       const value = excelEnum[key];
-      if (value === "TotalForeAndInst") {
-        volume.totalForeAndInstCollectionVolume += item["외국인"] + item["기관종합"];
+      if (value === 'TotalForeAndInst') {
+        volume.totalForeAndInstCollectionVolume += item['외국인'] + item['기관종합'];
       } else {
         // 타입 안전하게 접근
         const volKey = `${toCamel(value)}CollectionVolume`;
@@ -276,7 +275,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         maxColVolume: cumulativeStockData.maxFinInvMount - cumulativeStockData.minFinInvMount,
         minColVolume: cumulativeStockData.minFinInvMount,
       },
-      투신_일반: {
+      투신: {
         ...defaultInfo,
         tradingVolume: item.__EMPTY_1,
         stockCorrelation: 0,
@@ -286,7 +285,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         maxColVolume: cumulativeStockData.maxGTrustMount - cumulativeStockData.minGTrustMount,
         minColVolume: cumulativeStockData.minGTrustMount,
       },
-      투신_사모: {
+      사모펀드: {
         ...defaultInfo,
         tradingVolume: item.__EMPTY_2,
         stockCorrelation: 0,
@@ -364,8 +363,8 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
     culmulativeList.세력합.push(volume.totalInsCollectionVolume);
     culmulativeList.외국인.push(volume.foreCollectionVolume);
     culmulativeList.금융투자.push(volume.finInvCollectionVolume);
-    culmulativeList.투신_일반.push(volume.gTrustCollectionVolume);
-    culmulativeList.투신_사모.push(volume.sTrustCollectionVolume);
+    culmulativeList.투신.push(volume.gTrustCollectionVolume);
+    culmulativeList.사모펀드.push(volume.sTrustCollectionVolume);
     culmulativeList.은행.push(volume.bankCollectionVolume);
     culmulativeList.보험.push(volume.insurCollectionVolume);
     culmulativeList.기타금융.push(volume.etcFinCollectionVolume);
@@ -449,7 +448,7 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
   const result = [];
   const keys = Object.keys(stockList ?? {});
   keys.forEach((key) => {
-    if (key === "week") {
+    if (key === 'week') {
       stockList[key].forEach((data) => {
         let resultData = {};
         const baseData = {
@@ -470,30 +469,29 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
           tradingVolumeEtcFin: data.__EMPTY_5,
           tradingVolumePens: data.__EMPTY_6,
           tradingVolumeNat: data.__EMPTY_7,
-        }
+        };
 
-        
-          const appendData = {
-            avgPriceIndiv: Math.floor((data.개인 * data.종가) / data.개인) || 0,
-            avgPriceFore: Math.floor((data.외국인 * data.종가) / data.외국인) || 0,
-            avgPriceTotalIns: Math.floor((data.기관종합 * data.종가) / data.기관종합) || 0,
-            avgPriceFinInv: Math.floor((data.기관 * data.종가) / data.기관) || 0,
-            avgPriceEtc: Math.floor((data.기타 * data.종가) / data.기타) || 0,
-            avgPriceGTrust: Math.floor((data.__EMPTY_1 * data.종가) / data.__EMPTY_1) || 0,
-            avgPriceSTrust: Math.floor((data.__EMPTY_2 * data.종가) / data.__EMPTY_2) || 0,
-            avgPriceBank: Math.floor((data.__EMPTY_3 * data.종가) / data.__EMPTY_3) || 0,
-            avgPriceInsur: Math.floor((data.__EMPTY_4 * data.종가) / data.__EMPTY_4) || 0,
-            avgPriceEtcFin: Math.floor((data.__EMPTY_5 * data.종가) / data.__EMPTY_5) || 0,
-            avgPricePens: Math.floor((data.__EMPTY_6 * data.종가) / data.__EMPTY_6) || 0,
-            avgPriceNat: Math.floor((data.__EMPTY_7 * data.종가) / data.__EMPTY_7) || 0,
-          }
+        const appendData = {
+          avgPriceIndiv: Math.floor((data.개인 * data.종가) / data.개인) || 0,
+          avgPriceFore: Math.floor((data.외국인 * data.종가) / data.외국인) || 0,
+          avgPriceTotalIns: Math.floor((data.기관종합 * data.종가) / data.기관종합) || 0,
+          avgPriceFinInv: Math.floor((data.기관 * data.종가) / data.기관) || 0,
+          avgPriceEtc: Math.floor((data.기타 * data.종가) / data.기타) || 0,
+          avgPriceGTrust: Math.floor((data.__EMPTY_1 * data.종가) / data.__EMPTY_1) || 0,
+          avgPriceSTrust: Math.floor((data.__EMPTY_2 * data.종가) / data.__EMPTY_2) || 0,
+          avgPriceBank: Math.floor((data.__EMPTY_3 * data.종가) / data.__EMPTY_3) || 0,
+          avgPriceInsur: Math.floor((data.__EMPTY_4 * data.종가) / data.__EMPTY_4) || 0,
+          avgPriceEtcFin: Math.floor((data.__EMPTY_5 * data.종가) / data.__EMPTY_5) || 0,
+          avgPricePens: Math.floor((data.__EMPTY_6 * data.종가) / data.__EMPTY_6) || 0,
+          avgPriceNat: Math.floor((data.__EMPTY_7 * data.종가) / data.__EMPTY_7) || 0,
+        };
         resultData = Object.assign({}, baseData, appendData);
-        
+
         result.push(resultData);
       });
     } else {
       const cumulativeData = {
-        tradeDateNm: "",
+        tradeDateNm: '',
         avgMount: 0,
         tradingVolume: 0,
 
@@ -525,9 +523,9 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
         avgPricePens: 0,
         avgPriceNat: 0,
       };
-      let startDt = ''
+      let startDt = '';
       stockList[key].forEach((data, idx) => {
-        if(idx === 0) startDt = data.일자;
+        if (idx === 0) startDt = data.일자;
         cumulativeData.avgMount += data.종가;
         cumulativeData.tradingVolume += data.거래량;
         setAvgPrice(cumulativeData, data, '개인', 'Indiv');
@@ -561,8 +559,8 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
             Object.assign({}, cumulativeData, {
               tradeDateNm: data.tradeDateNm,
               avgMount: Math.floor(cumulativeData.avgMount / stockList[key].length),
-              startDt : startDt.slice(2),
-              endDt: data.일자.slice(2)
+              startDt: startDt.slice(2),
+              endDt: data.일자.slice(2),
             })
           );
         }
@@ -573,31 +571,34 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
 };
 
 const setAvgPrice = (cumulativeData, data, krKey, enKey) => {
-  if(data[krKey] > 0 && cumulativeData[`tradingVolume${enKey}`] >= 0) {
-    cumulativeData[`avgPrice${enKey}`] = Math.floor(((cumulativeData[`avgPrice${enKey}`] * cumulativeData[`tradingVolume${enKey}`]) + (data[krKey] * data.종가)) / (cumulativeData[`tradingVolume${enKey}`] + data[krKey]));
-  } else if( data[krKey] > 0 && cumulativeData[`tradingVolume${enKey}`] < 0) {
+  if (data[krKey] > 0 && cumulativeData[`tradingVolume${enKey}`] >= 0) {
+    cumulativeData[`avgPrice${enKey}`] = Math.floor(
+      (cumulativeData[`avgPrice${enKey}`] * cumulativeData[`tradingVolume${enKey}`] + data[krKey] * data.종가) /
+        (cumulativeData[`tradingVolume${enKey}`] + data[krKey])
+    );
+  } else if (data[krKey] > 0 && cumulativeData[`tradingVolume${enKey}`] < 0) {
     cumulativeData[`avgPrice${enKey}`] = data.종가;
   }
-}
+};
 
 const calcPercent = (num1, num2) => Math.floor((num1 / num2) * 100) || 0;
 const toCamel = (str) => str[0].toLowerCase() + str.slice(1);
 
 // excelEnum 정의 추가 (원본에서 import 되는 것으로 보임)
 const excelEnum = {
-  개인: "Indiv",
-  외국인: "Fore",
-  기관: "FinInv",
-  기관종합: "TotalIns",
-  기타: "Etc",
-  __EMPTY_1: "GTrust",
-  __EMPTY_2: "STrust",
-  __EMPTY_3: "Bank",
-  __EMPTY_4: "Insur",
-  __EMPTY_5: "EtcFin",
-  __EMPTY_6: "Pens",
-  __EMPTY_7: "Nat",
-  TotalForeAndInst: "TotalForeAndInst",
+  개인: 'Indiv',
+  외국인: 'Fore',
+  기관: 'FinInv',
+  기관종합: 'TotalIns',
+  기타: 'Etc',
+  __EMPTY_1: 'GTrust',
+  __EMPTY_2: 'STrust',
+  __EMPTY_3: 'Bank',
+  __EMPTY_4: 'Insur',
+  __EMPTY_5: 'EtcFin',
+  __EMPTY_6: 'Pens',
+  __EMPTY_7: 'Nat',
+  TotalForeAndInst: 'TotalForeAndInst',
 };
 
 const initCumulativeStockData = {
@@ -695,7 +696,7 @@ const initStockListByPeriod = {
 /** 상관계수 */
 function pearsonCorrelation(x, y) {
   if (x.length !== y.length) {
-    throw new Error("입력 데이터의 길이가 같아야 합니다.");
+    throw new Error('입력 데이터의 길이가 같아야 합니다.');
   }
 
   const n = x.length;
