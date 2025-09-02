@@ -490,6 +490,7 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
         result.push(resultData);
       });
     } else {
+      stockList[key].reverse();
       const cumulativeData = {
         tradeDateNm: '',
         avgMount: 0,
@@ -508,6 +509,19 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
         tradingVolumeEtcFin: 0,
         tradingVolumePens: 0,
         tradingVolumeNat: 0,
+
+        calculVolumeIndiv: 0,
+        calculVolumeFore: 0,
+        calculVolumeTotalIns: 0,
+        calculVolumeFinInv: 0,
+        calculVolumeEtc: 0,
+        calculVolumeGTrust: 0,
+        calculVolumeSTrust: 0,
+        calculVolumeBank: 0,
+        calculVolumeInsur: 0,
+        calculVolumeEtcFin: 0,
+        calculVolumePens: 0,
+        calculVolumeNat: 0,
 
         avgPriceIndiv: 0,
         avgPriceTotalForeAndInst: 0,
@@ -530,16 +544,31 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
         cumulativeData.tradingVolume += data.거래량;
         setAvgPrice(cumulativeData, data, '개인', 'Indiv');
         setAvgPrice(cumulativeData, data, '외국인', 'Fore');
+        
         setAvgPrice(cumulativeData, data, '기관종합', 'TotalIns');
         setAvgPrice(cumulativeData, data, '기관', 'FinInv');
         setAvgPrice(cumulativeData, data, '기타', 'Etc');
         setAvgPrice(cumulativeData, data, '__EMPTY_1', 'GTrust');
-        setAvgPrice(cumulativeData, data, '__EMPTY_2', 'STrust');
+        const test = setAvgPrice(cumulativeData, data, '__EMPTY_2', 'STrust');
+        if(key === 'week3') console.log(test);
         setAvgPrice(cumulativeData, data, '__EMPTY_3', 'Bank');
         setAvgPrice(cumulativeData, data, '__EMPTY_4', 'Insur');
         setAvgPrice(cumulativeData, data, '__EMPTY_5', 'EtcFin');
         setAvgPrice(cumulativeData, data, '__EMPTY_6', 'Pens');
         setAvgPrice(cumulativeData, data, '__EMPTY_7', 'Nat');
+
+        cumulativeData.calculVolumeIndiv += data.개인;
+        cumulativeData.calculVolumeFore += data.외국인;
+        cumulativeData.calculVolumeTotalIns += data.기관종합;
+        cumulativeData.calculVolumeFinInv += data.기관;
+        cumulativeData.calculVolumeEtc += data.기타;
+        cumulativeData.calculVolumeGTrust += data.__EMPTY_1;
+        const test2 = cumulativeData.calculVolumeSTrust += data.__EMPTY_2;
+        cumulativeData.calculVolumeBank += data.__EMPTY_3;
+        cumulativeData.calculVolumeInsur += data.__EMPTY_4;
+        cumulativeData.calculVolumeEtcFin += data.__EMPTY_5;
+        cumulativeData.calculVolumePens += data.__EMPTY_6;
+        cumulativeData.calculVolumeNat += data.__EMPTY_7;
 
         cumulativeData.tradingVolumeIndiv += data.개인;
         cumulativeData.tradingVolumeTotalForeAndInst += data.외국인 + data.기관종합;
@@ -554,6 +583,14 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
         cumulativeData.tradingVolumeEtcFin += data.__EMPTY_5;
         cumulativeData.tradingVolumePens += data.__EMPTY_6;
         cumulativeData.tradingVolumeNat += data.__EMPTY_7;
+
+        Object.values(excelEnum).forEach(value => {
+          if(cumulativeData[`calculVolume${value}`] < 0) {
+            if(key === 'week3') console.log(value);
+            cumulativeData[`calculVolume${value}`] = 0;
+          }
+        })
+        if(key === 'week3') console.log(cumulativeData, test, test2);
         if (idx + 1 === stockList[key].length) {
           result.push(
             Object.assign({}, cumulativeData, {
@@ -571,15 +608,17 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
 };
 
 const setAvgPrice = (cumulativeData, data, krKey, enKey) => {
-  if (data[krKey] > 0 && cumulativeData[`tradingVolume${enKey}`] >= 0) {
+  if (data[krKey] > 0 && cumulativeData[`calculVolume${enKey}`] >= 0) {
     cumulativeData[`avgPrice${enKey}`] = Math.floor(
-      (cumulativeData[`avgPrice${enKey}`] * cumulativeData[`tradingVolume${enKey}`] + data[krKey] * data.종가) /
-        (cumulativeData[`tradingVolume${enKey}`] + data[krKey])
+      (cumulativeData[`avgPrice${enKey}`] * cumulativeData[`calculVolume${enKey}`] + data[krKey] * data.종가) /
+        (cumulativeData[`calculVolume${enKey}`] + data[krKey])
     );
-  } else if (data[krKey] > 0 && cumulativeData[`tradingVolume${enKey}`] < 0) {
+  } else if (data[krKey] > 0 && cumulativeData[`calculVolume${enKey}`] < 0) {
     cumulativeData[`avgPrice${enKey}`] = data.종가;
   }
+  return cumulativeData[`avgPrice${enKey}`];
 };
+
 
 const calcPercent = (num1, num2) => Math.floor((num1 / num2) * 100) || 0;
 const toCamel = (str) => str[0].toLowerCase() + str.slice(1);
