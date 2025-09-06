@@ -21,8 +21,8 @@ export const processingExcelData = async (excelFile, stockName) => {
   const resultData = tableData.map((data) => {
     const keys = Object.keys(data);
     keys.forEach((key) => {
-      if (key.startsWith('totalPrice')) {
-        data[`avgPrice${key.replace('totalPrice', '')}`] = Math.floor(data[key] / data[`${key.replace('totalPrice', 'tradingVolume')}`]) || 0;
+      if (key.startsWith('avgPrice')) {
+        data[key] = Math.floor(data[key]) || 0;
       }
     });
     return data;
@@ -111,17 +111,17 @@ export const processingPeriodTableData = async (stockName, from, to) => {
 
   const stockListByPeriod = stockDataBeforePeriodProcess(excelData, true);
   const tableData = processingExcelDataForCummulativePeriod(stockListByPeriod, true);
-  // const resultData = tableData.map(data => {
-  //   const keys = Object.keys(data);
-  //   keys.forEach(key => {
-  //     if(key.startsWith('totalPrice')) {
-  //       data[`avgPrice${key.replace('totalPrice', '')}`] = Math.floor(data[key] / data[`${key.replace('totalPrice', 'tradingVolume')}`]) || 0;
-  //     }
-  //   })
-  //   return data;
-  // })
+  const resultData = tableData.map((data) => {
+    const keys = Object.keys(data);
+    keys.forEach((key) => {
+      if (key.startsWith('avgPrice')) {
+        data[key] = Math.floor(data[key]) || 0;
+      }
+    });
+    return data;
+  });
 
-  return tableData;
+  return resultData;
 };
 
 export const stockDataBeforeCumulateProcess = (data) => {
@@ -544,13 +544,11 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
         cumulativeData.tradingVolume += data.거래량;
         setAvgPrice(cumulativeData, data, '개인', 'Indiv');
         setAvgPrice(cumulativeData, data, '외국인', 'Fore');
-        
         setAvgPrice(cumulativeData, data, '기관종합', 'TotalIns');
         setAvgPrice(cumulativeData, data, '기관', 'FinInv');
         setAvgPrice(cumulativeData, data, '기타', 'Etc');
         setAvgPrice(cumulativeData, data, '__EMPTY_1', 'GTrust');
-        const test = setAvgPrice(cumulativeData, data, '__EMPTY_2', 'STrust');
-        if(key === 'week3') console.log(test);
+        setAvgPrice(cumulativeData, data, '__EMPTY_2', 'STrust');
         setAvgPrice(cumulativeData, data, '__EMPTY_3', 'Bank');
         setAvgPrice(cumulativeData, data, '__EMPTY_4', 'Insur');
         setAvgPrice(cumulativeData, data, '__EMPTY_5', 'EtcFin');
@@ -563,7 +561,7 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
         cumulativeData.calculVolumeFinInv += data.기관;
         cumulativeData.calculVolumeEtc += data.기타;
         cumulativeData.calculVolumeGTrust += data.__EMPTY_1;
-        const test2 = cumulativeData.calculVolumeSTrust += data.__EMPTY_2;
+        cumulativeData.calculVolumeSTrust += data.__EMPTY_2;
         cumulativeData.calculVolumeBank += data.__EMPTY_3;
         cumulativeData.calculVolumeInsur += data.__EMPTY_4;
         cumulativeData.calculVolumeEtcFin += data.__EMPTY_5;
@@ -584,13 +582,13 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
         cumulativeData.tradingVolumePens += data.__EMPTY_6;
         cumulativeData.tradingVolumeNat += data.__EMPTY_7;
 
+        // 계산 누적수량이 음수인경우 0으로 변환
         Object.values(excelEnum).forEach(value => {
           if(cumulativeData[`calculVolume${value}`] < 0) {
-            if(key === 'week3') console.log(value);
             cumulativeData[`calculVolume${value}`] = 0;
           }
-        })
-        if(key === 'week3') console.log(cumulativeData, test, test2);
+        });
+
         if (idx + 1 === stockList[key].length) {
           result.push(
             Object.assign({}, cumulativeData, {
@@ -608,11 +606,11 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
 };
 
 const setAvgPrice = (cumulativeData, data, krKey, enKey) => {
+  const floorTo5 = (num) => Math.floor(num * 1e4) / 1e4;
   if (data[krKey] > 0 && cumulativeData[`calculVolume${enKey}`] >= 0) {
-    cumulativeData[`avgPrice${enKey}`] = Math.floor(
+    cumulativeData[`avgPrice${enKey}`] = floorTo5(
       (cumulativeData[`avgPrice${enKey}`] * cumulativeData[`calculVolume${enKey}`] + data[krKey] * data.종가) /
-        (cumulativeData[`calculVolume${enKey}`] + data[krKey])
-    );
+        (cumulativeData[`calculVolume${enKey}`] + data[krKey]))
   } else if (data[krKey] > 0 && cumulativeData[`calculVolume${enKey}`] < 0) {
     cumulativeData[`avgPrice${enKey}`] = data.종가;
   }
