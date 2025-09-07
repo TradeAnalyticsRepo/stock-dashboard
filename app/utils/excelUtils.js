@@ -424,7 +424,7 @@ export const stockDataBeforePeriodProcess = (data, isPeriodProcessing = false) =
         quarterList.push(Object.assign({}, item, { tradeDateNm: tradeDateNm }));
       } else {
         const nextQuarter = stockListByPeriod[`quarter${++quarter}`] || [];
-        const tradeDateNm = `${month}분기`;
+        const tradeDateNm = `${quarter}분기`;
         nextQuarter.push(Object.assign({}, item, { tradeDateNm: tradeDateNm }));
       }
     }
