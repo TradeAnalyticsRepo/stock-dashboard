@@ -151,8 +151,8 @@ const StockTable = ({ stockName }) => {
                         {formatNumber(row.tradingVolumeIndiv)}
                         <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceIndiv)})`}</span>
                       </td>
-                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeTotalIns) }}>
-                        {formatNumber(row.tradingVolumeTotalIns)}
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeTotalForeAndInst) }}>
+                        {formatNumber(row.tradingVolumeTotalForeAndInst)}
                       </td>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeFore) }}>
                         {formatNumber(row.tradingVolumeFore)}
