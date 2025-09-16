@@ -14,9 +14,15 @@ export const processingExcelData = async (excelFile, stockName) => {
   const originalData = await excelFileToJson(excelFile);
   // 명칭줄(첫밴째 인덱스) 제거
   originalData.shift();
+  const filtered = originalData.filter((row) => {
+    if (!row.일자) {
+      return false;
+    }
+    return Number(row.일자.replaceAll('/', '')) >= 20201029;
+  });
   const baseDataBeforeProcess = {};
   // 기간별 데이터 추출
-  baseDataBeforeProcess.stockListByPeriod = stockDataBeforePeriodProcess(originalData);
+  baseDataBeforeProcess.stockListByPeriod = stockDataBeforePeriodProcess(filtered);
   const tableData = processingExcelDataForCummulativePeriod(baseDataBeforeProcess.stockListByPeriod);
   const resultData = tableData.map((data) => {
     const keys = Object.keys(data);
@@ -34,19 +40,14 @@ export const processingExcelData = async (excelFile, stockName) => {
     type: 'table',
   };
 
-  const reversedOriginalData = originalData.reverse(); // reverse 원본배열 변경
-  const filtered = reversedOriginalData.filter((row) => {
-    if (!row.일자) {
-      return false;
-    }
-    return Number(row.일자.replaceAll('/', '')) >= 20201029;
-  });
+  const reversedFiltered = filtered.reverse(); // reverse 원본배열 변경
+  
   // 누적합계, 최고저점, 최고고점 데이터 추출
-  baseDataBeforeProcess.cumulativeStockData = stockDataBeforeCumulateProcess(filtered);
+  baseDataBeforeProcess.cumulativeStockData = stockDataBeforeCumulateProcess(reversedFiltered);
 
   // 누적합계, 주가선도 등 데이터 가공작업
   const { graphProcessingData, stockPriceList, culmulativeList } = processingExcelDataForCummulativeGraph(
-    filtered,
+    reversedFiltered,
     baseDataBeforeProcess.cumulativeStockData
   );
 
