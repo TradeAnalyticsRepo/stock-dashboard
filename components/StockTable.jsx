@@ -9,6 +9,7 @@ const StockTable = ({ stockName }) => {
   const [lastestData, setLastestData] = useState({
     개인: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
     세력합: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
+    기관종합: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
     외국인: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
     금융투자: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
     보험: { collectionVolume: 0, stockCorrelation: 0, maxColVolume: 0, minColVolume: 0, dispersionRatio: 0, stockMomentum: 0 },
@@ -104,6 +105,7 @@ const StockTable = ({ stockName }) => {
                     "개인",
                     "세력합",
                     "외국인",
+                    "기관종합",
                     "금융투자",
                     "보험",
                     "투신",
@@ -158,6 +160,9 @@ const StockTable = ({ stockName }) => {
                         {formatNumber(row.tradingVolumeFore)}
                         <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceFore)})`}</span>
                       </td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeTotalIns) }}>
+                        {formatNumber(row.tradingVolumeTotalIns)}
+                      </td>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeFinInv) }}>
                         {formatNumber(row.tradingVolumeFinInv)}
                         <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceFinInv)})`}</span>
@@ -204,6 +209,7 @@ const StockTable = ({ stockName }) => {
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.개인.collectionVolume)}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.세력합.collectionVolume)}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.외국인.collectionVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.기관종합.collectionVolume)}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.금융투자.collectionVolume)}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.보험.collectionVolume)}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.투신.collectionVolume)}</td>
@@ -221,6 +227,7 @@ const StockTable = ({ stockName }) => {
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.개인.stockCorrelation}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.세력합.stockCorrelation}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.외국인.stockCorrelation}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.기관종합.stockCorrelation}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.금융투자.stockCorrelation}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.보험.stockCorrelation}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.투신.stockCorrelation}</td>
@@ -238,6 +245,7 @@ const StockTable = ({ stockName }) => {
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.개인.maxColVolume)}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.세력합.maxColVolume)}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.외국인.maxColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.기관종합.maxColVolume)}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.금융투자.maxColVolume)}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.보험.maxColVolume)}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.투신.maxColVolume)}</td>
@@ -255,6 +263,7 @@ const StockTable = ({ stockName }) => {
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.개인.minColVolume)}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.세력합.minColVolume)}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.외국인.minColVolume)}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.기관종합.minColVolume)}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.금융투자.minColVolume)}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.보험.minColVolume)}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{formatNumber(lastestData.투신.minColVolume)}</td>
@@ -272,6 +281,7 @@ const StockTable = ({ stockName }) => {
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.개인.dispersionRatio + "%"}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.세력합.dispersionRatio + "%"}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.외국인.dispersionRatio + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.기관종합.dispersionRatio + "%"}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.금융투자.dispersionRatio + "%"}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.보험.dispersionRatio + "%"}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.투신.dispersionRatio + "%"}</td>
@@ -289,6 +299,7 @@ const StockTable = ({ stockName }) => {
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.개인.stockMomentum + "%"}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.세력합.stockMomentum + "%"}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.외국인.stockMomentum + "%"}</td>
+                  <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.기관종합.stockMomentum + "%"}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.금융투자.stockMomentum + "%"}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.보험.stockMomentum + "%"}</td>
                   <td style={{ ...tdStyle, textAlign:'center', backgroundColor: "#22222270" }}>{lastestData.투신.stockMomentum + "%"}</td>

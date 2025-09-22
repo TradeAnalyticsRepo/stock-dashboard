@@ -44,7 +44,6 @@ export const processingExcelData = async (excelFile, stockName) => {
   
   // 누적합계, 최고저점, 최고고점 데이터 추출
   baseDataBeforeProcess.cumulativeStockData = stockDataBeforeCumulateProcess(reversedFiltered);
-
   // 누적합계, 주가선도 등 데이터 가공작업
   const { graphProcessingData, stockPriceList, culmulativeList } = processingExcelDataForCummulativeGraph(
     reversedFiltered,
@@ -55,6 +54,7 @@ export const processingExcelData = async (excelFile, stockName) => {
   const latestGraphData = graphProcessingData[graphProcessingData.length - 1];
   latestGraphData.개인.stockCorrelation = pearsonCorrelation(stockPriceList, culmulativeList.개인);
   latestGraphData.세력합.stockCorrelation = pearsonCorrelation(stockPriceList, culmulativeList.세력합);
+  latestGraphData.기관종합.stockCorrelation = pearsonCorrelation(stockPriceList, culmulativeList.기관종합);
   latestGraphData.외국인.stockCorrelation = pearsonCorrelation(stockPriceList, culmulativeList.외국인);
   latestGraphData.금융투자.stockCorrelation = pearsonCorrelation(stockPriceList, culmulativeList.금융투자);
   latestGraphData.투신.stockCorrelation = pearsonCorrelation(stockPriceList, culmulativeList.투신);
@@ -99,7 +99,7 @@ export const processingPeriodTableData = async (stockName, from, to) => {
     개인: data.개인.tradingVolume,
     외국인: data.외국인.tradingVolume,
     기관: data.금융투자.tradingVolume,
-    기관종합: data.세력합.tradingVolume,
+    기관종합: data.기관종합.tradingVolume,
     기타: data.기타법인.tradingVolume,
     __EMPTY_1: data.투신.tradingVolume,
     __EMPTY_2: data.사모펀드.tradingVolume,
@@ -132,8 +132,8 @@ export const stockDataBeforeCumulateProcess = (data) => {
     // 투자자별 누적합계, 최저점, 최고점
     Object.keys(excelEnum).forEach((key) => {
       if (key === 'TotalForeAndInst') {
-        // 외국인 + 기관
-        const cumulativeMount = cumulativeStockData.cumulativeForeMount + cumulativeStockData.cumulativeTotalInsMount;
+        // 외국인 + 기관 + 기타법인
+        const cumulativeMount = cumulativeStockData.cumulativeForeMount + cumulativeStockData.cumulativeTotalInsMount + cumulativeStockData.cumulativeEtcMount;
         cumulativeStockData.cumulativeTotalForeAndInstMount = cumulativeMount;
 
         if (cumulativeStockData.minTotalForeAndInstMount > cumulativeMount) {
@@ -184,6 +184,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
   const culmulativeList = {
     개인: [],
     세력합: [],
+    기관종합: [],
     외국인: [],
     금융투자: [],
     투신: [],
@@ -202,7 +203,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
     Object.keys(excelEnum).forEach((key) => {
       const value = excelEnum[key];
       if (value === 'TotalForeAndInst') {
-        volume.totalForeAndInstCollectionVolume += item['외국인'] + item['기관종합'];
+        volume.totalForeAndInstCollectionVolume += item['외국인'] + item['기관종합'] + item['기타'];
       } else {
         // 타입 안전하게 접근
         const volKey = `${toCamel(value)}CollectionVolume`;
@@ -234,7 +235,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         ...defaultInfo,
         tradingVolume: item.개인,
         stockCorrelation: 0,
-        collectionVolume: volume.indivCollectionVolume,
+        collectionVolume: volume.indivCollectionVolume + cumulativeStockData.minIndivMount,
         dispersionRatio: calcPercent(volume.indivCollectionVolume, cumulativeStockData.maxIndivMount - cumulativeStockData.minIndivMount),
         stockMomentum: calcPercent(cumulativeStockData.maxIndivMount - cumulativeStockData.minIndivMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxIndivMount - cumulativeStockData.minIndivMount,
@@ -242,9 +243,9 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
       },
       세력합: {
         ...defaultInfo,
-        tradingVolume: item.외국인 + item.기관종합,
+        tradingVolume: item.외국인 + item.기관종합 + item.기타,
         stockCorrelation: 0,
-        collectionVolume: volume.totalForeAndInstCollectionVolume,
+        collectionVolume: volume.totalForeAndInstCollectionVolume + cumulativeStockData.minTotalForeAndInstMount,
         dispersionRatio: calcPercent(
           volume.totalForeAndInstCollectionVolume,
           cumulativeStockData.maxTotalForeAndInstMount - cumulativeStockData.minTotalForeAndInstMount
@@ -256,11 +257,21 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         maxColVolume: cumulativeStockData.maxTotalForeAndInstMount - cumulativeStockData.minTotalForeAndInstMount,
         minColVolume: cumulativeStockData.minTotalForeAndInstMount,
       },
+      기관종합: {
+        ...defaultInfo,
+        tradingVolume: item.기관종합,
+        stockCorrelation: 0,
+        collectionVolume: volume.totalInsCollectionVolume + cumulativeStockData.minTotalInsMount,
+        dispersionRatio: calcPercent(volume.totalInsCollectionVolume, cumulativeStockData.maxTotalInsMount - cumulativeStockData.minTotalInsMount),
+        stockMomentum: calcPercent(cumulativeStockData.maxTotalInsMount - cumulativeStockData.minTotalInsMount, sumTotalCollectionVolume),
+        maxColVolume: cumulativeStockData.maxTotalInsMount - cumulativeStockData.minTotalInsMount,
+        minColVolume: cumulativeStockData.minTotalInsMount,
+      },
       외국인: {
         ...defaultInfo,
         tradingVolume: item.외국인,
         stockCorrelation: 0,
-        collectionVolume: volume.foreCollectionVolume,
+        collectionVolume: volume.foreCollectionVolume + cumulativeStockData.minForeMount,
         dispersionRatio: calcPercent(volume.foreCollectionVolume, cumulativeStockData.maxForeMount - cumulativeStockData.minForeMount),
         stockMomentum: calcPercent(cumulativeStockData.maxForeMount - cumulativeStockData.minForeMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxForeMount - cumulativeStockData.minForeMount,
@@ -270,7 +281,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         ...defaultInfo,
         tradingVolume: item.기관,
         stockCorrelation: 0,
-        collectionVolume: volume.finInvCollectionVolume,
+        collectionVolume: volume.finInvCollectionVolume + cumulativeStockData.minFinInvMount,
         dispersionRatio: calcPercent(volume.finInvCollectionVolume, cumulativeStockData.maxFinInvMount - cumulativeStockData.minFinInvMount),
         stockMomentum: calcPercent(cumulativeStockData.maxFinInvMount - cumulativeStockData.minFinInvMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxFinInvMount - cumulativeStockData.minFinInvMount,
@@ -280,7 +291,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         ...defaultInfo,
         tradingVolume: item.__EMPTY_1,
         stockCorrelation: 0,
-        collectionVolume: volume.gTrustCollectionVolume,
+        collectionVolume: volume.gTrustCollectionVolume + cumulativeStockData.minGTrustMount,
         dispersionRatio: calcPercent(volume.gTrustCollectionVolume, cumulativeStockData.maxGTrustMount - cumulativeStockData.minGTrustMount),
         stockMomentum: calcPercent(cumulativeStockData.maxGTrustMount - cumulativeStockData.minGTrustMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxGTrustMount - cumulativeStockData.minGTrustMount,
@@ -290,7 +301,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         ...defaultInfo,
         tradingVolume: item.__EMPTY_2,
         stockCorrelation: 0,
-        collectionVolume: volume.sTrustCollectionVolume,
+        collectionVolume: volume.sTrustCollectionVolume + cumulativeStockData.minSTrustMount,
         dispersionRatio: calcPercent(volume.sTrustCollectionVolume, cumulativeStockData.maxSTrustMount - cumulativeStockData.minSTrustMount),
         stockMomentum: calcPercent(cumulativeStockData.maxSTrustMount - cumulativeStockData.minSTrustMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxSTrustMount - cumulativeStockData.minSTrustMount,
@@ -300,7 +311,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         ...defaultInfo,
         tradingVolume: item.__EMPTY_3,
         stockCorrelation: 0,
-        collectionVolume: volume.bankCollectionVolume,
+        collectionVolume: volume.bankCollectionVolume + cumulativeStockData.minBankMount,
         dispersionRatio: calcPercent(volume.bankCollectionVolume, cumulativeStockData.maxBankMount - cumulativeStockData.minBankMount),
         stockMomentum: calcPercent(cumulativeStockData.maxBankMount - cumulativeStockData.minBankMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxBankMount - cumulativeStockData.minBankMount,
@@ -310,7 +321,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         ...defaultInfo,
         tradingVolume: item.__EMPTY_4,
         stockCorrelation: 0,
-        collectionVolume: volume.insurCollectionVolume,
+        collectionVolume: volume.insurCollectionVolume + cumulativeStockData.minInsurMount,
         dispersionRatio: calcPercent(volume.insurCollectionVolume, cumulativeStockData.maxInsurMount - cumulativeStockData.minInsurMount),
         stockMomentum: calcPercent(cumulativeStockData.maxInsurMount - cumulativeStockData.minInsurMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxInsurMount - cumulativeStockData.minInsurMount,
@@ -320,7 +331,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         ...defaultInfo,
         tradingVolume: item.__EMPTY_5,
         stockCorrelation: 0,
-        collectionVolume: volume.etcFinCollectionVolume,
+        collectionVolume: volume.etcFinCollectionVolume + cumulativeStockData.minEtcFinMount,
         dispersionRatio: calcPercent(volume.etcFinCollectionVolume, cumulativeStockData.maxEtcFinMount - cumulativeStockData.minEtcFinMount),
         stockMomentum: calcPercent(cumulativeStockData.maxEtcFinMount - cumulativeStockData.minEtcFinMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxEtcFinMount - cumulativeStockData.minEtcFinMount,
@@ -330,7 +341,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         ...defaultInfo,
         tradingVolume: item.__EMPTY_6,
         stockCorrelation: 0,
-        collectionVolume: volume.pensCollectionVolume,
+        collectionVolume: volume.pensCollectionVolume + cumulativeStockData.minPensMount,
         dispersionRatio: calcPercent(volume.pensCollectionVolume, cumulativeStockData.maxPensMount - cumulativeStockData.minPensMount),
         stockMomentum: calcPercent(cumulativeStockData.maxPensMount - cumulativeStockData.minPensMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxPensMount - cumulativeStockData.minPensMount,
@@ -340,7 +351,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         ...defaultInfo,
         tradingVolume: item.__EMPTY_7,
         stockCorrelation: 0,
-        collectionVolume: volume.natCollectionVolume,
+        collectionVolume: volume.natCollectionVolume + cumulativeStockData.minNatMount,
         dispersionRatio: calcPercent(volume.natCollectionVolume, cumulativeStockData.maxNatMount - cumulativeStockData.minNatMount),
         stockMomentum: calcPercent(cumulativeStockData.maxNatMount - cumulativeStockData.minNatMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxNatMount - cumulativeStockData.minNatMount,
@@ -351,7 +362,7 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
         ...defaultInfo,
         tradingVolume: item.기타,
         stockCorrelation: 0,
-        collectionVolume: volume.etcCollectionVolume,
+        collectionVolume: volume.etcCollectionVolume + cumulativeStockData.minEtcMount,
         dispersionRatio: calcPercent(volume.etcCollectionVolume, cumulativeStockData.maxEtcMount - cumulativeStockData.minEtcMount),
         stockMomentum: calcPercent(cumulativeStockData.maxEtcMount - cumulativeStockData.minEtcMount, sumTotalCollectionVolume),
         maxColVolume: cumulativeStockData.maxEtcMount - cumulativeStockData.minEtcMount,
@@ -361,7 +372,8 @@ export const processingExcelDataForCummulativeGraph = (data, cumulativeStockData
 
     stockPriceList.push(item.종가);
     culmulativeList.개인.push(volume.indivCollectionVolume);
-    culmulativeList.세력합.push(volume.totalInsCollectionVolume);
+    culmulativeList.세력합.push(volume.totalForeAndInstCollectionVolume);
+    culmulativeList.기관종합.push(volume.totalInsCollectionVolume);
     culmulativeList.외국인.push(volume.foreCollectionVolume);
     culmulativeList.금융투자.push(volume.finInvCollectionVolume);
     culmulativeList.투신.push(volume.gTrustCollectionVolume);
@@ -448,6 +460,7 @@ export const stockDataBeforePeriodProcess = (data, isPeriodProcessing = false) =
 export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg = false) => {
   const result = [];
   const keys = Object.keys(stockList ?? {});
+  
   keys.forEach((key) => {
     if (key === 'week') {
       stockList[key].forEach((data) => {
@@ -458,7 +471,7 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
           tradingVolume: data.거래량,
 
           tradingVolumeIndiv: data.개인,
-          tradingVolumeTotalForeAndInst: data.외국인 + data.기관종합,
+          tradingVolumeTotalForeAndInst: data.외국인 + data.기관종합 + data.기타,
           tradingVolumeFore: data.외국인,
           tradingVolumeTotalIns: data.기관종합,
           tradingVolumeFinInv: data.기관,
@@ -570,7 +583,7 @@ export const processingExcelDataForCummulativePeriod = (stockList, setPriceAvg =
         cumulativeData.calculVolumeNat += data.__EMPTY_7;
 
         cumulativeData.tradingVolumeIndiv += data.개인;
-        cumulativeData.tradingVolumeTotalForeAndInst += data.외국인 + data.기관종합;
+        cumulativeData.tradingVolumeTotalForeAndInst += data.외국인 + data.기관종합 + data.기타;
         cumulativeData.tradingVolumeFore += data.외국인;
         cumulativeData.tradingVolumeTotalIns += data.기관종합;
         cumulativeData.tradingVolumeFinInv += data.기관;

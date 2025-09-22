@@ -135,6 +135,7 @@ const PeriodStockTable = ({ stockName, from, to }) => {
                     "개인",
                     "세력합",
                     "외국인",
+                    "기관종합",
                     "금융투자",
                     "보험",
                     "투신",
@@ -182,13 +183,17 @@ const PeriodStockTable = ({ stockName, from, to }) => {
                         <span>{formatNumber(row.tradingVolumeIndiv)}</span>
                         <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceIndiv)})`}</span>
                       </td>
-                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeTotalIns) }}>
-                        {formatNumber(row.tradingVolumeTotalIns)}
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeTotalForeAndInst) }}>
+                        {formatNumber(row.tradingVolumeTotalForeAndInst)}
                         {/* <span style={{color: '#fff'}}>{` (${formatNumber(tradingVolumeTotalIns)})`}</span> */}
                       </td>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeFore) }}>
                         {formatNumber(row.tradingVolumeFore)}
-                        <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceFore)})`}</span>
+                      ß  <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceFore)})`}</span>
+                      </td>
+                      <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeTotalIns) }}>
+                        {formatNumber(row.tradingVolumeTotalIns)}
+                        {/* <span style={{color: '#fff'}}>{` (${formatNumber(tradingVolumeTotalIns)})`}</span> */}
                       </td>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeFinInv) }}>
                         {formatNumber(row.tradingVolumeFinInv)}
