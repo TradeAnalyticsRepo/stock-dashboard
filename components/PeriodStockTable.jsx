@@ -189,7 +189,7 @@ const PeriodStockTable = ({ stockName, from, to }) => {
                       </td>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeFore) }}>
                         {formatNumber(row.tradingVolumeFore)}
-                      ß  <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceFore)})`}</span>
+                        <span style={{color: '#fff'}}>{` (${formatNumber(row.avgPriceFore)})`}</span>
                       </td>
                       <td style={{ ...tdStyle, backgroundColor: backgroudColor, color: color(row.tradingVolumeTotalIns) }}>
                         {formatNumber(row.tradingVolumeTotalIns)}
